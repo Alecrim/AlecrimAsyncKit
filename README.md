@@ -36,8 +36,8 @@ Or:
 
 ```swift
 do {
-    let i = try await { asyncDoSomethingInBackground() }
-    print(i)
+    let result = try await { asyncDoSomethingInBackground() }
+    print(result)
 }
 catch let error {
     print(error)
