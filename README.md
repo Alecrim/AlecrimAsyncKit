@@ -3,7 +3,7 @@ Bringing async and await to Swift world with some flavouring.
 
 ## Getting Started
 
-### Very initial WIP. Docs will be here soon.
+Very initial WIP. Docs will be here soon.
 
 ---
 
