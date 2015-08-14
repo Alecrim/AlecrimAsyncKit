@@ -2,7 +2,7 @@
 //  AlecrimAsyncKit.h
 //  AlecrimAsyncKit
 //
-//  Created by Vanderlei Martinelli on 2015-05-10.
+//  Created by Vanderlei Martinelli on 2015-08-04.
 //  Copyright (c) 2015 Alecrim. All rights reserved.
 //
 
