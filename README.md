@@ -10,7 +10,7 @@ Docs will be here soon, but you will be able to write something like this:
 ```swift
 let task = asyncDoSomethingNonFailableInBackground()
     
-// do other thins while task is running
+// do other things while task is running
 for o in 0..<1_000_000 {
     //
 }
