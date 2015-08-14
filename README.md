@@ -19,11 +19,20 @@ catch let error {
 // in the Swift world it is better to have `async` as a prefix, not a suffix
 func asyncDoSomethingInBackground() -> Task<Int> {
     return async { task in
+        var error: ErrorType? = nil
+    
         for i in 0..<1_000_000_000 {
            // do something
         }
         
-        task.finishWithValue(i)
+        // ...
+        
+        if let error = error {
+            task.finishWithError(error)
+        }
+        else {
+            task.finishWithValue(i)
+        }
     }
 }
 
