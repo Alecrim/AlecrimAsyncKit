@@ -16,7 +16,7 @@ catch let error {
     print(error)
 }
 
-// in the Swift world is better have `async` as a prefix, not a suffix
+// in the Swift world it is better to have `async` as a prefix, not a suffix
 func asyncDoSomethingInBackground() -> Task<Int> {
     return async { task in
         for i in 0..<1_000_000_000 {
@@ -41,7 +41,7 @@ for o in 0..<1_000_000
 let result = await(task)
 print(result)
 
-// in the Swift world is better have `async` as a prefix, not a suffix
+// in the Swift world it is better to have `async` as a prefix, not a suffix
 func asyncDoSomethingNonFailableInBackground() -> Task<Int> {
     return async { task in
         for i in 0..<1_000_000_000 {
