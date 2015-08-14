@@ -8,6 +8,31 @@ Very initial WIP stage.
 Docs will be here soon, but you will be able to write something like this:
 
 ```swift
+let task = asyncDoSomethingNonFailableInBackground()
+    
+// do other thins while task is running
+for o in 0..<1_000_000
+    
+// now we need the task result
+let result = await(task)
+print(result)
+
+// in the Swift world it is better to have `async` as a prefix, not a suffix
+func asyncDoSomethingNonFailableInBackground() -> Task<Int> {
+    return async { task in
+        for i in 0..<1_000_000_000 {
+           // do something
+        }
+        
+        task.finishWithValue(i)
+    }
+}
+
+```
+
+Or:
+
+```swift
 do {
     let i = try await { asyncDoSomethingInBackground() }
     print(i)
@@ -33,31 +58,6 @@ func asyncDoSomethingInBackground() -> Task<Int> {
         else {
             task.finishWithValue(i)
         }
-    }
-}
-
-```
-
-Or:
-
-```swift
-let task = asyncDoSomethingNonFailableInBackground()
-    
-// do other thins while task is running
-for o in 0..<1_000_000
-    
-// now we need the task result
-let result = await(task)
-print(result)
-
-// in the Swift world it is better to have `async` as a prefix, not a suffix
-func asyncDoSomethingNonFailableInBackground() -> Task<Int> {
-    return async { task in
-        for i in 0..<1_000_000_000 {
-           // do something
-        }
-        
-        task.finishWithValue(i)
     }
 }
 
