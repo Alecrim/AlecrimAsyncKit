@@ -11,7 +11,9 @@ Docs will be here soon, but you will be able to write something like this:
 let task = asyncDoSomethingNonFailableInBackground()
     
 // do other thins while task is running
-for o in 0..<1_000_000
+for o in 0..<1_000_000 {
+    //
+}
     
 // now we need the task result
 let result = await(task)
