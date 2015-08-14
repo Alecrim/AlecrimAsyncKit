@@ -20,7 +20,7 @@ let result = await(task)
 print(result)
 
 // in the Swift world it is better to have `async` as a prefix, not a suffix
-func asyncDoSomethingNonFailableInBackground() -> Task<Int> {
+func asyncDoSomethingNonFailableInBackground() -> NonFailableTask<Int> {
     return async { task in
         for i in 0..<1_000_000_000 {
            // do something
