@@ -54,17 +54,24 @@ extension Condition {
     
     internal static func asyncEvaluateConditions(conditions: [Condition]) -> Task<Void> {
         return async { task in
+            var error: ErrorType? = nil
+            
             if !conditions.isEmpty {
                 do {
                     for condition in conditions {
                         try await(condition)
                     }
-                    
-                    task.finish()
                 }
-                catch let error {
-                    task.finishWithError(error)
+                catch let innerError {
+                    error = innerError
                 }
+            }
+            
+            if let error = error {
+                task.finishWithError(error)
+            }
+            else {
+                task.finish()
             }
         }
     }
