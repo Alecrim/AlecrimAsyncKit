@@ -7,21 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1411E96E1B78526F00F47EE8 /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1411E96D1B78526F00F47EE8 /* TaskCondition.swift */; };
-		1411E9701B78582E00F47EE8 /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1411E96F1B78582E00F47EE8 /* TaskObserver.swift */; };
+		140A15081B7FA79D0028DBCE /* AsyncAwait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15041B7FA79D0028DBCE /* AsyncAwait.swift */; };
+		140A15091B7FA79D0028DBCE /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15051B7FA79D0028DBCE /* Task.swift */; };
+		140A150A1B7FA79D0028DBCE /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15061B7FA79D0028DBCE /* TaskCondition.swift */; };
+		140A150B1B7FA79D0028DBCE /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15071B7FA79D0028DBCE /* TaskObserver.swift */; };
 		14E585BF1B7803EC003EC4DC /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		14E585CA1B7806B8003EC4DC /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E585C91B7806B8003EC4DC /* Task.swift */; };
-		14E585CC1B780749003EC4DC /* AsyncAwait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E585CB1B780749003EC4DC /* AsyncAwait.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1411E96D1B78526F00F47EE8 /* TaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
-		1411E96F1B78582E00F47EE8 /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
+		140A15041B7FA79D0028DBCE /* AsyncAwait.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncAwait.swift; sourceTree = "<group>"; };
+		140A15051B7FA79D0028DBCE /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		140A15061B7FA79D0028DBCE /* TaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
+		140A15071B7FA79D0028DBCE /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
 		14E585BB1B7803EC003EC4DC /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AlecrimAsyncKit.h; sourceTree = "<group>"; };
 		14E585C01B7803EC003EC4DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		14E585C91B7806B8003EC4DC /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
-		14E585CB1B780749003EC4DC /* AsyncAwait.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncAwait.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +35,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		140A15031B7FA79D0028DBCE /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				140A15041B7FA79D0028DBCE /* AsyncAwait.swift */,
+				140A15051B7FA79D0028DBCE /* Task.swift */,
+				140A15061B7FA79D0028DBCE /* TaskCondition.swift */,
+				140A15071B7FA79D0028DBCE /* TaskObserver.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
 		14E585B11B7803EC003EC4DC = {
 			isa = PBXGroup;
 			children = (
@@ -55,10 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */,
-				14E585CB1B780749003EC4DC /* AsyncAwait.swift */,
-				14E585C91B7806B8003EC4DC /* Task.swift */,
-				1411E96D1B78526F00F47EE8 /* TaskCondition.swift */,
-				1411E96F1B78582E00F47EE8 /* TaskObserver.swift */,
+				140A15031B7FA79D0028DBCE /* Core */,
 				14E585C61B7803F5003EC4DC /* Supporting Files */,
 			);
 			path = AlecrimAsyncKit;
@@ -151,10 +159,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14E585CC1B780749003EC4DC /* AsyncAwait.swift in Sources */,
-				1411E9701B78582E00F47EE8 /* TaskObserver.swift in Sources */,
-				1411E96E1B78526F00F47EE8 /* TaskCondition.swift in Sources */,
-				14E585CA1B7806B8003EC4DC /* Task.swift in Sources */,
+				140A150B1B7FA79D0028DBCE /* TaskObserver.swift in Sources */,
+				140A15091B7FA79D0028DBCE /* Task.swift in Sources */,
+				140A150A1B7FA79D0028DBCE /* TaskCondition.swift in Sources */,
+				140A15081B7FA79D0028DBCE /* AsyncAwait.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
