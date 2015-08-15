@@ -69,7 +69,6 @@ public class Task<V> {
     }
     
     deinit {
-        print("deinit")
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
         assert(!self.waiting, "Either value or error were never assigned or task was never cancelled.")
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
