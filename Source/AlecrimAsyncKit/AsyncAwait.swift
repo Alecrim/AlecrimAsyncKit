@@ -25,17 +25,22 @@ public func async<V>(closure: (Task<V>) -> Void) -> Task<V> {
 }
 
 @warn_unused_result
-public func async<V>(conditions: [Condition], closure: (Task<V>) -> Void) -> Task<V> {
+public func async<V>(condition: TaskCondition, closure: (Task<V>) -> Void) -> Task<V> {
+    return Task<V>(conditions: [condition], observers: nil, closure: closure)
+}
+
+@warn_unused_result
+public func async<V>(conditions: [TaskCondition], closure: (Task<V>) -> Void) -> Task<V> {
     return Task<V>(conditions: conditions, observers: nil, closure: closure)
 }
 
 @warn_unused_result
-public func async<V>(observers: [Observer<V>], closure: (Task<V>) -> Void) -> Task<V> {
+public func async<V>(observers: [TaskObserver<V>], closure: (Task<V>) -> Void) -> Task<V> {
     return Task<V>(conditions: nil, observers: observers, closure: closure)
 }
 
 @warn_unused_result
-public func async<V>(conditions: [Condition], observers: [Observer<V>], closure: (Task<V>) -> Void) -> Task<V> {
+public func async<V>(conditions: [TaskCondition], observers: [TaskObserver<V>], closure: (Task<V>) -> Void) -> Task<V> {
     return Task<V>(conditions: conditions, observers: observers, closure: closure)
 }
 
@@ -47,7 +52,7 @@ public func async<V>(closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V
 }
 
 @warn_unused_result
-public func async<V>(observers: [Observer<V>], closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
+public func async<V>(observers: [TaskObserver<V>], closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
     return NonFailableTask<V>(observers: observers, closure: closure)
 }
 

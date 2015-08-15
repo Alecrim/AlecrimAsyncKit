@@ -7,16 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1411E96E1B78526F00F47EE8 /* Condition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1411E96D1B78526F00F47EE8 /* Condition.swift */; };
-		1411E9701B78582E00F47EE8 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1411E96F1B78582E00F47EE8 /* Observer.swift */; };
+		1411E96E1B78526F00F47EE8 /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1411E96D1B78526F00F47EE8 /* TaskCondition.swift */; };
+		1411E9701B78582E00F47EE8 /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1411E96F1B78582E00F47EE8 /* TaskObserver.swift */; };
 		14E585BF1B7803EC003EC4DC /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		14E585CA1B7806B8003EC4DC /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E585C91B7806B8003EC4DC /* Task.swift */; };
 		14E585CC1B780749003EC4DC /* AsyncAwait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E585CB1B780749003EC4DC /* AsyncAwait.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1411E96D1B78526F00F47EE8 /* Condition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Condition.swift; sourceTree = "<group>"; };
-		1411E96F1B78582E00F47EE8 /* Observer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observer.swift; sourceTree = "<group>"; };
+		1411E96D1B78526F00F47EE8 /* TaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
+		1411E96F1B78582E00F47EE8 /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
 		14E585BB1B7803EC003EC4DC /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AlecrimAsyncKit.h; sourceTree = "<group>"; };
 		14E585C01B7803EC003EC4DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -57,8 +57,8 @@
 				14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */,
 				14E585CB1B780749003EC4DC /* AsyncAwait.swift */,
 				14E585C91B7806B8003EC4DC /* Task.swift */,
-				1411E96D1B78526F00F47EE8 /* Condition.swift */,
-				1411E96F1B78582E00F47EE8 /* Observer.swift */,
+				1411E96D1B78526F00F47EE8 /* TaskCondition.swift */,
+				1411E96F1B78582E00F47EE8 /* TaskObserver.swift */,
 				14E585C61B7803F5003EC4DC /* Supporting Files */,
 			);
 			path = AlecrimAsyncKit;
@@ -152,8 +152,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				14E585CC1B780749003EC4DC /* AsyncAwait.swift in Sources */,
-				1411E9701B78582E00F47EE8 /* Observer.swift in Sources */,
-				1411E96E1B78526F00F47EE8 /* Condition.swift in Sources */,
+				1411E9701B78582E00F47EE8 /* TaskObserver.swift in Sources */,
+				1411E96E1B78526F00F47EE8 /* TaskCondition.swift in Sources */,
 				14E585CA1B7806B8003EC4DC /* Task.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

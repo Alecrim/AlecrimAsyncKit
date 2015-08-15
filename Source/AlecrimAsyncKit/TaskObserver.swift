@@ -1,5 +1,5 @@
 //
-//  Observer.swift
+//  TaskObserver.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-04.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class Observer<V> {
+public final class TaskObserver<V> {
 
     // MARK: -
     

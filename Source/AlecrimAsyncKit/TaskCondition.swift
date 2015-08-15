@@ -1,5 +1,5 @@
 //
-//  Condition.swift
+//  TaskCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-04.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ConditionResult {
+public enum TaskConditionResult {
     case Satisfied
     case Failed(ErrorType)
     
@@ -22,9 +22,13 @@ public enum ConditionResult {
 }
 
 
-public final class Condition: Task<Void> {
+public final class TaskCondition: Task<Void> {
    
-    public init<V>(subconditions: [Condition]? = nil, dependencyTask: Task<V>? = nil, closure: ((ConditionResult) -> Void) -> Void) {
+    public convenience init(evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+        self.init(subconditions: nil, dependencyTask: nil, evaluationClosure: evaluationClosure)
+    }
+    
+    public init(subconditions: [TaskCondition]?, dependencyTask: Task<Void>?, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
         super.init(conditions: subconditions, observers: nil) { task in
             if let dependencyTask = dependencyTask {
                 do {
@@ -36,7 +40,7 @@ public final class Condition: Task<Void> {
                 }
             }
             
-            closure { conditionResult in
+            evaluationClosure { conditionResult in
                 switch conditionResult {
                 case .Satisfied:
                     task.finish()
@@ -50,9 +54,9 @@ public final class Condition: Task<Void> {
     
 }
 
-extension Condition {
+extension TaskCondition {
     
-    internal static func asyncEvaluateConditions(conditions: [Condition]) -> Task<Void> {
+    internal static func asyncEvaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
         return async { task in
             do {
                 for condition in conditions {

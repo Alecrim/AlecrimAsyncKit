@@ -27,13 +27,13 @@ public class Task<V> {
     private var waiting = true
     private var spinlock = OS_SPINLOCK_INIT
     
-    private let conditions: [Condition]?
-    private let observers: [Observer<V>]?
+    private let conditions: [TaskCondition]?
+    private let observers: [TaskObserver<V>]?
     private var blockOperation: NSBlockOperation!
     
     // MARK: -
     
-    internal init(conditions: [Condition]?, observers: [Observer<V>]?, closure: (Task<V>) -> Void) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver<V>]?, closure: (Task<V>) -> Void) {
         //
         self.conditions = conditions
         self.observers = observers
@@ -58,7 +58,7 @@ public class Task<V> {
         //
         do {
             if let conditions = self.conditions where !conditions.isEmpty {
-                try await(Condition.asyncEvaluateConditions(conditions))
+                try await(TaskCondition.asyncEvaluateConditions(conditions))
             }
             
             self.start()
@@ -147,11 +147,23 @@ public class Task<V> {
         self.setValue(nil, error: NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil))
     }
     
+    // MARK: -
+    
+    public final func continueWithTask(task: Task<V>) {
+        do {
+            let value = try await(task)
+            self.finishWithValue(value)
+        }
+        catch let error {
+            self.finishWithError(error)
+        }
+    }
+    
 }
 
 public class NonFailableTask<V>: Task<V> {
 
-    internal init(observers: [Observer<V>]?, closure: (NonFailableTask<V>) -> Void) {
+    internal init(observers: [TaskObserver<V>]?, closure: (NonFailableTask<V>) -> Void) {
         super.init(conditions: nil, observers: observers, closure: closure as! (Task<V> -> Void))
     }
 
