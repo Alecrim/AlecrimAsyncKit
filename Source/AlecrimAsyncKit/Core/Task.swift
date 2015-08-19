@@ -109,7 +109,7 @@ public class Task<V> {
         
         if let observers = self.observers where !observers.isEmpty {
             for observer in observers {
-                observer.task(self, didFinishWithValue: self.value, error: self.error)
+                observer.taskDidFinish(self)
             }
         }
     }
@@ -142,8 +142,10 @@ public class Task<V> {
     public var cancelled: Bool { return self.blockOperation.cancelled }
     
     public func cancel() {
-        self.blockOperation.cancel()
-        self.setValue(nil, error: NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil))
+        if !self.cancelled {
+            self.blockOperation.cancel()
+            self.setValue(nil, error: NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil))
+        }
     }
     
     // MARK: -

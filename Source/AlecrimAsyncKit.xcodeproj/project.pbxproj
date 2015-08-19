@@ -11,6 +11,8 @@
 		140A15091B7FA79D0028DBCE /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15051B7FA79D0028DBCE /* Task.swift */; };
 		140A150A1B7FA79D0028DBCE /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15061B7FA79D0028DBCE /* TaskCondition.swift */; };
 		140A150B1B7FA79D0028DBCE /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15071B7FA79D0028DBCE /* TaskObserver.swift */; };
+		142E25EA1B7FBF4200B6C952 /* TimeoutTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142E25E91B7FBF4200B6C952 /* TimeoutTaskObserver.swift */; };
+		142E25EC1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142E25EB1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift */; };
 		148F1DFB1B7FAA7B0026C36D /* SilentTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFA1B7FAA7B0026C36D /* SilentTaskCondition.swift */; };
 		148F1DFD1B7FAE800026C36D /* NegateTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFC1B7FAE800026C36D /* NegateTaskCondition.swift */; };
 		148F1DFF1B7FAF210026C36D /* DelayTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFE1B7FAF210026C36D /* DelayTaskCondition.swift */; };
@@ -23,6 +25,8 @@
 		140A15051B7FA79D0028DBCE /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		140A15061B7FA79D0028DBCE /* TaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
 		140A15071B7FA79D0028DBCE /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
+		142E25E91B7FBF4200B6C952 /* TimeoutTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeoutTaskObserver.swift; sourceTree = "<group>"; };
+		142E25EB1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkActivityTaskObserver.swift; sourceTree = "<group>"; };
 		148F1DFA1B7FAA7B0026C36D /* SilentTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SilentTaskCondition.swift; sourceTree = "<group>"; };
 		148F1DFC1B7FAE800026C36D /* NegateTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NegateTaskCondition.swift; sourceTree = "<group>"; };
 		148F1DFE1B7FAF210026C36D /* DelayTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelayTaskCondition.swift; sourceTree = "<group>"; };
@@ -77,6 +81,8 @@
 		148F1E021B7FBA530026C36D /* Observers */ = {
 			isa = PBXGroup;
 			children = (
+				142E25E91B7FBF4200B6C952 /* TimeoutTaskObserver.swift */,
+				142E25EB1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift */,
 			);
 			path = Observers;
 			sourceTree = "<group>";
@@ -195,9 +201,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				142E25EA1B7FBF4200B6C952 /* TimeoutTaskObserver.swift in Sources */,
 				140A150B1B7FA79D0028DBCE /* TaskObserver.swift in Sources */,
 				148F1DFF1B7FAF210026C36D /* DelayTaskCondition.swift in Sources */,
 				140A15091B7FA79D0028DBCE /* Task.swift in Sources */,
+				142E25EC1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift in Sources */,
 				148F1DFD1B7FAE800026C36D /* NegateTaskCondition.swift in Sources */,
 				140A150A1B7FA79D0028DBCE /* TaskCondition.swift in Sources */,
 				140A15081B7FA79D0028DBCE /* AsyncAwait.swift in Sources */,

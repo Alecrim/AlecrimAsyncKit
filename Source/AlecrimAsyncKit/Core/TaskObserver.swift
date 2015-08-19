@@ -8,35 +8,41 @@
 
 import Foundation
 
-public final class TaskObserver<V> {
-
+public class TaskObserver<V> {
+    
     // MARK: -
     
-    private var didStartClosures = Array<(() -> Void)>()
-    private var didFinishClosures = Array<((V!, ErrorType?) -> Void)>()
+    private var didStartClosures = Array<((Task<V>) -> Void)>()
+    private var didFinishClosures = Array<((Task<V>) -> Void)>()
 
     // MARK: -
-
-    internal func taskDidStart(task: Task<V>) {
+    public init() {
+        
+    }
+    
+    
+    // MARK: -
+    
+    public func taskDidStart(task: Task<V>) {
         for closure in self.didStartClosures {
-            closure()
+            closure(task)
         }
     }
     
-    internal func task(task: Task<V>, didFinishWithValue value: V!, error: ErrorType?) {
+    public func taskDidFinish(task: Task<V>) {
         for closure in self.didFinishClosures {
-            closure(value, error)
+            closure(task)
         }
     }
 
     // MARK: -
 
-    public func didStart(closure: () -> Void) -> Self {
+    public func didStart(closure: (Task<V>) -> Void) -> Self {
         self.didStartClosures.append(closure)
         return self
     }
     
-    public func didFinish(closure: (V!, ErrorType?) -> Void) -> Self {
+    public func didFinish(closure: (Task<V>) -> Void) -> Self {
         self.didFinishClosures.append(closure)
         return self
     }
