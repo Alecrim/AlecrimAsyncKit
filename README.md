@@ -3,8 +3,6 @@ Bringing async and await to Swift world with some flavouring.
 
 ## Getting Started
 
-Very initial WIP stage.
-
 Docs will be here soon, but you will be able to write something like this:
 
 ```swift
