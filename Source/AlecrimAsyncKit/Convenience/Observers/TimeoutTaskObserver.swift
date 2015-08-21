@@ -15,10 +15,13 @@ public final class TimeoutTaskObserver<V>: TaskObserver<V> {
         super.init()
         
         self.didStart { task in
-            let when = dispatch_time(DISPATCH_TIME_NOW, Int64(timeout * Double(NSEC_PER_SEC)))
+            weak var weakTask = task
 
+            let when = dispatch_time(DISPATCH_TIME_NOW, Int64(timeout * Double(NSEC_PER_SEC)))
             dispatch_after(when, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)) {
-                task.cancel()
+                if let strongTask = weakTask {
+                    strongTask.cancel()
+                }
             }
         }
     }
