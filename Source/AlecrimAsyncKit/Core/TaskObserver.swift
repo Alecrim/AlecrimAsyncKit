@@ -23,13 +23,13 @@ public class TaskObserver<V> {
     
     // MARK: -
     
-    public func taskDidStart(task: Task<V>) {
+    public final func taskDidStart(task: Task<V>) {
         for closure in self.didStartClosures {
             closure(task)
         }
     }
     
-    public func taskDidFinish(task: Task<V>) {
+    public final func taskDidFinish(task: Task<V>) {
         for closure in self.didFinishClosures {
             closure(task)
         }
@@ -37,12 +37,12 @@ public class TaskObserver<V> {
 
     // MARK: -
 
-    public func didStart(closure: (Task<V>) -> Void) -> Self {
+    public final func didStart(closure: (Task<V>) -> Void) -> Self {
         self.didStartClosures.append(closure)
         return self
     }
     
-    public func didFinish(closure: (Task<V>) -> Void) -> Self {
+    public final func didFinish(closure: (Task<V>) -> Void) -> Self {
         self.didFinishClosures.append(closure)
         return self
     }

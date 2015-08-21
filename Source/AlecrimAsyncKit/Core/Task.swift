@@ -76,18 +76,18 @@ public class Task<V> {
     
     // MARK: -
 
-    private func start() {
+    private final func start() {
         if !self.blockOperation.cancelled {
             taskOperationQueue.addOperation(self.blockOperation)
         }
     }
     
-    internal func wait() {
+    internal final func wait() {
         assert(!NSThread.isMainThread(), "Cannot wait task on main thread.")
         dispatch_group_wait(self.dispatchGroup, DISPATCH_TIME_FOREVER)
     }
     
-    private func setValue(value: V?, error: ErrorType?) {
+    private final func setValue(value: V?, error: ErrorType?) {
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
 
         assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
@@ -116,7 +116,7 @@ public class Task<V> {
 
     // MARK: -
     
-    public func finish() {
+    public final func finish() {
         if V.self is Void.Type {
             self.setValue((() as! V), error: nil)
         }
@@ -125,7 +125,7 @@ public class Task<V> {
         }
     }
     
-    public func finishWithValue(value: V) {
+    public final func finishWithValue(value: V) {
         self.setValue(value, error: nil)
     }
     
@@ -139,7 +139,7 @@ public class Task<V> {
     
     // MARK: -
     
-    public var cancelled: Bool { return self.blockOperation.cancelled }
+    public final var cancelled: Bool { return self.blockOperation.cancelled }
     
     public func cancel() {
         if !self.cancelled {
