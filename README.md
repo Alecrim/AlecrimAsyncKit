@@ -21,11 +21,13 @@ print(result)
 // for the task returning `func` name
 func asyncDoSomethingNonFailableInBackground() -> NonFailableTask<Int> {
     return async { task in
+        var result = 0
+    
         for i in 0..<1_000_000_000 {
-           // do something
+           result = i
         }
         
-        task.finishWithValue(i)
+        task.finishWithValue(result)
     }
 }
 
@@ -47,9 +49,10 @@ catch let error {
 func asyncDoSomethingInBackground() -> Task<Int> {
     return async { task in
         var error: ErrorType? = nil
-    
+        var result = 0
+        
         for i in 0..<1_000_000_000 {
-           // do something
+           result = i
         }
         
         // ...
@@ -58,7 +61,7 @@ func asyncDoSomethingInBackground() -> Task<Int> {
             task.finishWithError(error)
         }
         else {
-            task.finishWithValue(i)
+            task.finishWithValue(result)
         }
     }
 }
