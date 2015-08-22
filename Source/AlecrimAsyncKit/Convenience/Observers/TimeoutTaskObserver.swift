@@ -20,7 +20,7 @@ public final class TimeoutTaskObserver<V>: TaskObserver<V> {
             let when = dispatch_time(DISPATCH_TIME_NOW, Int64(timeout * Double(NSEC_PER_SEC)))
             dispatch_after(when, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)) {
                 if let strongTask = weakTask {
-                    strongTask.cancel()
+                    (strongTask as? Task)?.cancel()
                 }
             }
         }

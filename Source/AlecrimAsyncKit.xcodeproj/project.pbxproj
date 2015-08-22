@@ -9,14 +9,14 @@
 /* Begin PBXBuildFile section */
 		140A15081B7FA79D0028DBCE /* AsyncAwait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15041B7FA79D0028DBCE /* AsyncAwait.swift */; };
 		140A15091B7FA79D0028DBCE /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15051B7FA79D0028DBCE /* Task.swift */; };
-		140A150A1B7FA79D0028DBCE /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15061B7FA79D0028DBCE /* TaskCondition.swift */; };
-		140A150B1B7FA79D0028DBCE /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15071B7FA79D0028DBCE /* TaskObserver.swift */; };
-		142E25EA1B7FBF4200B6C952 /* TimeoutTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142E25E91B7FBF4200B6C952 /* TimeoutTaskObserver.swift */; };
-		142E25EC1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142E25EB1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift */; };
-		148F1DFB1B7FAA7B0026C36D /* SilentTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFA1B7FAA7B0026C36D /* SilentTaskCondition.swift */; };
-		148F1DFD1B7FAE800026C36D /* NegateTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFC1B7FAE800026C36D /* NegateTaskCondition.swift */; };
-		148F1DFF1B7FAF210026C36D /* DelayTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFE1B7FAF210026C36D /* DelayTaskCondition.swift */; };
-		148F1E011B7FB16F0026C36D /* MutuallyExclusiveTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1E001B7FB16F0026C36D /* MutuallyExclusiveTaskCondition.swift */; };
+		14B139901B88824F00131B01 /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15061B7FA79D0028DBCE /* TaskCondition.swift */; };
+		14B139911B8889DA00131B01 /* SilentTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFA1B7FAA7B0026C36D /* SilentTaskCondition.swift */; };
+		14B139921B8889DA00131B01 /* NegateTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFC1B7FAE800026C36D /* NegateTaskCondition.swift */; };
+		14B139931B8889DA00131B01 /* DelayTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFE1B7FAF210026C36D /* DelayTaskCondition.swift */; };
+		14B139941B8889DA00131B01 /* MutuallyExclusiveTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1E001B7FB16F0026C36D /* MutuallyExclusiveTaskCondition.swift */; };
+		14B139951B888B7700131B01 /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15071B7FA79D0028DBCE /* TaskObserver.swift */; };
+		14B139961B888E1600131B01 /* TimeoutTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142E25E91B7FBF4200B6C952 /* TimeoutTaskObserver.swift */; };
+		14B139971B888E1600131B01 /* NetworkActivityTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142E25EB1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift */; };
 		14E585BF1B7803EC003EC4DC /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
@@ -201,16 +201,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				142E25EA1B7FBF4200B6C952 /* TimeoutTaskObserver.swift in Sources */,
-				140A150B1B7FA79D0028DBCE /* TaskObserver.swift in Sources */,
-				148F1DFF1B7FAF210026C36D /* DelayTaskCondition.swift in Sources */,
+				14B139961B888E1600131B01 /* TimeoutTaskObserver.swift in Sources */,
+				14B139951B888B7700131B01 /* TaskObserver.swift in Sources */,
+				14B139921B8889DA00131B01 /* NegateTaskCondition.swift in Sources */,
+				14B139941B8889DA00131B01 /* MutuallyExclusiveTaskCondition.swift in Sources */,
+				14B139971B888E1600131B01 /* NetworkActivityTaskObserver.swift in Sources */,
 				140A15091B7FA79D0028DBCE /* Task.swift in Sources */,
-				142E25EC1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift in Sources */,
-				148F1DFD1B7FAE800026C36D /* NegateTaskCondition.swift in Sources */,
-				140A150A1B7FA79D0028DBCE /* TaskCondition.swift in Sources */,
+				14B139931B8889DA00131B01 /* DelayTaskCondition.swift in Sources */,
+				14B139911B8889DA00131B01 /* SilentTaskCondition.swift in Sources */,
+				14B139901B88824F00131B01 /* TaskCondition.swift in Sources */,
 				140A15081B7FA79D0028DBCE /* AsyncAwait.swift in Sources */,
-				148F1E011B7FB16F0026C36D /* MutuallyExclusiveTaskCondition.swift in Sources */,
-				148F1DFB1B7FAA7B0026C36D /* SilentTaskCondition.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,12 +8,14 @@
 
 import Foundation
 
-private let executeOperationQueue: NSOperationQueue = {
-    let oq = NSOperationQueue()
-    oq.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
-    oq.qualityOfService = .Default
+private let defaultRunTaskHelperQueue: dispatch_queue_t = {
+    let typeAttribute = DISPATCH_QUEUE_CONCURRENT
+    let qualityOfServiceClass = QOS_CLASS_DEFAULT
     
-    return oq
+    let name = "com.alecrim.AlecrimAsyncKit.RunTaskHelper"
+    let attributes = dispatch_queue_attr_make_with_qos_class(typeAttribute, qualityOfServiceClass, QOS_MIN_RELATIVE_PRIORITY)
+    
+    return dispatch_queue_create(name, attributes)
     }()
 
 
@@ -21,27 +23,27 @@ private let executeOperationQueue: NSOperationQueue = {
 
 @warn_unused_result
 public func async<V>(closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(conditions: nil, observers: nil, closure: closure)
+    return Task<V>(observers: nil, conditions: nil, closure: closure)
 }
 
 @warn_unused_result
 public func async<V>(condition: TaskCondition, closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(conditions: [condition], observers: nil, closure: closure)
+    return Task<V>(observers: nil, conditions: [condition], closure: closure)
 }
 
 @warn_unused_result
 public func async<V>(conditions: [TaskCondition], closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(conditions: conditions, observers: nil, closure: closure)
+    return Task<V>(observers: nil, conditions: conditions, closure: closure)
 }
 
 @warn_unused_result
 public func async<V>(observers: [TaskObserver<V>], closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(conditions: nil, observers: observers, closure: closure)
+    return Task<V>(observers: observers, conditions: nil, closure: closure)
 }
 
 @warn_unused_result
 public func async<V>(conditions: [TaskCondition], observers: [TaskObserver<V>], closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(conditions: conditions, observers: observers, closure: closure)
+    return Task<V>(observers: observers, conditions: conditions, closure: closure)
 }
 
 // MARK: - async - non failable task
@@ -60,34 +62,27 @@ public func async<V>(observers: [TaskObserver<V>], closure: (NonFailableTask<V>)
 // MARK: - await
 
 public func await<V>(@noescape closure: () -> Task<V>) throws -> V {
-    return try await(closure())
+    return try closure().waitForCompletionAndReturnValue()
 }
 
 public func await<V>(task: Task<V>) throws -> V {
-    task.wait()
-    
-    if let error = task.error {
-        throw error
-    }
-    else {
-        return task.value
-    }
+    return try task.waitForCompletionAndReturnValue()
 }
 
-public func execute<V>(task: Task<V>, queue: NSOperationQueue = executeOperationQueue, completionQueue: NSOperationQueue = NSOperationQueue.mainQueue(), completion completionHandler: ((V!, ErrorType?) -> Void)? = nil) {
-    queue.addOperationWithBlock {
+public func runTask<V>(task: Task<V>, queue: dispatch_queue_t = defaultRunTaskHelperQueue, completionQueue: dispatch_queue_t = dispatch_get_main_queue(), completion completionHandler: ((V!, ErrorType?) -> Void)? = nil) {
+    dispatch_async(queue) {
         do {
-            let value = try await(task)
+            let value = try task.waitForCompletionAndReturnValue()
             
             if let completionHandler = completionHandler {
-                completionQueue.addOperationWithBlock {
+                dispatch_async(completionQueue) {
                     completionHandler(value, nil)
                 }
             }
         }
         catch let error {
             if let completionHandler = completionHandler {
-                completionQueue.addOperationWithBlock {
+                dispatch_async(completionQueue) {
                     completionHandler(nil, error)
                 }
             }
@@ -99,26 +94,19 @@ public func execute<V>(task: Task<V>, queue: NSOperationQueue = executeOperation
 // MARK: - await - non failable task
 
 public func await<V>(@noescape closure: () -> NonFailableTask<V>) -> V {
-    return await(closure())
+    return closure().waitForCompletionAndReturnValue()
 }
 
 public func await<V>(task: NonFailableTask<V>) -> V {
-    task.wait()
-    
-    if let _ = task.error {
-        fatalError("A non failable task cannot finish with an error nor can be cancelled.")
-    }
-    else {
-        return task.value
-    }
+    return task.waitForCompletionAndReturnValue()
 }
 
-public func execute<V>(task: NonFailableTask<V>, queue: NSOperationQueue = executeOperationQueue, completionQueue: NSOperationQueue = NSOperationQueue.mainQueue(), completion completionHandler: ((V) -> Void)? = nil) {
-    queue.addOperationWithBlock {
-        let value = await(task)
+public func runTask<V>(task: NonFailableTask<V>, queue: dispatch_queue_t = defaultRunTaskHelperQueue, completionQueue: dispatch_queue_t = dispatch_get_main_queue(), completion completionHandler: ((V) -> Void)? = nil) {
+    dispatch_async(queue) {
+        let value = task.waitForCompletionAndReturnValue()
 
         if let completionHandler = completionHandler {
-            completionQueue.addOperationWithBlock {
+            dispatch_async(completionQueue) {
                 completionHandler(value)
             }
         }

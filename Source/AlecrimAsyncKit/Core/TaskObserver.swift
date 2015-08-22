@@ -12,37 +12,32 @@ public class TaskObserver<V> {
     
     // MARK: -
     
-    private var didStartClosures = Array<((Task<V>) -> Void)>()
-    private var didFinishClosures = Array<((Task<V>) -> Void)>()
+    private var didStartClosures = Array<((BaseTask<V>) -> Void)>()
+    private var didFinishClosures = Array<((BaseTask<V>) -> Void)>()
 
     // MARK: -
     public init() {
         
     }
     
-    
     // MARK: -
     
-    public final func taskDidStart(task: Task<V>) {
-        for closure in self.didStartClosures {
-            closure(task)
-        }
+    internal final func taskDidStart(task: BaseTask<V>) {
+        self.didStartClosures.forEach { $0(task) }
     }
     
-    public final func taskDidFinish(task: Task<V>) {
-        for closure in self.didFinishClosures {
-            closure(task)
-        }
+    internal final func taskDidFinish(task: BaseTask<V>) {
+        self.didFinishClosures.forEach { $0(task) }
     }
 
     // MARK: -
 
-    public final func didStart(closure: (Task<V>) -> Void) -> Self {
+    public final func didStart(closure: (BaseTask<V>) -> Void) -> Self {
         self.didStartClosures.append(closure)
         return self
     }
     
-    public final func didFinish(closure: (Task<V>) -> Void) -> Self {
+    public final func didFinish(closure: (BaseTask<V>) -> Void) -> Self {
         self.didFinishClosures.append(closure)
         return self
     }

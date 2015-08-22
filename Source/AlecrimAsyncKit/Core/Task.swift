@@ -8,64 +8,35 @@
 
 import Foundation
 
-private let taskOperationQueue: NSOperationQueue = {
-    let oq = NSOperationQueue()
-    oq.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
-    oq.qualityOfService = .Utility
+private let defaultTaskQueue: dispatch_queue_t = {
+    let typeAttribute = DISPATCH_QUEUE_CONCURRENT
+    let qualityOfServiceClass = QOS_CLASS_UTILITY
     
-    return oq
+    let name = "com.alecrim.AlecrimAsyncKit.Task"
+    let attributes = dispatch_queue_attr_make_with_qos_class(typeAttribute, qualityOfServiceClass, QOS_MIN_RELATIVE_PRIORITY)
+    
+    return dispatch_queue_create(name, attributes)
     }()
 
-public class Task<V> {
+// MARK: -
+
+public class BaseTask<V> {
     
-    // MARK: -
-    
-    public private(set) var value: V!
-    public private(set) var error: ErrorType?
+    private var value: V!
+    private var error: ErrorType?
     
     private let dispatchGroup: dispatch_group_t = dispatch_group_create()
     private var waiting = true
     private var spinlock = OS_SPINLOCK_INIT
     
-    private let conditions: [TaskCondition]?
     private let observers: [TaskObserver<V>]?
-    private var blockOperation: NSBlockOperation!
     
-    // MARK: -
-    
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserver<V>]?, closure: (Task<V>) -> Void) {
+    private init(observers: [TaskObserver<V>]?) {
         //
-        self.conditions = conditions
         self.observers = observers
         
         //
         dispatch_group_enter(self.dispatchGroup)
-
-        //
-        self.blockOperation = NSBlockOperation { [unowned self] in
-            closure(self)
-        }
-        
-        self.blockOperation.queuePriority = .Normal
-        
-        //
-        if let observers = self.observers where !observers.isEmpty {
-            for observer in observers {
-                observer.taskDidStart(self)
-            }
-        }
-        
-        //
-        do {
-            if let conditions = self.conditions where !conditions.isEmpty {
-                try await(TaskCondition.asyncEvaluateConditions(conditions))
-            }
-            
-            self.start()
-        }
-        catch let error {
-            self.finishWithError(error)
-        }
     }
     
     deinit {
@@ -74,25 +45,18 @@ public class Task<V> {
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
     }
     
-    // MARK: -
-
-    private final func start() {
-        if !self.blockOperation.cancelled {
-            taskOperationQueue.addOperation(self.blockOperation)
-        }
-    }
-    
-    internal final func wait() {
+    private final func waitForCompletion() {
         assert(!NSThread.isMainThread(), "Cannot wait task on main thread.")
         dispatch_group_wait(self.dispatchGroup, DISPATCH_TIME_FOREVER)
     }
     
     private final func setValue(value: V?, error: ErrorType?) {
+        //
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-
+        
         assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
         assert(value != nil || error != nil, "Invalid combination of value/error.")
-
+        
         if let error = error {
             self.value = nil
             self.error = error
@@ -103,17 +67,16 @@ public class Task<V> {
         }
         
         self.waiting = false
-        dispatch_group_leave(self.dispatchGroup)
         
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
         
-        if let observers = self.observers where !observers.isEmpty {
-            for observer in observers {
-                observer.taskDidFinish(self)
-            }
-        }
+        //
+        dispatch_group_leave(self.dispatchGroup)
+        
+        //
+        self.observers?.forEach { $0.taskDidFinish(self) }
     }
-
+    
     // MARK: -
     
     public final func finish() {
@@ -128,6 +91,48 @@ public class Task<V> {
     public final func finishWithValue(value: V) {
         self.setValue(value, error: nil)
     }
+
+}
+
+
+public final class Task<V>: BaseTask<V> {
+    
+    public private(set) var cancelled: Bool = false
+    
+    internal init(observers: [TaskObserver<V>]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
+        super.init(observers: observers)
+
+        do {
+            if let conditions = conditions where !conditions.isEmpty {
+                try await(TaskCondition.asyncEvaluateConditions(conditions))
+            }
+            
+            if !self.cancelled {
+                self.observers?.forEach { $0.taskDidStart(self) }
+
+                dispatch_async(defaultTaskQueue) { [unowned self] in
+                    if !self.cancelled {
+                        closure(self)
+                    }
+                }
+            }
+        }
+        catch {
+            
+        }
+    }
+    
+    @warn_unused_result
+    internal func waitForCompletionAndReturnValue() throws -> V {
+        self.waitForCompletion()
+        
+        if let error = self.error {
+            throw error
+        }
+        else {
+            return self.value
+        }
+    }
     
     public func finishWithError(error: ErrorType) {
         self.setValue(nil, error: error)
@@ -137,50 +142,57 @@ public class Task<V> {
         self.setValue(value, error: error)
     }
     
+    
     // MARK: -
     
-    public final var cancelled: Bool { return self.blockOperation.cancelled }
-    
     public func cancel() {
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+
         if !self.cancelled {
-            self.blockOperation.cancel()
+            self.cancelled = true
             self.setValue(nil, error: NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil))
         }
+        
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
     }
     
     // MARK: -
     
-    public final func continueWithTask(task: Task<V>) {
+    public func continueWithTask(task: Task<V>) {
         do {
-            let value = try await(task)
+            let value = try task.waitForCompletionAndReturnValue()
             self.finishWithValue(value)
         }
         catch let error {
             self.finishWithError(error)
         }
     }
-    
+
 }
 
-public class NonFailableTask<V>: Task<V> {
+public final class NonFailableTask<V>: BaseTask<V> {
 
     internal init(observers: [TaskObserver<V>]?, closure: (NonFailableTask<V>) -> Void) {
-        super.init(conditions: nil, observers: observers, closure: closure as! (Task<V> -> Void))
-    }
+        super.init(observers: observers)
 
-    public override func finishWithError(error: ErrorType) {
-        fatalError("A non failable task cannot be finished with an error.")
-    }
-    
-    public override func finishWithValue(value: V?, error: ErrorType?) {
-        if error != nil {
-            fatalError("A non failable task cannot be finished with an error.")
+        self.observers?.forEach { $0.taskDidStart(self) }
+
+        dispatch_async(defaultTaskQueue) { [unowned self] in
+            closure(self)
         }
     }
     
-    public override func cancel() {
-        fatalError("A non failable task cannot be cancelled.")
+    @warn_unused_result
+    internal func waitForCompletionAndReturnValue() -> V {
+        self.waitForCompletion()
+        return self.value
     }
-    
-}
 
+    // MARK: -
+    
+    public func continueWithTask(task: NonFailableTask<V>) {
+        let value = task.waitForCompletionAndReturnValue()
+        self.finishWithValue(value)
+    }
+
+}

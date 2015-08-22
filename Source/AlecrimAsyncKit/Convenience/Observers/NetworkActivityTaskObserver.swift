@@ -13,7 +13,7 @@ import Foundation
 private var _activitySpinLock = OS_SPINLOCK_INIT
 private var _activity: Int = 0
 
-public final class NetworkActivityTaskObserver<V>: TaskObserver<V> {
+public final class NetworkActivityTaskObserver: TaskObserver {
     
     private let delay: NSTimeInterval = 1.0
     private let application: UIApplication
