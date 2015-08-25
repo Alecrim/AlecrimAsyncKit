@@ -8,7 +8,7 @@
 
 import Foundation
 
-private let defaultTaskQueue: dispatch_queue_t = {
+private let _defaultTaskQueue: dispatch_queue_t = {
     let typeAttribute = DISPATCH_QUEUE_CONCURRENT
     let qualityOfServiceClass = QOS_CLASS_UTILITY
     
@@ -110,7 +110,7 @@ public final class Task<V>: BaseTask<V> {
             if !self.cancelled {
                 self.observers?.forEach { $0.taskDidStart(self) }
 
-                dispatch_async(defaultTaskQueue) { [unowned self] in
+                dispatch_async(_defaultTaskQueue) { [unowned self] in
                     if !self.cancelled {
                         closure(self)
                     }
@@ -177,7 +177,7 @@ public final class NonFailableTask<V>: BaseTask<V> {
 
         self.observers?.forEach { $0.taskDidStart(self) }
 
-        dispatch_async(defaultTaskQueue) { [unowned self] in
+        dispatch_async(_defaultTaskQueue) { [unowned self] in
             closure(self)
         }
     }

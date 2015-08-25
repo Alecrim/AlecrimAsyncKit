@@ -8,15 +8,17 @@
 
 import Foundation
 
-private let defaultRunTaskHelperQueue: dispatch_queue_t = {
+private let _defaultRunTaskQueue: dispatch_queue_t = {
     let typeAttribute = DISPATCH_QUEUE_CONCURRENT
     let qualityOfServiceClass = QOS_CLASS_DEFAULT
     
-    let name = "com.alecrim.AlecrimAsyncKit.RunTaskHelper"
+    let name = "com.alecrim.AlecrimAsyncKit.RunTask"
     let attributes = dispatch_queue_attr_make_with_qos_class(typeAttribute, qualityOfServiceClass, QOS_MIN_RELATIVE_PRIORITY)
     
     return dispatch_queue_create(name, attributes)
     }()
+
+private let _defaultRunTaskCompletionQueue: dispatch_queue_t = dispatch_get_main_queue()
 
 
 // MARK: - async
@@ -69,7 +71,7 @@ public func await<V>(task: Task<V>) throws -> V {
     return try task.waitForCompletionAndReturnValue()
 }
 
-public func runTask<V>(task: Task<V>, queue: dispatch_queue_t = defaultRunTaskHelperQueue, completionQueue: dispatch_queue_t = dispatch_get_main_queue(), completion completionHandler: ((V!, ErrorType?) -> Void)? = nil) {
+public func runTask<V>(task: Task<V>, queue: dispatch_queue_t = _defaultRunTaskQueue, completionQueue: dispatch_queue_t = _defaultRunTaskCompletionQueue, completion completionHandler: ((V!, ErrorType?) -> Void)? = nil) {
     dispatch_async(queue) {
         do {
             let value = try task.waitForCompletionAndReturnValue()
@@ -101,7 +103,7 @@ public func await<V>(task: NonFailableTask<V>) -> V {
     return task.waitForCompletionAndReturnValue()
 }
 
-public func runTask<V>(task: NonFailableTask<V>, queue: dispatch_queue_t = defaultRunTaskHelperQueue, completionQueue: dispatch_queue_t = dispatch_get_main_queue(), completion completionHandler: ((V) -> Void)? = nil) {
+public func runTask<V>(task: NonFailableTask<V>, queue: dispatch_queue_t = _defaultRunTaskQueue, completionQueue: dispatch_queue_t = _defaultRunTaskCompletionQueue, completion completionHandler: ((V) -> Void)? = nil) {
     dispatch_async(queue) {
         let value = task.waitForCompletionAndReturnValue()
 
