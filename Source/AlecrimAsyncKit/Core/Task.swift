@@ -87,7 +87,17 @@ public class BaseTask<V> {
 
 public final class Task<V>: BaseTask<V> {
     
-    public private(set) var cancelled: Bool = false
+    public var cancelled: Bool {
+        var c = false
+        
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+        if let error = self.error as? NSError where error.code == NSUserCancelledError {
+            c = true
+        }
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+
+        return c
+    }
     
     internal init(queue: NSOperationQueue, observers: [TaskObserver<V>]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
         super.init(observers: observers)
@@ -135,14 +145,7 @@ public final class Task<V>: BaseTask<V> {
     // MARK: -
     
     public func cancel() {
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-
-        if !self.cancelled {
-            self.cancelled = true
-            self.setValue(nil, error: NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil))
-        }
-        
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+        self.setValue(nil, error: NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil))
     }
     
     // MARK: -
