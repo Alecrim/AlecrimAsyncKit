@@ -8,15 +8,15 @@
 
 import Foundation
 
-private let _defaultTaskQueue: dispatch_queue_t = {
-    let typeAttribute = DISPATCH_QUEUE_CONCURRENT
-    let qualityOfServiceClass = QOS_CLASS_UTILITY
-    
-    let name = "com.alecrim.AlecrimAsyncKit.Task"
-    let attributes = dispatch_queue_attr_make_with_qos_class(typeAttribute, qualityOfServiceClass, QOS_MIN_RELATIVE_PRIORITY)
-    
-    return dispatch_queue_create(name, attributes)
-    }()
+//private let _defaultTaskQueue: dispatch_queue_t = {
+//    let typeAttribute = DISPATCH_QUEUE_CONCURRENT
+//    let qualityOfServiceClass = QOS_CLASS_UTILITY
+//    
+//    let name = "com.alecrim.AlecrimAsyncKit.Task"
+//    let attributes = dispatch_queue_attr_make_with_qos_class(typeAttribute, qualityOfServiceClass, QOS_MIN_RELATIVE_PRIORITY)
+//    
+//    return dispatch_queue_create(name, attributes)
+//    }()
 
 // MARK: -
 
@@ -99,7 +99,7 @@ public final class Task<V>: BaseTask<V> {
     
     public private(set) var cancelled: Bool = false
     
-    internal init(observers: [TaskObserver<V>]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
+    internal init(queue: NSOperationQueue, observers: [TaskObserver<V>]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
         super.init(observers: observers)
 
         do {
@@ -110,7 +110,7 @@ public final class Task<V>: BaseTask<V> {
             if !self.cancelled {
                 self.observers?.forEach { $0.taskDidStart(self) }
 
-                dispatch_async(_defaultTaskQueue) { [unowned self] in
+                queue.addOperationWithBlock { [unowned self] in
                     if !self.cancelled {
                         closure(self)
                     }
@@ -172,12 +172,12 @@ public final class Task<V>: BaseTask<V> {
 
 public final class NonFailableTask<V>: BaseTask<V> {
 
-    internal init(observers: [TaskObserver<V>]?, closure: (NonFailableTask<V>) -> Void) {
+    internal init(queue: NSOperationQueue, observers: [TaskObserver<V>]?, closure: (NonFailableTask<V>) -> Void) {
         super.init(observers: observers)
 
         self.observers?.forEach { $0.taskDidStart(self) }
 
-        dispatch_async(_defaultTaskQueue) { [unowned self] in
+        queue.addOperationWithBlock { [unowned self] in
             closure(self)
         }
     }
