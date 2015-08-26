@@ -8,16 +8,6 @@
 
 import Foundation
 
-//private let _defaultTaskQueue: dispatch_queue_t = {
-//    let typeAttribute = DISPATCH_QUEUE_CONCURRENT
-//    let qualityOfServiceClass = QOS_CLASS_UTILITY
-//    
-//    let name = "com.alecrim.AlecrimAsyncKit.Task"
-//    let attributes = dispatch_queue_attr_make_with_qos_class(typeAttribute, qualityOfServiceClass, QOS_MIN_RELATIVE_PRIORITY)
-//    
-//    return dispatch_queue_create(name, attributes)
-//    }()
-
 // MARK: -
 
 public class BaseTask<V> {
@@ -108,10 +98,9 @@ public final class Task<V>: BaseTask<V> {
             }
             
             if !self.cancelled {
-                self.observers?.forEach { $0.taskDidStart(self) }
-
-                queue.addOperationWithBlock { [unowned self] in
+                queue.addOperationWithBlock {
                     if !self.cancelled {
+                        self.observers?.forEach { $0.taskDidStart(self) }
                         closure(self)
                     }
                 }
@@ -175,9 +164,8 @@ public final class NonFailableTask<V>: BaseTask<V> {
     internal init(queue: NSOperationQueue, observers: [TaskObserver<V>]?, closure: (NonFailableTask<V>) -> Void) {
         super.init(observers: observers)
 
-        self.observers?.forEach { $0.taskDidStart(self) }
-
-        queue.addOperationWithBlock { [unowned self] in
+        queue.addOperationWithBlock {
+            self.observers?.forEach { $0.taskDidStart(self) }
             closure(self)
         }
     }
