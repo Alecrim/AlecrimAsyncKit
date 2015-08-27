@@ -3,7 +3,7 @@ Bringing async and await to Swift world with some flavouring.
 
 ## Getting Started
 
-Docs will be here soon, but you will be able to write something like this:
+More docs will be here soon, but you will be able to write something like this:
 
 ```swift
 let task = asyncDoSomethingNonFailableInBackground()

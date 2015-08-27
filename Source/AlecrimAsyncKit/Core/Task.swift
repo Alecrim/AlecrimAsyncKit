@@ -10,20 +10,35 @@ import Foundation
 
 internal let taskCancelledError = NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil)
 
+// MARK: - protocols needed to support task observers in this version
+
+public protocol TaskType: class {
+    
+    var value: Any! { get }
+    var error: ErrorType? { get }
+    
+}
+
+public protocol FailableTaskType: TaskType {
+    
+    func cancel()
+    
+}
+
 // MARK: -
 
-public class BaseTask<V> {
+public class BaseTask<V>: TaskType {
     
-    private var value: V!
-    private var error: ErrorType?
+    public private(set) var value: Any!
+    public private(set) var error: ErrorType?
     
     private let dispatchGroup: dispatch_group_t = dispatch_group_create()
     private var waiting = true
     private var spinlock = OS_SPINLOCK_INIT
     
-    private var observers: [TaskObserver<V>]?
+    private var observers: [TaskObserver]?
     
-    private init(observers: [TaskObserver<V>]?) {
+    private init(observers: [TaskObserver]?) {
         //
         dispatch_group_enter(self.dispatchGroup)
 
@@ -43,27 +58,33 @@ public class BaseTask<V> {
     }
     
     private final func setValue(value: V?, error: ErrorType?) {
-        //
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-        
-        assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
-        assert(value != nil || error != nil, "Invalid combination of value/error.")
-        
-        if let error = error {
-            self.value = nil
-            self.error = error
+        do {
+            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            defer {
+                withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+            }
+
+            // assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
+            // we do not assert anymore, but the value or error can be assigned only once anyway
+            guard self.value == nil && self.error == nil else { return }
+            
+            assert(value != nil || error != nil, "Invalid combination of value/error.")
+            
+            if let error = error {
+                self.value = nil
+                self.error = error
+            }
+            else {
+                self.value = value
+                self.error = nil
+            }
+            
+            self.waiting = false
+            
+            //
+            dispatch_group_leave(self.dispatchGroup)
         }
-        else {
-            self.value = value
-            self.error = nil
-        }
         
-        self.waiting = false
-        
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-        
-        //
-        dispatch_group_leave(self.dispatchGroup)
         
         //
         self.observers?.forEach { $0.taskDidFinish(self) }
@@ -87,7 +108,7 @@ public class BaseTask<V> {
 }
 
 
-public final class Task<V>: BaseTask<V> {
+public final class Task<V>: BaseTask<V>, FailableTaskType {
     
     public var cancelled: Bool {
         var c = false
@@ -101,7 +122,7 @@ public final class Task<V>: BaseTask<V> {
         return c
     }
     
-    internal init(queue: NSOperationQueue, observers: [TaskObserver<V>]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
+    internal init(queue: NSOperationQueue, observers: [TaskObserver]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init(observers: observers)
 
@@ -133,7 +154,7 @@ public final class Task<V>: BaseTask<V> {
             throw error
         }
         else {
-            return self.value
+            return self.value as! V
         }
     }
     
@@ -168,7 +189,7 @@ public final class Task<V>: BaseTask<V> {
 
 public final class NonFailableTask<V>: BaseTask<V> {
 
-    internal init(queue: NSOperationQueue, observers: [TaskObserver<V>]?, closure: (NonFailableTask<V>) -> Void) {
+    internal init(queue: NSOperationQueue, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount > 1)
         super.init(observers: observers)
 
@@ -181,7 +202,7 @@ public final class NonFailableTask<V>: BaseTask<V> {
     @warn_unused_result
     internal func waitForCompletionAndReturnValue() -> V {
         self.waitForCompletion()
-        return self.value
+        return self.value as! V
     }
 
     // MARK: -

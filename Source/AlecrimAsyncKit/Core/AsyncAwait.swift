@@ -12,7 +12,7 @@ private let _defaultTaskQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.Task"
     queue.qualityOfService = .Background
-    queue.maxConcurrentOperationCount = max(NSProcessInfo().activeProcessorCount, 2)
+    queue.maxConcurrentOperationCount = max(NSProcessInfo().activeProcessorCount, 8)
     
     return queue
     }()
@@ -21,7 +21,7 @@ private let _defaultRunTaskQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.RunTask"
     queue.qualityOfService = .Background
-    queue.maxConcurrentOperationCount = max(NSProcessInfo().activeProcessorCount, 2)
+    queue.maxConcurrentOperationCount = max(NSProcessInfo().activeProcessorCount, 8)
 
     return queue
     }()
@@ -47,12 +47,12 @@ public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [T
 }
 
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [TaskObserver<V>], closure: (Task<V>) -> Void) -> Task<V> {
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [TaskObserver], closure: (Task<V>) -> Void) -> Task<V> {
     return Task<V>(queue: queue, observers: observers, conditions: nil, closure: closure)
 }
 
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [TaskCondition], observers: [TaskObserver<V>], closure: (Task<V>) -> Void) -> Task<V> {
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [TaskCondition], observers: [TaskObserver], closure: (Task<V>) -> Void) -> Task<V> {
     return Task<V>(queue: queue, observers: observers, conditions: conditions, closure: closure)
 }
 
@@ -64,7 +64,7 @@ public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, closure: (NonF
 }
 
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [TaskObserver<V>], closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [TaskObserver], closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
     return NonFailableTask<V>(queue: queue, observers: observers, closure: closure)
 }
 

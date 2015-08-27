@@ -8,12 +8,12 @@
 
 import Foundation
 
-public class TaskObserver<V> {
+public class TaskObserver {
     
     // MARK: -
     
-    private var didStartClosures = Array<((BaseTask<V>) -> Void)>()
-    private var didFinishClosures = Array<((BaseTask<V>) -> Void)>()
+    private var didStartClosures = Array<((TaskType) -> Void)>()
+    private var didFinishClosures = Array<((TaskType) -> Void)>()
 
     // MARK: -
     public init() {
@@ -22,22 +22,22 @@ public class TaskObserver<V> {
     
     // MARK: -
     
-    internal final func taskDidStart(task: BaseTask<V>) {
+    internal final func taskDidStart(task: TaskType) {
         self.didStartClosures.forEach { $0(task) }
     }
     
-    internal final func taskDidFinish(task: BaseTask<V>) {
+    internal final func taskDidFinish(task: TaskType) {
         self.didFinishClosures.forEach { $0(task) }
     }
 
     // MARK: -
 
-    public final func didStart(closure: (BaseTask<V>) -> Void) -> Self {
+    public final func didStart(closure: (TaskType) -> Void) -> Self {
         self.didStartClosures.append(closure)
         return self
     }
     
-    public final func didFinish(closure: (BaseTask<V>) -> Void) -> Self {
+    public final func didFinish(closure: (TaskType) -> Void) -> Self {
         self.didFinishClosures.append(closure)
         return self
     }
