@@ -13,9 +13,9 @@ import Foundation
 private var _activitySpinLock = OS_SPINLOCK_INIT
 private var _activity: Int = 0
 
-public final class NetworkActivityTaskObserver<V>: TaskObserver<V> {
+public final class NetworkActivityTaskObserver: TaskObserver {
     
-    private let delay: NSTimeInterval = 1.0
+    private let delay: NSTimeInterval = 0.5
     private let application: UIApplication
     
     private var activity: Int {
@@ -40,7 +40,7 @@ public final class NetworkActivityTaskObserver<V>: TaskObserver<V> {
                 }
             }
             else {
-                let when = dispatch_time(DISPATCH_TIME_NOW, Int64(self.delay * Double(NSEC_PER_SEC)))
+                let when = dispatch_time(DISPATCH_TIME_NOW, Int64((self.delay / 2.0) * Double(NSEC_PER_SEC)))
                 dispatch_after(when, dispatch_get_main_queue()) {
                     if self.activity <= 0 {
                         self.application.networkActivityIndicatorVisible = false

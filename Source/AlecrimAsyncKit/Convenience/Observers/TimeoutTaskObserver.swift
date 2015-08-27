@@ -9,18 +9,20 @@
 import Foundation
 
 
-public final class TimeoutTaskObserver<V>: TaskObserver<V> {
+public final class TimeoutTaskObserver: TaskObserver {
 
     public init(timeout: NSTimeInterval) {
         super.init()
         
         self.didStart { task in
+            assert(task is FailableTaskType, "The timeout observer only works on failable tasks.")
+            
             weak var weakTask = task
 
             let when = dispatch_time(DISPATCH_TIME_NOW, Int64(timeout * Double(NSEC_PER_SEC)))
             dispatch_after(when, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)) {
-                if let strongTask = weakTask {
-                    (strongTask as? Task)?.cancel()
+                if let strongTask = weakTask as? FailableTaskType {
+                    strongTask.cancel()
                 }
             }
         }
