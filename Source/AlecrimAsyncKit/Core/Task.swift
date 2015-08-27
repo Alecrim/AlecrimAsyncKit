@@ -8,6 +8,8 @@
 
 import Foundation
 
+internal let taskCancelledError = NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil)
+
 // MARK: -
 
 public class BaseTask<V> {
@@ -19,14 +21,14 @@ public class BaseTask<V> {
     private var waiting = true
     private var spinlock = OS_SPINLOCK_INIT
     
-    private let observers: [TaskObserver<V>]?
+    private var observers: [TaskObserver<V>]?
     
     private init(observers: [TaskObserver<V>]?) {
         //
-        self.observers = observers
-        
-        //
         dispatch_group_enter(self.dispatchGroup)
+
+        //
+        self.observers = observers
     }
     
     deinit {
@@ -100,6 +102,7 @@ public final class Task<V>: BaseTask<V> {
     }
     
     internal init(queue: NSOperationQueue, observers: [TaskObserver<V>]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
+        assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init(observers: observers)
 
         do {
@@ -116,8 +119,9 @@ public final class Task<V>: BaseTask<V> {
                 }
             }
         }
-        catch {
-            
+        catch let error {
+            self.observers = nil
+            self.finishWithError(error)
         }
     }
     
@@ -145,7 +149,7 @@ public final class Task<V>: BaseTask<V> {
     // MARK: -
     
     public func cancel() {
-        self.setValue(nil, error: NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil))
+        self.setValue(nil, error: taskCancelledError)
     }
     
     // MARK: -
@@ -165,6 +169,7 @@ public final class Task<V>: BaseTask<V> {
 public final class NonFailableTask<V>: BaseTask<V> {
 
     internal init(queue: NSOperationQueue, observers: [TaskObserver<V>]?, closure: (NonFailableTask<V>) -> Void) {
+        assert(queue.maxConcurrentOperationCount > 1)
         super.init(observers: observers)
 
         queue.addOperationWithBlock {
