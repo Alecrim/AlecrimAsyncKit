@@ -84,7 +84,7 @@ class ViewController: UIViewController {
 
             // try to load a cool Minion image...
             do {
-                let image = try await(self.asyncLoadImage())
+                let image = try await { self.asyncLoadImage() }
                 
                 NSOperationQueue.mainQueue().addOperationWithBlock {
                     self.doneLabel.hidden = true
