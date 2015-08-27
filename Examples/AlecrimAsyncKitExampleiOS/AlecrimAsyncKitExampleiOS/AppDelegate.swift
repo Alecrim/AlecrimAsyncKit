@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  AlecrimAsyncKitExampleiOS
 //
-//  Created by Vanderlei Martinelli on 27/08/15.
+//  Created by Vanderlei Martinelli on 2015-08-27.
 //  Copyright © 2015 Alecrim. All rights reserved.
 //
 
