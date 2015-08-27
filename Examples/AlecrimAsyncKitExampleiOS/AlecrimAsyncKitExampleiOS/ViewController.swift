@@ -44,7 +44,7 @@ class ViewController: UIViewController {
             await(self.t1)
             
             NSOperationQueue.mainQueue().addOperationWithBlock {
-                // interface elements have to be updated on the main queue
+                // interface elements have to be updated on the main thread
                 self.twoButton.enabled = true
             }
         }
@@ -78,7 +78,7 @@ class ViewController: UIViewController {
             let _: Task<Void> = async(condition: DelayTaskCondition(timeInterval: 2)) { task in
                 NSOperationQueue.mainQueue().addOperationWithBlock {
                     self.doneLabel.text = "And now for something\ncompletely different..."
-                    task.finish()
+                    task.finish() // we have always to tell when the task is finished
                 }
             }
 
@@ -89,7 +89,7 @@ class ViewController: UIViewController {
                 NSOperationQueue.mainQueue().addOperationWithBlock {
                     self.doneLabel.hidden = true
 
-                    // OK, now we can eat some bananas... finally!
+                    // OK, we can now eat some bananas... finally!
                     self.imageView.image = image
                     self.imageView.hidden = false
                 }
@@ -136,7 +136,21 @@ extension ViewController {
 }
 
 extension ViewController {
-    
+
+    func asyncDone() -> NonFailableTask<Void> {
+        return async { task in
+            await(self.t4)
+            
+            NSOperationQueue.mainQueue().addOperationWithBlock {
+                self.doneLabel.text = "Done!"
+                self.doneLabel.hidden = false
+                
+                // we can finish the task on any thread, even the main thread
+                task.finish()
+            }
+        }
+    }
+
     func asyncLoadImage() -> Task<UIImage> {
         // an observer is not needed to the task finish its job, but to have a network activity indicator at the top would be nice...
         let networkActivityObserver = NetworkActivityTaskObserver(application: UIApplication.sharedApplication())
@@ -165,18 +179,4 @@ extension ViewController {
         }
     }
     
-    func asyncDone() -> NonFailableTask<Void> {
-        return async { task in
-            await(self.t4)
-
-            NSOperationQueue.mainQueue().addOperationWithBlock {
-                self.doneLabel.text = "Done!"
-                self.doneLabel.hidden = false
-                
-                // we can finish the task on any thread, even the main thread
-                task.finish()
-            }
-        }
-    }
-   
 }
