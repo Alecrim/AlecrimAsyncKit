@@ -28,7 +28,6 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
 
         super.init(subconditions: nil, dependencyTask: nil) { result in
             result(.Satisfied)
-            print("SATISFIED", categoryName)
         }
     }
     
@@ -45,8 +44,6 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
             semaphore = self.mutuallyExclusiveSemaphores[categoryName]!.semaphore
             self.mutuallyExclusiveSemaphores[categoryName]!.count++
         }
-
-        print("ADD", categoryName, self.mutuallyExclusiveSemaphores[categoryName]!.count)
 
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
         
@@ -65,8 +62,6 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
         if self.mutuallyExclusiveSemaphores[categoryName]!.count == 0 {
             self.mutuallyExclusiveSemaphores.removeValueForKey(categoryName)
         }
-        
-        print("REMOVE", categoryName, self.mutuallyExclusiveSemaphores[categoryName]?.count ?? 0)
         
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
         
