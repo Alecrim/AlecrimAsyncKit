@@ -84,6 +84,7 @@ public class BaseTask<V>: TaskType {
         
         //
         self.deferredClosures?.forEach { $0() }
+        self.deferredClosures = nil
     }
     
     // MARK: -
@@ -103,12 +104,12 @@ public class BaseTask<V>: TaskType {
 
     // MARK: -
 
-    private func addDeferredClosure(closure: () -> Void) {
+    private func addDeferredClosure(deferredClosure: () -> Void) {
         if self.deferredClosures == nil {
-            self.deferredClosures = [closure]
+            self.deferredClosures = [deferredClosure]
         }
         else {
-            self.deferredClosures!.append(closure)
+            self.deferredClosures!.append(deferredClosure)
         }
     }
 }
@@ -144,7 +145,6 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
                         }
                     }
                 }
-
                 
                 //
                 try await(TaskCondition.asyncEvaluateConditions(conditions))
