@@ -11,58 +11,66 @@ import Foundation
 public final class MutuallyExclusiveTaskCondition: TaskCondition {
 
     public enum DefaultCategory: String {
-        case Alert = "METCDC.Alert"
+        case Alert = "com.alecrim.AlecrimAsyncKit.MutuallyExclusiveTaskCondition.DefaultCategory.Alert"
     }
 
-    private static var mutuallyExclusiveTaskConditions = [String: (queue: dispatch_queue_t, count: Int)]()
+    private static var mutuallyExclusiveSemaphores = [String: (semaphore: dispatch_semaphore_t, count: Int)]()
     private static var spinlock = OS_SPINLOCK_INIT
 
     public convenience init(_ defaultCategory: MutuallyExclusiveTaskCondition.DefaultCategory) {
         self.init(defaultCategory.rawValue)
     }
     
+    public let categoryName: String
+    
     public init(_ categoryName: String) {
+        self.categoryName = categoryName
+
         super.init(subconditions: nil, dependencyTask: nil) { result in
-            let queue = MutuallyExclusiveTaskCondition.add(categoryName)
-            dispatch_async(queue) {
-                result(.Satisfied)
-                MutuallyExclusiveTaskCondition.remove(categoryName)
-            }
+            result(.Satisfied)
+            print("SATISFIED", categoryName)
         }
     }
     
-    private static func add(categoryName: String) -> dispatch_queue_t {
+    internal static func increment(categoryName: String) {
+        let semaphore: dispatch_semaphore_t
+        
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
 
-        let queue: dispatch_queue_t
-
-        if self.mutuallyExclusiveTaskConditions[categoryName] == nil {
-            let newQueue = dispatch_queue_create("com.alecrim.AlecrimAsyncKit.MutuallyExclusiveTaskCondition." + categoryName, DISPATCH_QUEUE_SERIAL)
-            self.mutuallyExclusiveTaskConditions[categoryName] = (newQueue, 1)
-            queue = newQueue
+        if self.mutuallyExclusiveSemaphores[categoryName] == nil {
+            semaphore = dispatch_semaphore_create(1)
+            self.mutuallyExclusiveSemaphores[categoryName] = (semaphore, 1)
         }
         else {
-            self.mutuallyExclusiveTaskConditions[categoryName]!.count++
-            queue = self.mutuallyExclusiveTaskConditions[categoryName]!.queue
+            semaphore = self.mutuallyExclusiveSemaphores[categoryName]!.semaphore
+            self.mutuallyExclusiveSemaphores[categoryName]!.count++
         }
-        
+
+        print("ADD", categoryName, self.mutuallyExclusiveSemaphores[categoryName]!.count)
+
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
         
-        return queue
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
     }
     
-    private static func remove(categoryName: String) {
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+    internal static func decrement(categoryName: String) {
+        let semaphore: dispatch_semaphore_t
         
-        if self.mutuallyExclusiveTaskConditions[categoryName] != nil {
-            self.mutuallyExclusiveTaskConditions[categoryName]!.count--
-            
-            if self.mutuallyExclusiveTaskConditions[categoryName]!.count == 0 {
-                self.mutuallyExclusiveTaskConditions.removeValueForKey(categoryName)
-            }
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+
+        semaphore = self.mutuallyExclusiveSemaphores[categoryName]!.semaphore
+
+        self.mutuallyExclusiveSemaphores[categoryName]!.count--
+        
+        if self.mutuallyExclusiveSemaphores[categoryName]!.count == 0 {
+            self.mutuallyExclusiveSemaphores.removeValueForKey(categoryName)
         }
         
+        print("REMOVE", categoryName, self.mutuallyExclusiveSemaphores[categoryName]?.count ?? 0)
+        
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+        
+        dispatch_semaphore_signal(semaphore)
     }
     
 }

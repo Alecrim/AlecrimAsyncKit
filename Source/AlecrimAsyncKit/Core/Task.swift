@@ -36,14 +36,11 @@ public class BaseTask<V>: TaskType {
     private var waiting = true
     private var spinlock = OS_SPINLOCK_INIT
     
-    private var observers: [TaskObserver]?
+    private var deferredClosures: Array<() -> Void>?
     
-    private init(observers: [TaskObserver]?) {
+    private init() {
         //
         dispatch_group_enter(self.dispatchGroup)
-
-        //
-        self.observers = observers
     }
     
     deinit {
@@ -85,9 +82,8 @@ public class BaseTask<V>: TaskType {
             dispatch_group_leave(self.dispatchGroup)
         }
         
-        
         //
-        self.observers?.forEach { $0.taskDidFinish(self) }
+        self.deferredClosures?.forEach { $0() }
     }
     
     // MARK: -
@@ -105,6 +101,16 @@ public class BaseTask<V>: TaskType {
         self.setValue(value, error: nil)
     }
 
+    // MARK: -
+
+    private func addDeferredClosure(closure: () -> Void) {
+        if self.deferredClosures == nil {
+            self.deferredClosures = [closure]
+        }
+        else {
+            self.deferredClosures!.append(closure)
+        }
+    }
 }
 
 
@@ -124,24 +130,40 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
     
     internal init(queue: NSOperationQueue, observers: [TaskObserver]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
-        super.init(observers: observers)
+        super.init()
 
         do {
             if let conditions = conditions where !conditions.isEmpty {
+                let mutuallyExclusiveConditions = conditions.flatMap { $0 as? MutuallyExclusiveTaskCondition }
+                if !mutuallyExclusiveConditions.isEmpty {
+                    mutuallyExclusiveConditions.forEach { mutuallyExclusiveCondition in
+                        MutuallyExclusiveTaskCondition.increment(mutuallyExclusiveCondition.categoryName)
+                        
+                        self.addDeferredClosure {
+                            MutuallyExclusiveTaskCondition.decrement(mutuallyExclusiveCondition.categoryName)
+                        }
+                    }
+                }
+
+                
+                //
                 try await(TaskCondition.asyncEvaluateConditions(conditions))
             }
             
             if !self.cancelled {
                 queue.addOperationWithBlock {
                     if !self.cancelled {
-                        self.observers?.forEach { $0.taskDidStart(self) }
+                        observers?.forEach { $0.taskDidStart(self) }
+                        self.addDeferredClosure { [unowned self] in
+                            observers?.forEach { $0.taskDidFinish(self) }
+                        }
+                        
                         closure(self)
                     }
                 }
             }
         }
         catch let error {
-            self.observers = nil
             self.finishWithError(error)
         }
     }
@@ -190,11 +212,15 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
 public final class NonFailableTask<V>: BaseTask<V> {
 
     internal init(queue: NSOperationQueue, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
-        assert(queue.maxConcurrentOperationCount > 1)
-        super.init(observers: observers)
+        assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
+        super.init()
 
         queue.addOperationWithBlock {
-            self.observers?.forEach { $0.taskDidStart(self) }
+            observers?.forEach { $0.taskDidStart(self) }
+            self.addDeferredClosure { [unowned self] in
+                observers?.forEach { $0.taskDidFinish(self) }
+            }
+
             closure(self)
         }
     }
