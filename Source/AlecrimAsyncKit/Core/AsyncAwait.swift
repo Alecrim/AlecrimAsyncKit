@@ -12,7 +12,7 @@ private let _defaultTaskQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.Task"
     queue.qualityOfService = .Background
-    queue.maxConcurrentOperationCount = max(NSProcessInfo().activeProcessorCount, 8)
+    queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
     }()
@@ -21,7 +21,7 @@ private let _defaultRunTaskQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.RunTask"
     queue.qualityOfService = .Background
-    queue.maxConcurrentOperationCount = max(NSProcessInfo().activeProcessorCount, 8)
+    queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
 
     return queue
     }()

@@ -12,7 +12,7 @@ private let _defaultTaskConditionQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.TaskCondition"
     queue.qualityOfService = .Background
-    queue.maxConcurrentOperationCount = max(NSProcessInfo().activeProcessorCount, 8)
+    queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
     }()
