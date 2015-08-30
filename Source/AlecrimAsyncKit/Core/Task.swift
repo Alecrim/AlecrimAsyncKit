@@ -212,7 +212,7 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
 public final class NonFailableTask<V>: BaseTask<V> {
 
     internal init(queue: NSOperationQueue, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
-        assert(queue.maxConcurrentOperationCount > 1)
+        assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
 
         queue.addOperationWithBlock {
