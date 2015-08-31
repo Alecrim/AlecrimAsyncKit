@@ -58,7 +58,7 @@ public class TaskCondition {
     }
     
     internal func asyncEvaluate() -> Task<Void> {
-        return async(_defaultTaskConditionQueue) { [unowned self] task in
+        return asyncEx(_defaultTaskConditionQueue) { [unowned self] task in
             self.evaluationClosure { conditionResult in
                 switch conditionResult {
                 case .Satisfied:
@@ -79,24 +79,17 @@ public class TaskCondition {
 extension TaskCondition {
     
     internal static func asyncEvaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
-        return async(_defaultTaskConditionQueue) { task in
-            do {
-                for condition in conditions {
-                    if let subconditions = condition.subconditions {
-                        try await(TaskCondition.asyncEvaluateConditions(subconditions))
-                    }
-                    
-                    if let dependencyTask = condition.dependencyTask {
-                        try await(dependencyTask)
-                    }
-                    
-                    try await(condition.asyncEvaluate())
+        return async(_defaultTaskConditionQueue) {
+            for condition in conditions {
+                if let subconditions = condition.subconditions {
+                    try await(TaskCondition.asyncEvaluateConditions(subconditions))
                 }
                 
-                task.finish()
-            }
-            catch let error {
-                task.finishWithError(error)
+                if let dependencyTask = condition.dependencyTask {
+                    try await(dependencyTask)
+                }
+                
+                try await(condition.asyncEvaluate())
             }
         }
     }

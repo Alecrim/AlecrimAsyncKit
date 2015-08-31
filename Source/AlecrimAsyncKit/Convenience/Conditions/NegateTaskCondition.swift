@@ -15,7 +15,7 @@ public final class NegateTaskCondition: TaskCondition {
     }
 
     internal override func asyncEvaluate() -> Task<Void> {
-        return async { task in
+        return asyncEx { task in
             do {
                 try await(super.asyncEvaluate())
                 
