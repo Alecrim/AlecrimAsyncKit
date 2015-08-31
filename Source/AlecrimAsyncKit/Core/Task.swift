@@ -13,23 +13,20 @@ internal let taskCancelledError = NSError(domain: NSCocoaErrorDomain, code: NSUs
 // MARK: - protocols needed to support task observers in this version
 
 public protocol TaskType: class {
-    
-    var value: Any! { get }
-    var error: ErrorType? { get }
-    
 }
 
 public protocol FailableTaskType: TaskType {
-    
     func cancel()
-    
+}
+
+public protocol NonFailableTaskType: TaskType {
 }
 
 // MARK: -
 
 public class BaseTask<V>: TaskType {
     
-    public private(set) var value: Any!
+    public private(set) var value: V!
     public private(set) var error: ErrorType?
     
     private let dispatchGroup: dispatch_group_t = dispatch_group_create()
@@ -39,7 +36,6 @@ public class BaseTask<V>: TaskType {
     private var deferredClosures: Array<() -> Void>?
     
     private init() {
-        //
         dispatch_group_enter(self.dispatchGroup)
     }
     
@@ -55,35 +51,34 @@ public class BaseTask<V>: TaskType {
     }
     
     private final func setValue(value: V?, error: ErrorType?) {
-        do {
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-            defer {
-                withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-            }
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+        defer {
+            withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
 
-            // assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
-            // we do not assert anymore, but the value or error can be assigned only once anyway
-            guard self.value == nil && self.error == nil else { return }
-            
-            assert(value != nil || error != nil, "Invalid combination of value/error.")
-            
-            if let error = error {
-                self.value = nil
-                self.error = error
-            }
-            else {
-                self.value = value
-                self.error = nil
-            }
-            
-            self.waiting = false
-            
             //
-            dispatch_group_leave(self.dispatchGroup)
+            self.deferredClosures?.forEach { $0() }
+            self.deferredClosures = nil
         }
         
+        // assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
+        // we do not assert anymore, but the value or error can be assigned only once anyway
+        guard self.value == nil && self.error == nil else { return }
+        
+        assert(value != nil || error != nil, "Invalid combination of value/error.")
+        
+        if let error = error {
+            self.value = nil
+            self.error = error
+        }
+        else {
+            self.value = value
+            self.error = nil
+        }
+        
+        self.waiting = false
+        
         //
-        self.deferredClosures?.forEach { $0() }
+        dispatch_group_leave(self.dispatchGroup)
     }
     
     // MARK: -
@@ -103,12 +98,12 @@ public class BaseTask<V>: TaskType {
 
     // MARK: -
 
-    private func addDeferredClosure(closure: () -> Void) {
+    private func addDeferredClosure(deferredClosure: () -> Void) {
         if self.deferredClosures == nil {
-            self.deferredClosures = [closure]
+            self.deferredClosures = [deferredClosure]
         }
         else {
-            self.deferredClosures!.append(closure)
+            self.deferredClosures!.append(deferredClosure)
         }
     }
 }
@@ -144,7 +139,6 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
                         }
                     }
                 }
-
                 
                 //
                 try await(TaskCondition.asyncEvaluateConditions(conditions))
@@ -153,9 +147,11 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
             if !self.cancelled {
                 queue.addOperationWithBlock {
                     if !self.cancelled {
-                        observers?.forEach { $0.taskDidStart(self) }
-                        self.addDeferredClosure { [unowned self] in
-                            observers?.forEach { $0.taskDidFinish(self) }
+                        if let observers = observers where !observers.isEmpty {
+                            observers.forEach { $0.taskDidStart(self) }
+                            self.addDeferredClosure { [unowned self] in
+                                observers.forEach { $0.taskDidFinish(self) }
+                            }
                         }
                         
                         closure(self)
@@ -176,7 +172,7 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
             throw error
         }
         else {
-            return self.value as! V
+            return self.value
         }
     }
     
@@ -209,16 +205,18 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
 
 }
 
-public final class NonFailableTask<V>: BaseTask<V> {
+public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
 
     internal init(queue: NSOperationQueue, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
 
         queue.addOperationWithBlock {
-            observers?.forEach { $0.taskDidStart(self) }
-            self.addDeferredClosure { [unowned self] in
-                observers?.forEach { $0.taskDidFinish(self) }
+            if let observers = observers where !observers.isEmpty {
+                observers.forEach { $0.taskDidStart(self) }
+                self.addDeferredClosure { [unowned self] in
+                    observers.forEach { $0.taskDidFinish(self) }
+                }
             }
 
             closure(self)
@@ -228,7 +226,7 @@ public final class NonFailableTask<V>: BaseTask<V> {
     @warn_unused_result
     internal func waitForCompletionAndReturnValue() -> V {
         self.waitForCompletion()
-        return self.value as! V
+        return self.value
     }
 
     // MARK: -

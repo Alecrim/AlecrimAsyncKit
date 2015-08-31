@@ -13,21 +13,21 @@ for o in 0..<1_000_000 {
     //
 }
     
-// now we need the task result
-let result = await(task)
-print(result)
+// now we need the task result value
+let value = await(task)
+print(value)
 
 // in the Swift world it is better to have "async" as a prefix (not a suffix)
 // for the task returning `func` name
 func asyncDoSomethingNonFailableInBackground() -> NonFailableTask<Int> {
-    return async { task in
-        var result = 0
+    return async {
+        var value = 0
     
         for i in 0..<1_000_000_000 {
-           result = i
+           value = i
         }
         
-        task.finishWithValue(result)
+        return value
     }
 }
 
@@ -37,8 +37,8 @@ Or:
 
 ```swift
 do {
-    let result = try await { asyncDoSomethingInBackground() }
-    print(result)
+    let value = try await { asyncDoSomethingInBackground() }
+    print(value)
 }
 catch let error {
     print(error)
@@ -47,22 +47,21 @@ catch let error {
 // in the Swift world it is better to have "async" as a prefix (not a suffix)
 // for the task returning `func` name
 func asyncDoSomethingInBackground() -> Task<Int> {
-    return async { task in
+    return async {
         var error: ErrorType? = nil
-        var result = 0
+        var value = 0
         
         for i in 0..<1_000_000_000 {
-           result = i
+           value = i
         }
         
         // ...
         
         if let error = error {
-            task.finishWithError(error)
+            throw error
         }
-        else {
-            task.finishWithValue(result)
-        }
+
+        return value
     }
 }
 
