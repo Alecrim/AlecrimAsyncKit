@@ -36,11 +36,11 @@ class ViewController: UIViewController {
         // to exemplify that asynchronous tasks can include interface elements and user actions
         // (maybe it is not a common case, but it is good start for an app "coaching" feature, for example)
         
-        self.t1 = async { task in
+        self.t1 = asyncEx { task in
             // do nothing here, see `oneButtonPressed:` method below
         }
         
-        self.t2 = async { task in
+        self.t2 = asyncEx { task in
             await(self.t1)
             
             NSOperationQueue.mainQueue().addOperationWithBlock {
@@ -49,7 +49,7 @@ class ViewController: UIViewController {
             }
         }
 
-        self.t3 = async { task in
+        self.t3 = asyncEx { task in
             await(self.t2)
             
             NSOperationQueue.mainQueue().addOperationWithBlock {
@@ -57,7 +57,7 @@ class ViewController: UIViewController {
             }
         }
 
-        self.t4 = async { task in
+        self.t4 = asyncEx { task in
             await(self.t3)
             
             NSOperationQueue.mainQueue().addOperationWithBlock {
@@ -75,7 +75,7 @@ class ViewController: UIViewController {
 
             // to demonstrate delay condition...
             // (even if we do not wait for this task, it will be started after two seconds anyway)
-            let _: Task<Void> = async(condition: DelayTaskCondition(timeInterval: 2)) { task in
+            let _: Task<Void> = asyncEx(condition: DelayTaskCondition(timeInterval: 2)) { task in
                 NSOperationQueue.mainQueue().addOperationWithBlock {
                     self.doneLabel.text = "And now for something\ncompletely different..."
                     task.finish() // we have always to tell when the task is finished
@@ -138,7 +138,7 @@ extension ViewController {
 extension ViewController {
 
     func asyncDone() -> NonFailableTask<Void> {
-        return async { task in
+        return asyncEx { task in
             await(self.t4)
             
             NSOperationQueue.mainQueue().addOperationWithBlock {
@@ -160,22 +160,21 @@ extension ViewController {
         
         // here we have the common case where a func returns a task
         // and the task is finished inside its inner block
-        return async(observers: [networkActivityObserver, timeoutObserver]) { task in
+        return async(observers: [networkActivityObserver, timeoutObserver]) {
             // remember that on iOS 9 (and OS X 10.11 El Capitan, My Capitan!) we cannot use "http" anymore because...
             // wibbly wobbly... time-y wimey... stuff!
             guard let imageURL = NSURL(string: "https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-90081.jpg"),
-                  let imageData = NSData(contentsOfURL: imageURL),
+                  let imageData = NSData(contentsOfURL: imageURL), // this is OK for example purposes, in real life use NSURLSession and related classes
                   let image = UIImage(data: imageData)
             else {
-                task.finishWithError(NSError(domain: "com.alecrim.AlecrimAsyncKitExampleiOS", code: 1000, userInfo: nil))
-                return
+                throw NSError(domain: "com.alecrim.AlecrimAsyncKitExampleiOS", code: 1000, userInfo: nil)
             }
             
             NSThread.sleepForTimeInterval(3) // I think we can let them waiting a little more...
             
             // thank you for the image, Minions and wallhaven.cc :-) 
             // (All rights reserved to its owners. Gru?)
-            task.finishWithValue(image)
+            return image
         }
     }
     

@@ -36,7 +36,6 @@ public class BaseTask<V>: TaskType {
     private var deferredClosures: Array<() -> Void>?
     
     private init() {
-        //
         dispatch_group_enter(self.dispatchGroup)
     }
     
@@ -52,36 +51,34 @@ public class BaseTask<V>: TaskType {
     }
     
     private final func setValue(value: V?, error: ErrorType?) {
-        do {
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-            defer {
-                withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-            }
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+        defer {
+            withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
 
-            // assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
-            // we do not assert anymore, but the value or error can be assigned only once anyway
-            guard self.value == nil && self.error == nil else { return }
-            
-            assert(value != nil || error != nil, "Invalid combination of value/error.")
-            
-            if let error = error {
-                self.value = nil
-                self.error = error
-            }
-            else {
-                self.value = value
-                self.error = nil
-            }
-            
-            self.waiting = false
-            
             //
-            dispatch_group_leave(self.dispatchGroup)
+            self.deferredClosures?.forEach { $0() }
+            self.deferredClosures = nil
         }
         
+        // assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
+        // we do not assert anymore, but the value or error can be assigned only once anyway
+        guard self.value == nil && self.error == nil else { return }
+        
+        assert(value != nil || error != nil, "Invalid combination of value/error.")
+        
+        if let error = error {
+            self.value = nil
+            self.error = error
+        }
+        else {
+            self.value = value
+            self.error = nil
+        }
+        
+        self.waiting = false
+        
         //
-        self.deferredClosures?.forEach { $0() }
-        self.deferredClosures = nil
+        dispatch_group_leave(self.dispatchGroup)
     }
     
     // MARK: -
