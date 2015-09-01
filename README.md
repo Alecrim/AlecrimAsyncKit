@@ -176,7 +176,7 @@ func asyncDoSomething() -> Task<Void> {
 
 #### Task cancellation
 
-Since a tasks is started when it is created it can only be cancelled after running (if you want to cancel a task before it starts, use conditions).
+Since a task is started when it is created it can only be cancelled after running (if you want to cancel a task before it starts, use conditions).
 
 To cancel a task you use `asyncEx` method to create it and use the `cancel` method of `Task<T>` class.
 
