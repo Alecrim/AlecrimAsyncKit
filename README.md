@@ -27,11 +27,11 @@ do {
 
     // now we need the value
     let value = await(task)
-        print("The result is \(value)")
-    }
-    catch let error {
-        print(error)
-    }
+    print("The result is \(value)")
+}
+catch let error {
+    print(error)
+}
 
 // it is better to have "async" as a prefix to maintain consistency
 func asyncCalculate() -> Task<Int> {
