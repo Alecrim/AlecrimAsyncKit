@@ -183,7 +183,7 @@ func asyncDoSomething() -> Task<Void> {
 
 #### The main thread
 
-Even if you cannot "await" a task on main thread, you still can perform a background task from the main thread using the `runTask` helper global function (and you can run the risk of getting lost in the pyramid again, but this is your choice). In this case there will be an optional completion handler that will be performed when the task is finished.
+Even if you cannot "await" a task on main thread, you still can start a background task from the main thread using the `runTask` helper global function (and you can run the risk of getting lost in the pyramid again, but this is your choice). In this case there will be an optional completion handler that will be performed when the task is finished.
 
 ```swift
 // this code is running on the main thread
