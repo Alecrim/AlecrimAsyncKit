@@ -174,6 +174,18 @@ func asyncDoSomething() -> Task<Void> {
 }
 ```
 
+#### Task cancellation
+
+Since a tasks is started when it is created it can only be cancelled after running (if you want to cancel a task before it starts, use conditions).
+
+To cancel a task you use `asyncEx` method to create it and use the `cancel` method of `Task<T>` class.
+
+To cancel a task is the same as finishing it with a `NSError` with `NSCocoaErrorDomain` domain and `NSUserCancelledError` code.
+
+If you want to use task cancellation you'll have check inside the task body closure for the `cancelled` property to stop any work the task are doing as soon it is cancelled.
+
+Only failable tasks can be cancelled.
+
 #### The main thread
 
 Even if you cannot "await" a task on main thread, you still can start a background task from the main thread using the `runTask` helper global function (and you can run the risk of getting lost in the pyramid again, but this is your choice). In this case there will be an optional completion handler that will be performed when the task is finished.
