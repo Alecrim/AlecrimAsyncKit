@@ -158,7 +158,7 @@ The **AlecrimAsyncKit** framework provides some predefined observers, but you ca
 
 ```swift
 func asyncDoSomething() -> Task<Void> {
-    let observer = TaskObserver
+    let observer = TaskObserver()
         .didStart { _ in
             print("The task was started...")
         }
