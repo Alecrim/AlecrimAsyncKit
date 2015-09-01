@@ -149,6 +149,8 @@ func asyncDoSomething() -> Task<Void> {
 }
 ```
 
+If any of the task conditions is not satisfied the task will not be started. Only failable tasks can have conditions.
+
 
 #### Observers
 
