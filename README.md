@@ -102,19 +102,23 @@ Sometimes a task can not be performed in a linear fashion or it depends on other
 The three main differences in this case: a `task` parameter is used as parameter of the task closure body; a value cannot be returned using the `return` keyword; you will *must always* report the task completion using the appropriate `Task<T>`/`NonFailableTask<T>` methods (`finish`, `finishWithValue:`, `finishWithError:`, `finishWithValue:error:`).
 
 ```swift
-func asyncDoSomething() -> Task<Void> {
-    return asyncEx() { task in
-        doOtherThingInBackgroundWithCompletionHander { someValue, error in
-            if let error = error {
-                task.finishWithError(error)
-            }
-            else {
-                task.finishWithValue(someValue)
+import Foundation
+import CloudKit
+
+extension CKDatabase {
+
+    public func asyncPerformQuery(query: CKQuery, inZoneWithID zoneID: CKRecordZoneID?) -> Task<[CKRecord]> {
+        return asyncEx { task in
+            self.performQuery(query, inZoneWithID: zoneID) { records, error in
+                task.finishWithValue(records, error: error)
             }
         }
     }
+
 }
 ```
+
+
 
 A task completion can also be reported outside the task closure body. Examples of this can be seen in the iOS project example code.
 
