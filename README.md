@@ -19,37 +19,37 @@ A failable task is created passing a closure to the `async` global function (tha
 ```swift
 // this code is running in background
 do {
-// the task is started immediately
-let task = try await(asyncCalculate())
+    // the task is started immediately
+    let task = try await(asyncCalculate())
 
-// we can do other things while the calculation is made...
-// ...
+    // we can do other things while the calculation is made...
+    // ...
 
-// now we need the value
-let value = await(task)
-print("The result is \(value)")
-}
-catch let error {
-print(error)
-}
+    // now we need the value
+    let value = await(task)
+        print("The result is \(value)")
+    }
+    catch let error {
+        print(error)
+    }
 
 // it is better to have "async" as a prefix to maintain consistency
-func asyncCalculate() -> Task<Int>
-return async {
-var value = 0
+func asyncCalculate() -> Task<Int> {
+    return async {
+        var value = 0
 
-for i in 0..<1_000_000 {
-value = i
-}
+        for i in 0..<1_000_000 {
+            value = i
+        }
 
-if i >= 1_000_000 {
-// when using async with a failable task, we can throw errors
-throw NSError(...)
-}
+        if i >= 1_000_000 {
+            // when using async with a failable task, we can throw errors
+            throw NSError(...)
+        }
 
-// when using async, we return the task value
-return value
-}
+        // when using async, we return the task value
+        return value
+    }
 }
 ```
 
@@ -66,17 +66,17 @@ let value = wait { asyncCalculate() }
 print("The result is \(value)")
 
 // it is better to have "async" as a prefix to maintain consistency
-func asyncCalculate() -> NonFailableTask<Int>
-return async {
-var value = 0
+func asyncCalculate() -> NonFailableTask<Int> {
+    return async {
+        var value = 0
 
-for i in 0..<1_000_000 {
-value = i
-}
+        for i in 0..<1_000_000 {
+            value = i
+        }
 
-// when using async, we return the task value
-return value
-}
+        // when using async, we return the task value
+        return value
+    }
 }
 ```
 
@@ -103,16 +103,16 @@ The three main differences in this case: a `task` parameter is used as parameter
 
 ```swift
 func asyncDoSomething() -> Task<Void> {
-return asyncEx() { task in
-doOtherThingInBackgroundWithCompletionHander { someValue, error in
-if let error = error {
-task.finishWithError(error)
-}
-else {
-task.finishWithValue(someValue)
-}
-}
-}
+    return asyncEx() { task in
+        doOtherThingInBackgroundWithCompletionHander { someValue, error in
+            if let error = error {
+                task.finishWithError(error)
+            }
+            else {
+                task.finishWithValue(someValue)
+            }
+        }
+    }
 }
 ```
 
@@ -125,9 +125,9 @@ If other queue is not specified a task will run in a default (and shared) backgr
 
 ```swift
 func asyncDoSomething() -> Task<Void> {
-return async(someAlreadyCreatedOperationQueue) {
-// ...
-}
+    return async(someAlreadyCreatedOperationQueue) {
+        // ...
+    }
 }
 ```
 
@@ -139,22 +139,22 @@ A condition is an instance from the `TaskCondition` class that can be passed as 
 
 One task can have one or more conditions. Different tasks can have the same conditions if applicable in your logic. Also: static conditions and newly created ones are treated the same way, they are always evaluated each time a task that have them is to start.
 
-The AlecrimAsyncKit framework provides some predefined conditions, but you can create others. The `MutuallyExclusiveTaskCondition` is one special kind of condition that prevents tasks that share the same behavior from running at the same time.
+The **AlecrimAsyncKit** framework provides some predefined conditions, but you can create others. The `MutuallyExclusiveTaskCondition` is one special kind of condition that prevents tasks that share the same behavior from running at the same time.
 
 ```swift
 func asyncDoSomething() -> Task<Void> {
-let condition = TaskCondition { result in
-if ... {
-result(.Satisfied)
-}
-else {
-result(.FailedWithError(NSError(...)))
-}
-}
+    let condition = TaskCondition { result in
+        if ... {
+            result(.Satisfied)
+        }
+        else {
+            result(.FailedWithError(NSError(...)))
+        }
+    }
 
-return async(condition: condition) {
-// ...
-}
+    return async(condition: condition) {
+        // ...
+    }
 }
 ```
 
@@ -163,22 +163,21 @@ return async(condition: condition) {
 
 A task can have its beginning and its ending observed using the `TaskObserver` class instances. The observers can be passed to the `async` global function when a task is created.
 
-The AlecrimAsyncKit provides some predefined observers, but you can created others.
+The **AlecrimAsyncKit** provides some predefined observers, but you can created others.
 
 ```swift
 func asyncDoSomething() -> Task<Void> {
-let observer = TaskObserver
-.didStart { _ in
-print("The task was started...")
-}
-.didFinish { _ in
-print("The task was finished...")
+    let observer = TaskObserver
+        .didStart { _ in
+            print("The task was started...")
+        }
+        .didFinish { _ in
+            print("The task was finished...")
+        }
 
-}
-
-return async(observers: [observer]) {
-// ...
-}
+    return async(observers: [observer]) {
+        // ...
+    }
 }
 ```
 
@@ -189,30 +188,31 @@ Even if you cannot "await" a task on main thread, you still can perform a backgr
 ```swift
 // this code is running on the main thread
 runTask(asyncCalculate()) { value, error in
-if let error = error {
-// do a nice error handling here
-}
-else {
-print("The result is \(value)")
-}
+    if let error = error {
+        // do a nice error handling here
+    }
+    else {
+        print("The result is \(value)")
+    }
 }
 
 // it is better to have "async" as a prefix to maintain consistency
-func asyncCalculate() -> Task<Int>
-return async {
-var value = 0
+func asyncCalculate() -> Task<Int> {
+    return async {
+        var value = 0
 
-for i in 0..<1_000_000 {
-value = i
-}
+        for i in 0..<1_000_000 {
+            value = i
+        }
 
-if i >= 1_000_000 {
-// when using async with a failable task, we can throw errors
-throw NSError(...)
-}
+        if i >= 1_000_000 {
+            // when using async with a failable task, we can throw errors
+            throw NSError(...)
+        }
 
-// when using async, we return the task value
-return value
+        // when using async, we return the task value
+        return value
+    }
 }
 ```
 
@@ -232,4 +232,4 @@ The Session 226 of WWDC 2015 (“Advanced NSOperations”) that exemplified seve
 - [Vanderlei Martinelli](https://github.com/vmartinelli)
 
 ## License
-AlecrimAsyncKit is released under an MIT license. See LICENSE for more information.
+**AlecrimAsyncKit** is released under an MIT license. See LICENSE for more information.
