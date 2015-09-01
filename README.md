@@ -62,7 +62,7 @@ You mark a task as non-failable using `NonFailableTask<T>` class instead of `Tas
 
 ```swift
 // this code is running in background
-let value = wait { asyncCalculate() }
+let value = await { asyncCalculate() }
 print("The result is \(value)")
 
 // it is better to have "async" as a prefix to maintain consistency
@@ -163,7 +163,7 @@ func asyncDoSomething() -> Task<Void> {
 
 A task can have its beginning and its ending observed using the `TaskObserver` class instances. The observers can be passed to the `async` global function when a task is created.
 
-The **AlecrimAsyncKit** provides some predefined observers, but you can created others.
+The **AlecrimAsyncKit** framework provides some predefined observers, but you can created others.
 
 ```swift
 func asyncDoSomething() -> Task<Void> {
