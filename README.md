@@ -20,7 +20,7 @@ A failable task is created passing a closure to the `async` global function (tha
 // this code is running in background
 do {
     // the task is started immediately
-    let task = try await(asyncCalculate())
+    let task = asyncCalculate()
 
     // we can do other things while the calculation is made...
     // ...
@@ -84,7 +84,7 @@ func asyncCalculate() -> NonFailableTask<Int> {
 
 #### Async, extended
 
-Sometimes a task can not be performed in a linear fashion or it depends on other pieces of code running in other threads. Sometimes a task will only be completed in another context or in another thread. For this cases you use the `asyncEx` global function instead of `async` to create a failable or non-failable task.
+Sometimes a task can not be performed in a linear fashion or it depends on other pieces of code running in other threads. Sometimes a task will only be completed in another context or in another thread. In these cases you use the `asyncEx` global function instead of `async` to create a failable or non-failable task.
 
 The three main differences in this case: a `task` parameter is used as parameter of the task closure body; a value cannot be returned using the `return` keyword; you will *must always* report the task completion using the appropriate `Task<T>`/`NonFailableTask<T>` methods (`finish`, `finishWithValue:`, `finishWithError:`, `finishWithValue:error:`).
 
@@ -238,10 +238,27 @@ In the task closure body it is possible to "await" other tasks too.
 ## Motivation
 To make things simpler and get rid of the “completionHandler pyramid of doom”. I must confess that one thing that I’d like to see in Swift is a better asynchronous task management than the `completionHandler:` way. Even that version 2 has brought several important and extremely well implemented features, this in particular was missing.
 
+The `async` and `await` was first implemented in **AlecrimFoundation** framework (a private **Alecrim** framework) with a few lines of code wrote in Swift 1.x. Then they were ported to its own framework and the source was opened as the features have evolved.
+
 ## Inspiration
 The `async`/`await` concept from .NET platform. Yes, I am a very happy OS X/iOS developer but the world is not and should not be limited to this and there are very good things there that we can bring to this side.
 
 The Session 226 of WWDC 2015 (“Advanced NSOperations”) that exemplified several interesting concepts using operations (but missed a simple way to pass data between them).
+
+### Branches and contribution
+
+- master - The production branch. Clone or fork this repository for the latest copy.
+- develop - The active development branch. [Pull requests](https://help.github.com/articles/creating-a-pull-request) should be directed to this branch.
+
+If you want to contribute, please feel free to fork the repository and send pull requests with your fixes, suggestions and additions. :-)
+
+The main areas the framework needs improvements:
+
+- Correct the README, code and examples for English mistakes;
+- Write code documentation;
+- Write unit tests;
+- Write more conditions and observers;
+- Replace some pieces of code with more "elegant" ones.
 
 ---
 
