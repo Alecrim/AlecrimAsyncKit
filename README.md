@@ -80,19 +80,6 @@ func asyncCalculate() -> NonFailableTask<Int> {
 }
 ```
 
-### Considerations
-
-After its creation the task is immediately started in background. It's completion can be "awaited" using the `await` global function, that blocks the current thread until the task finishes. When finished the task return value is available and the next line after the `await` call is performed normally.
-
-If a task is not "awaited" it will be performed anyway. In this case no code in any thread will be blocked and its returning value will be discarded.
-
-Multiple `await` calls for the same task are possible. In this case the task will run only once, but when it is finished the value will be available to all `await` calls.
-
-A specific task instance only lives once and cannot be "reused", so when it is finished, it must be released (ARC in most cases will do it for you). More than one instance of the same task can be performed in parallel, however (if you return a task from a `func`, for example).
-
-In the task closure body it is possible to "await" other tasks too.
-
-
 ### Advanced use
 
 #### Async, extended
@@ -220,7 +207,19 @@ func asyncCalculate() -> Task<Int> {
 }
 ```
 
-The difference between a failable task and a non-failable task when running it using `runTask` is that a non-failable does not have the `error` parameter in its `runTask` completion handler closure.
+The difference between a failable task and a non-failable task when running them using `runTask` is that a non-failable does not have the `error` parameter in its `runTask` completion handler closure.
+
+### Considerations
+
+After its creation the task is immediately started in background. It's completion can be "awaited" using the `await` global function, that blocks the current thread until the task finishes. When finished the task return value is available and the next line after the `await` call is performed normally.
+
+If a task is not "awaited" it will be performed anyway. In this case no code in any thread will be blocked and its returning value will be discarded.
+
+Multiple `await` calls for the same task are possible. In this case the task will run only once, but when it is finished the value will be available to all `await` calls.
+
+A specific task instance only lives once and cannot be "reused", so when it is finished, it must be released (ARC in most cases will do it for you). More than one instance of the same task can be performed in parallel, however (if you return a task from a `func`, for example).
+
+In the task closure body it is possible to "await" other tasks too.
 
 ## Motivation
 To make things simpler and get rid of the “completionHandler pyramid of doom”. I must confess that one thing that I’d like to see in Swift is a better asynchronous task management than the `completionHandler:` way. Even that version 2 has brought several important and extremely well implemented features, this in particular was missing.
