@@ -238,7 +238,7 @@ In the task closure body it is possible to "await" other tasks too.
 ## Motivation
 To make things simpler and get rid of the “completionHandler pyramid of doom”. I must confess that one thing that I’d like to see in Swift is a better asynchronous task management than the `completionHandler:` way. Even that version 2 has brought several important and extremely well implemented features, this in particular was missing.
 
-The `async` and `await` was first implemented in **AlecrimFoundation** framework (a private **Alecrim** framework) with a few lines of code wrote in Swift 1.x. Then they were ported to its own framework and the source was opened as the features have evolved.
+The `async` and `await` was first implemented in **AlecrimFoundation** framework (a private **Alecrim** framework) with a few lines of code wrote in Swift 1.x. Then they were ported to their own framework and the source was opened as the features have evolved.
 
 ## Inspiration
 The `async`/`await` concept from .NET platform. Yes, I am a very happy OS X/iOS developer but the world is not and should not be limited to this and there are very good things there that we can bring to this side.
