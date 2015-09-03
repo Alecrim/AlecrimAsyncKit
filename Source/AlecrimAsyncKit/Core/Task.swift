@@ -126,41 +126,49 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
     internal init(queue: NSOperationQueue, observers: [TaskObserver]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
+        
+        queue.addOperationWithBlock {
+            do {
+                //
+                if let conditions = conditions where !conditions.isEmpty {
+                    //
+                    guard !self.cancelled else { return }
 
-        do {
-            if let conditions = conditions where !conditions.isEmpty {
-                let mutuallyExclusiveConditions = conditions.flatMap { $0 as? MutuallyExclusiveTaskCondition }
-                if !mutuallyExclusiveConditions.isEmpty {
-                    mutuallyExclusiveConditions.forEach { mutuallyExclusiveCondition in
-                        MutuallyExclusiveTaskCondition.increment(mutuallyExclusiveCondition.categoryName)
+                    //
+                    let mutuallyExclusiveConditions = conditions.flatMap { $0 as? MutuallyExclusiveTaskCondition }
+                    if !mutuallyExclusiveConditions.isEmpty {
+                        mutuallyExclusiveConditions.forEach { mutuallyExclusiveCondition in
+                            MutuallyExclusiveTaskCondition.increment(mutuallyExclusiveCondition.categoryName)
+                        }
                         
                         self.addDeferredClosure {
-                            MutuallyExclusiveTaskCondition.decrement(mutuallyExclusiveCondition.categoryName)
+                            mutuallyExclusiveConditions.forEach { mutuallyExclusiveCondition in
+                                MutuallyExclusiveTaskCondition.decrement(mutuallyExclusiveCondition.categoryName)
+                            }
                         }
+                    }
+
+                    //
+                    try await(TaskCondition.asyncEvaluateConditions(conditions))
+                }
+                
+                //
+                guard !self.cancelled else { return }
+                
+                //
+                if let observers = observers where !observers.isEmpty {
+                    observers.forEach { $0.taskDidStart(self) }
+                    self.addDeferredClosure { [unowned self] in
+                        observers.forEach { $0.taskDidFinish(self) }
                     }
                 }
                 
                 //
-                try await(TaskCondition.asyncEvaluateConditions(conditions))
+                closure(self)
             }
-            
-            if !self.cancelled {
-                queue.addOperationWithBlock {
-                    if !self.cancelled {
-                        if let observers = observers where !observers.isEmpty {
-                            observers.forEach { $0.taskDidStart(self) }
-                            self.addDeferredClosure { [unowned self] in
-                                observers.forEach { $0.taskDidFinish(self) }
-                            }
-                        }
-                        
-                        closure(self)
-                    }
-                }
+            catch let error {
+                self.finishWithError(error)
             }
-        }
-        catch let error {
-            self.finishWithError(error)
         }
     }
     
