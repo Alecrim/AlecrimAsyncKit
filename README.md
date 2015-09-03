@@ -156,7 +156,7 @@ If any of the task conditions is not satisfied the task will not be started. Onl
 
 A task can have its beginning and its ending observed using the `TaskObserver` class instances. The observers can be passed to the `async` global function when a task is created.
 
-The **AlecrimAsyncKit** framework provides some predefined observers, but you can created others.
+The **AlecrimAsyncKit** framework provides some predefined observers, but you can create others.
 
 ```swift
 func asyncDoSomething() -> Task<Void> {
@@ -225,7 +225,7 @@ The difference between a failable task and a non-failable task when running them
 
 ### Considerations
 
-After its creation the task is immediately started in background. It's completion can be "awaited" using the `await` global function, that blocks the current thread until the task finishes. When finished the task return value is available and the next line after the `await` call is performed normally.
+After its creation the task is immediately started in background. Its completion can be "awaited" using the `await` global function, that blocks the current thread until the task finishes. When finished the task return value is available and the next line after the `await` call is performed normally.
 
 If a task is not "awaited" it will be performed anyway. In this case no code in any thread will be blocked and its returning value will be discarded.
 
