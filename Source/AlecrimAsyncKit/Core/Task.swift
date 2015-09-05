@@ -8,8 +8,6 @@
 
 import Foundation
 
-internal let taskCancelledError = NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil)
-
 // MARK: - protocols needed to support task observers in this version
 
 public protocol TaskType: class {
@@ -165,6 +163,12 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
                 
                 //
                 closure(self)
+            }
+            catch TaskConditionError.NotSatisfied {
+                self.cancel()
+            }
+            catch TaskConditionError.ExecutionFailed(let innerError) {
+                self.finishWithError(innerError)
             }
             catch let error {
                 self.finishWithError(error)

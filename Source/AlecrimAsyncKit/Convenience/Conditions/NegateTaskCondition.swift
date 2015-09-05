@@ -11,16 +11,14 @@ import Foundation
 public final class NegateTaskCondition: TaskCondition {
     
     public init(_ otherCondition: TaskCondition) {
-        super.init(subconditions: otherCondition.subconditions, dependencyTask: otherCondition.dependencyTask, evaluationClosure: otherCondition.evaluationClosure)
+        super.init(subconditions: otherCondition.subconditions, dependencyTask: otherCondition.dependencyTaskClosure(), evaluationClosure: otherCondition.evaluationClosure)
     }
 
     internal override func asyncEvaluate() -> Task<Void> {
         return asyncEx { task in
             do {
                 try await(super.asyncEvaluate())
-                
-                let error = NSError(domain: "com.alecrim.AlecrimAsyncKit.NegateTaskCondition", code: 1000, userInfo: nil)
-                task.finishWithError(error)
+                task.finishWithError(TaskConditionError.NotSatisfied)
             }
             catch {
                 task.finish()
