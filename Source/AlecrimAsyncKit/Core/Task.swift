@@ -167,7 +167,7 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
             catch TaskConditionError.NotSatisfied {
                 self.cancel()
             }
-            catch TaskConditionError.ExecutionFailed(let innerError) {
+            catch TaskConditionError.Failed(let innerError) {
                 self.finishWithError(innerError)
             }
             catch let error {
