@@ -111,6 +111,26 @@ public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [
 //
 
 @warn_unused_result
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, condition: TaskCondition, observers: [TaskObserver], closure: () throws -> V) -> Task<V> {
+    return Task<V>(queue: queue, observers: observers, conditions: [condition]) { (task: Task<V>) -> Void  in
+        do {
+            let value = try closure()
+            task.finishWithValue(value)
+        }
+        catch let error {
+            task.finishWithError(error)
+        }
+    }
+}
+
+@warn_unused_result
+public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, condition: TaskCondition, observers: [TaskObserver], closure: (Task<V>) -> Void) -> Task<V> {
+    return Task<V>(queue: queue, observers: observers, conditions: [condition], closure: closure)
+}
+
+//
+
+@warn_unused_result
 public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [TaskCondition], observers: [TaskObserver], closure: () throws -> V) -> Task<V> {
     return Task<V>(queue: queue, observers: observers, conditions: conditions) { (task: Task<V>) -> Void  in
         do {

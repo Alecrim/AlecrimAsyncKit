@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		140A15081B7FA79D0028DBCE /* AsyncAwait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15041B7FA79D0028DBCE /* AsyncAwait.swift */; };
 		140A15091B7FA79D0028DBCE /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15051B7FA79D0028DBCE /* Task.swift */; };
+		141067E81B9B75AA0030AABB /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141067E71B9B75AA0030AABB /* Errors.swift */; settings = {ASSET_TAGS = (); }; };
 		14B139901B88824F00131B01 /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140A15061B7FA79D0028DBCE /* TaskCondition.swift */; };
 		14B139911B8889DA00131B01 /* SilentTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFA1B7FAA7B0026C36D /* SilentTaskCondition.swift */; };
 		14B139921B8889DA00131B01 /* NegateTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148F1DFC1B7FAE800026C36D /* NegateTaskCondition.swift */; };
@@ -25,6 +26,7 @@
 		140A15051B7FA79D0028DBCE /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		140A15061B7FA79D0028DBCE /* TaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
 		140A15071B7FA79D0028DBCE /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
+		141067E71B9B75AA0030AABB /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		142E25E91B7FBF4200B6C952 /* TimeoutTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeoutTaskObserver.swift; sourceTree = "<group>"; };
 		142E25EB1B7FC58A00B6C952 /* NetworkActivityTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkActivityTaskObserver.swift; sourceTree = "<group>"; };
 		148F1DFA1B7FAA7B0026C36D /* SilentTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SilentTaskCondition.swift; sourceTree = "<group>"; };
@@ -54,6 +56,7 @@
 				140A15051B7FA79D0028DBCE /* Task.swift */,
 				140A15061B7FA79D0028DBCE /* TaskCondition.swift */,
 				140A15071B7FA79D0028DBCE /* TaskObserver.swift */,
+				141067E71B9B75AA0030AABB /* Errors.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -205,6 +208,7 @@
 				14B139951B888B7700131B01 /* TaskObserver.swift in Sources */,
 				14B139921B8889DA00131B01 /* NegateTaskCondition.swift in Sources */,
 				14B139941B8889DA00131B01 /* MutuallyExclusiveTaskCondition.swift in Sources */,
+				141067E81B9B75AA0030AABB /* Errors.swift in Sources */,
 				14B139971B888E1600131B01 /* NetworkActivityTaskObserver.swift in Sources */,
 				140A15091B7FA79D0028DBCE /* Task.swift in Sources */,
 				14B139931B8889DA00131B01 /* DelayTaskCondition.swift in Sources */,
@@ -317,7 +321,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 83;
+				CURRENT_PROJECT_VERSION = 87;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -339,7 +343,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 83;
+				CURRENT_PROJECT_VERSION = 87;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;

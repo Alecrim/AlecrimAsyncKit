@@ -26,7 +26,7 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
     public init(_ categoryName: String) {
         self.categoryName = categoryName
 
-        super.init(subconditions: nil, dependencyTask: nil) { result in
+        super.init() { result in
             result(.Satisfied)
         }
     }

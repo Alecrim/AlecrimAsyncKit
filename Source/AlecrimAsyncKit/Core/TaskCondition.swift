@@ -20,43 +20,53 @@ private let _defaultTaskConditionQueue: NSOperationQueue = {
 
 public enum TaskConditionResult {
     case Satisfied
-    case Failed
-    case FailedWithError(ErrorType)
+    case NotSatisfied
+    case ExecutionFailed(error: ErrorType)
 }
 
 
 public class TaskCondition {
     
     internal let subconditions: [TaskCondition]?
-    internal let dependencyTask: Task<Void>?
+    internal let dependencyTaskClosure: () -> Task<Void>?
     internal let evaluationClosure: ((TaskConditionResult) -> Void) -> Void
    
-    public convenience init(evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
-        self.init(subconditions: nil, dependencyTask: nil, evaluationClosure: evaluationClosure)
-    }
-
-    public convenience init(dependencyTask: Task<Void>, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
-        self.init(subconditions: nil, dependencyTask: dependencyTask, evaluationClosure: evaluationClosure)
-    }
-
-    public convenience init(subcondition: TaskCondition, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
-        self.init(subconditions: [subcondition], dependencyTask: nil, evaluationClosure: evaluationClosure)
-    }
-
-    public convenience init(subcondition: TaskCondition, dependencyTask: Task<Void>, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
-        self.init(subconditions: [subcondition], dependencyTask: dependencyTask, evaluationClosure: evaluationClosure)
-    }
-
-    public convenience init(subconditions: [TaskCondition], evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
-        self.init(subconditions: subconditions, dependencyTask: nil, evaluationClosure: evaluationClosure)
-    }
-
-    public init(subconditions: [TaskCondition]?, dependencyTask: Task<Void>?, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
-        self.subconditions = subconditions
-        self.dependencyTask = dependencyTask
+    public init(evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+        self.subconditions = nil
+        self.dependencyTaskClosure = { return nil }
         self.evaluationClosure = evaluationClosure
     }
-    
+
+    public init(@autoclosure(escaping) dependencyTask dependencyTaskClosure: () -> Task<Void>?, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+        self.subconditions = nil
+        self.dependencyTaskClosure = dependencyTaskClosure
+        self.evaluationClosure = evaluationClosure
+    }
+
+    public init(subcondition: TaskCondition, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+        self.subconditions = [subcondition]
+        self.dependencyTaskClosure = { return nil }
+        self.evaluationClosure = evaluationClosure
+    }
+
+    public init(subcondition: TaskCondition, @autoclosure(escaping) dependencyTask dependencyTaskClosure: () -> Task<Void>?, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+        self.subconditions = [subcondition]
+        self.dependencyTaskClosure = dependencyTaskClosure
+        self.evaluationClosure = evaluationClosure
+    }
+
+    public init(subconditions: [TaskCondition], evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+        self.subconditions = subconditions
+        self.dependencyTaskClosure = { return nil }
+        self.evaluationClosure = evaluationClosure
+    }
+
+    public init(subconditions: [TaskCondition]?, @autoclosure(escaping) dependencyTask dependencyTaskClosure: () -> Task<Void>?, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+        self.subconditions = subconditions
+        self.dependencyTaskClosure = dependencyTaskClosure
+        self.evaluationClosure = evaluationClosure
+    }
+
     internal func asyncEvaluate() -> Task<Void> {
         return asyncEx(_defaultTaskConditionQueue) { [unowned self] task in
             self.evaluationClosure { conditionResult in
@@ -64,11 +74,11 @@ public class TaskCondition {
                 case .Satisfied:
                     task.finish()
                  
-                case .Failed:
-                    task.finishWithError(taskCancelledError)
+                case .NotSatisfied:
+                    task.finishWithError(TaskConditionError.NotSatisfied)
                     
-                case .FailedWithError(let error):
-                    task.finishWithError(error)
+                case .ExecutionFailed(let error):
+                    task.finishWithError(TaskConditionError.ExecutionFailed(innerError: error))
                 }
             }
         }
@@ -81,11 +91,11 @@ extension TaskCondition {
     internal static func asyncEvaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
         return async(_defaultTaskConditionQueue) {
             for condition in conditions {
-                if let subconditions = condition.subconditions {
+                if let subconditions = condition.subconditions where !subconditions.isEmpty {
                     try await(TaskCondition.asyncEvaluateConditions(subconditions))
                 }
                 
-                if let dependencyTask = condition.dependencyTask {
+                if let dependencyTask = condition.dependencyTaskClosure() {
                     try await(dependencyTask)
                 }
                 
@@ -95,3 +105,4 @@ extension TaskCondition {
     }
 
 }
+

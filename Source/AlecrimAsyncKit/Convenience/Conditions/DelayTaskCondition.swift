@@ -11,7 +11,7 @@ import Foundation
 public final class DelayTaskCondition: TaskCondition {
     
     public init(timeInterval: NSTimeInterval, tolerance: NSTimeInterval = 0) {
-        super.init(subconditions: nil, dependencyTask: nil) { result in
+        super.init() { result in
             let queue = dispatch_queue_create(nil, DISPATCH_QUEUE_SERIAL)
             let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue)
             
