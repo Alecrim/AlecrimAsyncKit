@@ -92,6 +92,24 @@ The three main differences in this case: a `task` parameter is used as parameter
 import Foundation
 import CloudKit
 
+// some code running in background
+
+let database: CKDatabase = ...
+
+do {
+    let records = try await(database.asyncPerformQuery(query, inZoneWithID: zoneID))
+
+    for record in records {
+        // ...
+    }
+}
+catch let error {
+    // do a nice error handling here
+}
+
+
+// ...
+
 extension CKDatabase {
 
     public func asyncPerformQuery(query: CKQuery, inZoneWithID zoneID: CKRecordZoneID?) -> Task<[CKRecord]> {
@@ -255,7 +273,7 @@ If you want to contribute, please feel free to fork the repository and send pull
 The main areas the framework needs improvement:
 
 - Correct the README, code and examples for English mistakes;
-- Write code documentation;
+- Write more and better code documentation;
 - Write unit tests;
 - Write more conditions and observers;
 - Replace some pieces of code with more "elegant" ones.
