@@ -6,6 +6,8 @@
 //  Copyright © 2015 Alecrim. All rights reserved.
 //
 
+#if os(OSX) || os(iOS)
+
 import Foundation
 import SystemConfiguration
 
@@ -59,3 +61,5 @@ public final class ReachabilityTaskCondition: TaskCondition {
     }
     
 }
+
+#endif
