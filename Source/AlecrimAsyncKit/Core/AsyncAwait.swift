@@ -294,7 +294,7 @@ public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [
 
 /// Waits for the completion of a task and then returns its value.
 ///
-/// - parameter closure: The closure that returns a initialized task.
+/// - parameter closure: The closure that returns an initialized task.
 ///
 /// - throws: Any error occurred while task was executing.
 ///
@@ -305,7 +305,7 @@ public func await<V>(@noescape closure: () -> Task<V>) throws -> V {
 
 /// Waits for the completion of a task and then returns its value.
 ///
-/// - parameter task: A initialized task.
+/// - parameter task: An initialized task.
 ///
 /// - throws: Any error occurred while task was executing.
 ///
@@ -346,7 +346,7 @@ public func runTask<V>(task: Task<V>, queue: NSOperationQueue = _defaultRunTaskQ
 
 /// Waits for the completion of a non-failable task and then returns its value.
 ///
-/// - parameter closure: The closure that returns a initialized non-failable task.
+/// - parameter closure: The closure that returns an initialized non-failable task.
 ///
 /// - returns: The non-failable task's associated value.
 public func await<V>(@noescape closure: () -> NonFailableTask<V>) -> V {
@@ -355,14 +355,14 @@ public func await<V>(@noescape closure: () -> NonFailableTask<V>) -> V {
 
 /// Waits for the completion of a non-failable task and then returns its value.
 ///
-/// - parameter task: A initialized non-failable task.
+/// - parameter task: An initialized non-failable task.
 ///
 /// - returns: The non-failable task's associated value.
 public func await<V>(task: NonFailableTask<V>) -> V {
     return task.waitForCompletionAndReturnValue()
 }
 
-/// Runs a non-failable task in a background queue and the call the completion handler with its associated value.
+/// Runs a non-failable task in a background queue and then calls the completion handler with its associated value.
 ///
 /// - parameter task:              The non-failable task to run.
 /// - parameter queue:             The queue where the task will be "awaited".
