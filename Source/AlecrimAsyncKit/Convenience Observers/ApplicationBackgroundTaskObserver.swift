@@ -6,6 +6,8 @@
 //  Copyright © 2015 Alecrim. All rights reserved.
 //
 
+#if os(iOS)
+
 import Foundation
 
 /// A task observer that will automatically begin and end a *background task* if the application transitions to the background.
@@ -83,3 +85,5 @@ public final class ApplicationBackgroundTaskObserver: TaskObserver {
     }
 
 }
+
+#endif
