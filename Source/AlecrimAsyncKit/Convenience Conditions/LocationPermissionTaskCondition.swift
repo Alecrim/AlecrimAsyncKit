@@ -26,10 +26,8 @@ public final class LocationPermissionTaskCondition: TaskCondition {
             switch (CLLocationManager.authorizationStatus(), usage) {
             case (.NotDetermined, _), (.AuthorizedWhenInUse, .Always):
                 let locationManager = LocationManager()
-                locationManager.didChangeAuthorizationStatusClosure = { [unowned task] status in
-                    if status != .NotDetermined {
-                        task.finish()
-                    }
+                locationManager.didChangeAuthorizationStatusClosure = { status in
+                    task.finish()
                 }
                 
                 let key: String
@@ -100,6 +98,9 @@ private final class LocationManager: CLLocationManager, CLLocationManagerDelegat
     
     @objc private func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
         self.didChangeAuthorizationStatusClosure?(status)
+        
+        self.delegate = nil
+        self.didChangeAuthorizationStatusClosure = nil
     }
     
 }
