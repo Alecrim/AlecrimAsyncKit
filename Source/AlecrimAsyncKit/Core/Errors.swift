@@ -12,7 +12,7 @@ import Foundation
 
 public enum TaskConditionError: ErrorType {
     case NotSatisfied
-    case Failed(innerError: ErrorType)
+    case Failed(ErrorType)
 }
 
 // MARK: -

@@ -21,7 +21,7 @@ private let _defaultTaskConditionQueue: NSOperationQueue = {
 public enum TaskConditionResult {
     case Satisfied
     case NotSatisfied
-    case Failed(error: ErrorType)
+    case Failed(ErrorType)
 }
 
 
@@ -78,7 +78,7 @@ public class TaskCondition {
                     task.finishWithError(TaskConditionError.NotSatisfied)
                     
                 case .Failed(let error):
-                    task.finishWithError(TaskConditionError.Failed(innerError: error))
+                    task.finishWithError(TaskConditionError.Failed(error))
                 }
             }
         }
