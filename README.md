@@ -92,7 +92,7 @@ The three main differences in this case: a `task` parameter is used as parameter
 import Foundation
 import CloudKit
 
-// some code running in background
+// Some code running in background.
 
 let database: CKDatabase = ...
 
@@ -108,7 +108,7 @@ catch let error {
 }
 
 
-// ...
+// A convenience `CKDatabase` extension.
 
 extension CKDatabase {
 
