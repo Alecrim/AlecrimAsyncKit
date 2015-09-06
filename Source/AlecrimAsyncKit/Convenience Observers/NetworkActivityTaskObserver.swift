@@ -13,6 +13,7 @@ import Foundation
 private var _activitySpinLock = OS_SPINLOCK_INIT
 private var _activity: Int = 0
 
+/// A task observer that will cause the network activity indicator to appear as long as the observed task is executing.
 public final class NetworkActivityTaskObserver: TaskObserver {
     
     private let delay: NSTimeInterval = 0.5
@@ -50,7 +51,13 @@ public final class NetworkActivityTaskObserver: TaskObserver {
         }
     }
 
-    
+    /// Initializes a task observer that will cause the network activity indicator to appear as long as the observed task is executing.
+    ///
+    /// - parameter application: The application where the network activity indicator belongs to.
+    ///
+    /// - returns: A task observer that will cause the network activity indicator to appear as long as the observed task is executing.
+    ///
+    /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
     public init(application: UIApplication) {
         self.application = application
         super.init()

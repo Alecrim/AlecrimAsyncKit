@@ -8,9 +8,14 @@
 
 import Foundation
 
-
+/// A task observer that causes the observed failable task to be cancelled if not finished before a specified time interval.
 public final class TimeoutTaskObserver: TaskObserver {
 
+    /// Initializes a task observer that causes the observed failable task to be cancelled if not finished before a specified time interval.
+    ///
+    /// - parameter timeout: The timeout time interval.
+    ///
+    /// - returns: An observer that causes a failable task to be cancelled if not finished before a specified time interval.
     public init(timeout: NSTimeInterval) {
         super.init()
         

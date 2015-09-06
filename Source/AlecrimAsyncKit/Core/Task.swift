@@ -8,27 +8,46 @@
 
 import Foundation
 
-// MARK: - protocols needed to support task observers in this version
+// MARK: - Protocols needed to support task observers in this version.
 
+/// The basic task type protocol.
 public protocol TaskType: class {
+    var finished: Bool { get }
 }
 
+/// The failable task type protocol.
 public protocol FailableTaskType: TaskType {
+    var cancelled: Bool { get }
     func cancel()
 }
 
+/// The non-failable task type protocol.
 public protocol NonFailableTaskType: TaskType {
 }
 
-// MARK: -
+// MARK: - Core task classes.
 
+/// The "abstract" base class for all type of tasks. Not intended to be used directly.
 public class BaseTask<V>: TaskType {
     
+    /// The value associated to the successfully task completion.
     public private(set) var value: V!
+    
+    /// The error occurred while the task was executing, if any.
     public private(set) var error: ErrorType?
     
+    /// If either `value` or `error` properties are not `nil`, this property will return `true`.
+    public var finished: Bool {
+        var f = false
+        
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+        f = self.value != nil || self.error != nil
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+        
+        return f
+    }
+
     private let dispatchGroup: dispatch_group_t = dispatch_group_create()
-    private var waiting = true
     private var spinlock = OS_SPINLOCK_INIT
     
     private var deferredClosures: Array<() -> Void>?
@@ -38,9 +57,7 @@ public class BaseTask<V>: TaskType {
     }
     
     deinit {
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-        assert(!self.waiting, "Either value or error were never assigned or task was never cancelled.")
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+        assert(self.finished, "Either value or error were never assigned or task was never cancelled.")
     }
     
     private final func waitForCompletion() {
@@ -73,14 +90,13 @@ public class BaseTask<V>: TaskType {
             self.error = nil
         }
         
-        self.waiting = false
-        
         //
         dispatch_group_leave(self.dispatchGroup)
     }
     
     // MARK: -
     
+    /// Finishes a task that has its generic type as `Void`. If the generic type of the task is not `Void` a fatal error will occurs.
     public final func finish() {
         if V.self is Void.Type {
             self.setValue((() as! V), error: nil)
@@ -90,6 +106,9 @@ public class BaseTask<V>: TaskType {
         }
     }
     
+    /// Finished the task with an associated value.
+    ///
+    /// - parameter value: The associated value representing the final result of the task.
     public final func finishWithValue(value: V) {
         self.setValue(value, error: nil)
     }
@@ -106,9 +125,10 @@ public class BaseTask<V>: TaskType {
     }
 }
 
-
+/// An asynchronous failable task. A "failable" task in the context of this framework is a task that can returns or throws an error.
 public final class Task<V>: BaseTask<V>, FailableTaskType {
     
+    /// If the `error` property is not `nil` and the error code is `NSUserCancelledError`, this property will return `true`.
     public var cancelled: Bool {
         var c = false
         
@@ -167,7 +187,7 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
             catch TaskConditionError.NotSatisfied {
                 self.cancel()
             }
-            catch TaskConditionError.ExecutionFailed(let innerError) {
+            catch TaskConditionError.Failed(let innerError) {
                 self.finishWithError(innerError)
             }
             catch let error {
@@ -188,10 +208,17 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
         }
     }
     
+    /// Finishes the task with an error.
+    ///
+    /// - parameter error: The error occurred while executing the task.
     public func finishWithError(error: ErrorType) {
         self.setValue(nil, error: error)
     }
     
+    /// Finishes the task with a value or an error (not both and not none of them).
+    ///
+    /// - parameter value: The value representing the final value associated with the task. If this parameter is not nil, the `error` parameter must be nil.
+    /// - parameter error: The error occurred while executing the task. If this parameter is not nil, the `value` parameter must be nil.
     public func finishWithValue(value: V?, error: ErrorType?) {
         self.setValue(value, error: error)
     }
@@ -199,12 +226,18 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
     
     // MARK: -
     
+    /// Cancels the execution of the current task. This is the same as finishing the task with an error with `NSUserCancelledError` code.
+    ///
+    /// - note: After a task is cancelled no action to stop it will be taken by the framework. You will have to check the `cancelled` property and stops any activity as soon as possible after it returns `true`.
     public func cancel() {
         self.setValue(nil, error: taskCancelledError)
     }
     
     // MARK: -
     
+    /// Waits for the execution of another task of the same generic type.
+    ///
+    /// - parameter task: The task to be executed and "awaited".
     public func continueWithTask(task: Task<V>) {
         do {
             let value = try task.waitForCompletionAndReturnValue()
@@ -217,6 +250,7 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
 
 }
 
+/// An asynchronous non-failable task. A "non-failable" task in the context of this framework is a task that cannot return or throw an error.
 public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
 
     internal init(queue: NSOperationQueue, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
@@ -243,6 +277,9 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
 
     // MARK: -
     
+    /// Waits for the execution of another task of the same generic type.
+    ///
+    /// - parameter task: The task to be executed and "awaited".
     public func continueWithTask(task: NonFailableTask<V>) {
         let value = task.waitForCompletionAndReturnValue()
         self.finishWithValue(value)
