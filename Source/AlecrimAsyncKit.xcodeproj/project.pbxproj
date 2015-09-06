@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1485139C1B9BD15100FAB0FA /* TimeoutTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138A1B9BD15100FAB0FA /* TimeoutTaskObserver.swift */; settings = {ASSET_TAGS = (); }; };
 		1485139D1B9BD15100FAB0FA /* DelayTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138C1B9BD15100FAB0FA /* DelayTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
 		1485139E1B9BD15100FAB0FA /* NegateTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138D1B9BD15100FAB0FA /* NegateTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
 		1485139F1B9BD15100FAB0FA /* SilentTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138E1B9BD15100FAB0FA /* SilentTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
@@ -22,11 +21,12 @@
 		148513A81B9BD15100FAB0FA /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513991B9BD15100FAB0FA /* TaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
 		148513A91B9BD15100FAB0FA /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485139A1B9BD15100FAB0FA /* TaskObserver.swift */; settings = {ASSET_TAGS = (); }; };
 		148513AC1B9BD19700FAB0FA /* NetworkActivityTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AB1B9BD19700FAB0FA /* NetworkActivityTaskObserver.swift */; settings = {ASSET_TAGS = (); }; };
+		148513AE1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AD1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
+		148513B11B9BD9A500FAB0FA /* TimeoutTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513B01B9BD9A500FAB0FA /* TimeoutTaskObserver.swift */; settings = {ASSET_TAGS = (); }; };
 		14E585BF1B7803EC003EC4DC /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1485138A1B9BD15100FAB0FA /* TimeoutTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeoutTaskObserver.swift; sourceTree = "<group>"; };
 		1485138C1B9BD15100FAB0FA /* DelayTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelayTaskCondition.swift; sourceTree = "<group>"; };
 		1485138D1B9BD15100FAB0FA /* NegateTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NegateTaskCondition.swift; sourceTree = "<group>"; };
 		1485138E1B9BD15100FAB0FA /* SilentTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SilentTaskCondition.swift; sourceTree = "<group>"; };
@@ -41,6 +41,8 @@
 		148513991B9BD15100FAB0FA /* TaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
 		1485139A1B9BD15100FAB0FA /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
 		148513AB1B9BD19700FAB0FA /* NetworkActivityTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkActivityTaskObserver.swift; sourceTree = "<group>"; };
+		148513AD1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationPermissionTaskCondition.swift; sourceTree = "<group>"; };
+		148513B01B9BD9A500FAB0FA /* TimeoutTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeoutTaskObserver.swift; sourceTree = "<group>"; };
 		14E585BB1B7803EC003EC4DC /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AlecrimAsyncKit.h; sourceTree = "<group>"; };
 		14E585C01B7803EC003EC4DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -57,14 +59,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		148513881B9BD15100FAB0FA /* Addiontal Observers */ = {
-			isa = PBXGroup;
-			children = (
-				1485138A1B9BD15100FAB0FA /* TimeoutTaskObserver.swift */,
-			);
-			path = "Addiontal Observers";
-			sourceTree = "<group>";
-		};
 		1485138B1B9BD15100FAB0FA /* Additional Conditions */ = {
 			isa = PBXGroup;
 			children = (
@@ -78,6 +72,7 @@
 		1485138F1B9BD15100FAB0FA /* Convenience Conditions */ = {
 			isa = PBXGroup;
 			children = (
+				148513AD1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift */,
 				148513901B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift */,
 				148513911B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift */,
 				148513921B9BD15100FAB0FA /* ReachabilityTaskCondition.swift */,
@@ -107,6 +102,14 @@
 			path = "Convenience Observers";
 			sourceTree = "<group>";
 		};
+		148513AF1B9BD9A500FAB0FA /* Additional Observers */ = {
+			isa = PBXGroup;
+			children = (
+				148513B01B9BD9A500FAB0FA /* TimeoutTaskObserver.swift */,
+			);
+			path = "Additional Observers";
+			sourceTree = "<group>";
+		};
 		14E585B11B7803EC003EC4DC = {
 			isa = PBXGroup;
 			children = (
@@ -128,8 +131,8 @@
 			children = (
 				14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */,
 				148513941B9BD15100FAB0FA /* Core */,
-				148513881B9BD15100FAB0FA /* Addiontal Observers */,
 				1485138B1B9BD15100FAB0FA /* Additional Conditions */,
+				148513AF1B9BD9A500FAB0FA /* Additional Observers */,
 				1485138F1B9BD15100FAB0FA /* Convenience Conditions */,
 				148513AA1B9BD19700FAB0FA /* Convenience Observers */,
 				14E585C61B7803F5003EC4DC /* Supporting Files */,
@@ -227,15 +230,16 @@
 				148513A11B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift in Sources */,
 				148513A01B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift in Sources */,
 				148513A31B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift in Sources */,
-				1485139C1B9BD15100FAB0FA /* TimeoutTaskObserver.swift in Sources */,
 				148513A81B9BD15100FAB0FA /* TaskCondition.swift in Sources */,
 				1485139E1B9BD15100FAB0FA /* NegateTaskCondition.swift in Sources */,
 				148513A61B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift in Sources */,
+				148513B11B9BD9A500FAB0FA /* TimeoutTaskObserver.swift in Sources */,
 				148513A21B9BD15100FAB0FA /* ReachabilityTaskCondition.swift in Sources */,
 				148513A71B9BD15100FAB0FA /* Task.swift in Sources */,
 				148513A51B9BD15100FAB0FA /* Errors.swift in Sources */,
 				148513A91B9BD15100FAB0FA /* TaskObserver.swift in Sources */,
 				148513A41B9BD15100FAB0FA /* AsyncAwait.swift in Sources */,
+				148513AE1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift in Sources */,
 				1485139D1B9BD15100FAB0FA /* DelayTaskCondition.swift in Sources */,
 				1485139F1B9BD15100FAB0FA /* SilentTaskCondition.swift in Sources */,
 				148513AC1B9BD19700FAB0FA /* NetworkActivityTaskObserver.swift in Sources */,
@@ -288,7 +292,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator watchos watchsimulator";
-                SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VALID_ARCHS = "x86_64 arm64 armv7 armv7s armv7k";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -333,7 +337,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator watchos watchsimulator";
-                SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				VALID_ARCHS = "x86_64 arm64 armv7 armv7s armv7k";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";

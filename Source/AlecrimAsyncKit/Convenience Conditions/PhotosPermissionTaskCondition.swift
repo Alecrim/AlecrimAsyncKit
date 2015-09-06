@@ -14,7 +14,7 @@ import Photos
 /// A condition for verifying access to the user's Photos library.
 public final class PhotosPermissionTaskCondition: TaskCondition {
     
-    private static func asyncRequestAuthorization() -> Task<Void> {
+    private static func asyncRequestAuthorizationIfNeeded() -> Task<Void> {
         return asyncEx(condition: MutuallyExclusiveTaskCondition(.Alert)) { task in
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()
             
@@ -32,7 +32,7 @@ public final class PhotosPermissionTaskCondition: TaskCondition {
     }
 
     public init() {
-        super.init(dependencyTask: PhotosPermissionTaskCondition.asyncRequestAuthorization()) { result in
+        super.init(dependencyTask: PhotosPermissionTaskCondition.asyncRequestAuthorizationIfNeeded()) { result in
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()
             
             if case .Authorized = authorizationStatus {
