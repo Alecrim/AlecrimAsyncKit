@@ -6,6 +6,8 @@
 //  Copyright © 2015 Alecrim. All rights reserved.
 //
 
+#if os(iOS)
+
 import Foundation
 import CoreLocation
 
@@ -35,13 +37,13 @@ public final class LocationPermissionTaskCondition: TaskCondition {
                 switch usage {
                 case .WhenInUse:
                     key = "NSLocationWhenInUseUsageDescription"
-                    NSOperationQueue.mainQueue().addOperationWithBlock {
+                    dispatch_async(dispatch_get_main_queue()) {
                         locationManager.requestWhenInUseAuthorization()
                     }
                     
                 case .Always:
                     key = "NSLocationAlwaysUsageDescription"
-                    NSOperationQueue.mainQueue().addOperationWithBlock {
+                    dispatch_async(dispatch_get_main_queue()) {
                         locationManager.requestAlwaysAuthorization()
                     }
                 }
@@ -56,6 +58,11 @@ public final class LocationPermissionTaskCondition: TaskCondition {
         }
     }
 
+    /// Initializes a condition for verifying access to the user's location.
+    ///
+    /// - parameter usage: The needed usage (when app is in use only or always).
+    ///
+    /// - returns: A condition for verifying access to the user's location.
     public init(usage: LocationPermissionTaskCondition.Usage) {
         super.init(dependencyTask: LocationPermissionTaskCondition.asyncRequestAuthorizationIfNeededForUsage(usage)) { result in
             let enabled = CLLocationManager.locationServicesEnabled()
@@ -104,3 +111,5 @@ private final class LocationManager: CLLocationManager, CLLocationManagerDelegat
     }
     
 }
+
+#endif

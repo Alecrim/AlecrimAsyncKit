@@ -8,8 +8,14 @@
 
 import Foundation
 
+/// A simple condition that negates the evaluation of another condition.
 public final class NegateTaskCondition: TaskCondition {
     
+    /// Initializes a condition that negates the evaluation of another condition.
+    ///
+    /// - parameter otherCondition: The condition to be negated.
+    ///
+    /// - returns: A condition that negates the evaluation of another condition.
     public init(_ otherCondition: TaskCondition) {
         super.init(subconditions: otherCondition.subconditions, dependencyTask: otherCondition.dependencyTaskClosure(), evaluationClosure: otherCondition.evaluationClosure)
     }

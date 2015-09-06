@@ -11,6 +11,7 @@
 import Foundation
 import SystemConfiguration
 
+/// A condition that performs network reachability check.
 public final class ReachabilityTaskCondition: TaskCondition {
     
     private static var reachabilityRefs = [String : SCNetworkReachability]()
@@ -49,6 +50,11 @@ public final class ReachabilityTaskCondition: TaskCondition {
         }
     }
     
+    /// Initializes a condition that performs network reachability check.
+    ///
+    /// - parameter URL: The URL containing the host to test the reachability.
+    ///
+    /// - returns: A condition that performs network reachability check.
     public init(URL: NSURL) {
         super.init() { result in
             if await(ReachabilityTaskCondition.asyncRequestReachabilityForURL(URL)) {

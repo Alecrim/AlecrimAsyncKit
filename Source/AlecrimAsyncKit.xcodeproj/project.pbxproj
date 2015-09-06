@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		14749B841B9C437700661E98 /* EventStorePermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
+		14749B861B9C4DA300661E98 /* BooleanTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
 		1485139D1B9BD15100FAB0FA /* DelayTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138C1B9BD15100FAB0FA /* DelayTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
 		1485139E1B9BD15100FAB0FA /* NegateTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138D1B9BD15100FAB0FA /* NegateTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
 		1485139F1B9BD15100FAB0FA /* SilentTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138E1B9BD15100FAB0FA /* SilentTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
@@ -27,6 +29,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStorePermissionTaskCondition.swift; sourceTree = "<group>"; };
+		14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BooleanTaskCondition.swift; sourceTree = "<group>"; };
 		1485138C1B9BD15100FAB0FA /* DelayTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelayTaskCondition.swift; sourceTree = "<group>"; };
 		1485138D1B9BD15100FAB0FA /* NegateTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NegateTaskCondition.swift; sourceTree = "<group>"; };
 		1485138E1B9BD15100FAB0FA /* SilentTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SilentTaskCondition.swift; sourceTree = "<group>"; };
@@ -62,6 +66,7 @@
 		1485138B1B9BD15100FAB0FA /* Additional Conditions */ = {
 			isa = PBXGroup;
 			children = (
+				14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */,
 				1485138C1B9BD15100FAB0FA /* DelayTaskCondition.swift */,
 				1485138D1B9BD15100FAB0FA /* NegateTaskCondition.swift */,
 				1485138E1B9BD15100FAB0FA /* SilentTaskCondition.swift */,
@@ -72,6 +77,7 @@
 		1485138F1B9BD15100FAB0FA /* Convenience Conditions */ = {
 			isa = PBXGroup;
 			children = (
+				14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */,
 				148513AD1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift */,
 				148513901B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift */,
 				148513911B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift */,
@@ -242,7 +248,9 @@
 				148513AE1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift in Sources */,
 				1485139D1B9BD15100FAB0FA /* DelayTaskCondition.swift in Sources */,
 				1485139F1B9BD15100FAB0FA /* SilentTaskCondition.swift in Sources */,
+				14749B861B9C4DA300661E98 /* BooleanTaskCondition.swift in Sources */,
 				148513AC1B9BD19700FAB0FA /* NetworkActivityTaskObserver.swift in Sources */,
+				14749B841B9C437700661E98 /* EventStorePermissionTaskCondition.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

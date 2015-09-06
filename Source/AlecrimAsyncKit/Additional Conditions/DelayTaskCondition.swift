@@ -8,8 +8,15 @@
 
 import Foundation
 
+/// A condition that will simply wait for a given time interval to be satisfied.
 public final class DelayTaskCondition: TaskCondition {
     
+    /// Initializes a condition that will wait for a given time interval to be satisfied.
+    ///
+    /// - parameter timeInterval: The time interval to wait.
+    /// - parameter tolerance:    The tolerance time interval (optional, defaults to 0).
+    ///
+    /// - returns: A condition that will wait for a given time interval to be satisfied.
     public init(timeInterval: NSTimeInterval, tolerance: NSTimeInterval = 0) {
         super.init() { result in
             let queue = dispatch_queue_create(nil, DISPATCH_QUEUE_SERIAL)

@@ -19,7 +19,7 @@ public final class PhotosPermissionTaskCondition: TaskCondition {
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()
             
             if case .NotDetermined = authorizationStatus {
-                NSOperationQueue.mainQueue().addOperationWithBlock {
+                dispatch_async(dispatch_get_main_queue()) {
                     PHPhotoLibrary.requestAuthorization { _ in
                         task.finish()
                     }
@@ -31,6 +31,9 @@ public final class PhotosPermissionTaskCondition: TaskCondition {
         }
     }
 
+    /// Initializes a condition for verifying access to the user's Photos library.
+    ///
+    /// - returns: A condition for verifying access to the user's Photos library.
     public init() {
         super.init(dependencyTask: PhotosPermissionTaskCondition.asyncRequestAuthorizationIfNeeded()) { result in
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()

@@ -24,11 +24,17 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
     private static let remoteNotificationPermissionName = "com.alecrim.AlecrimAsyncKit.RemoteNotificationPermissionNotification"
     private static var result = RemoteRegistrationResult.Unknown
     
+    /// This method has to be called inside the `UIApplicationDelegate` response to the registration success.
+    ///
+    /// - parameter deviceToken: The received device token.
     public static func didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: NSData) {
         self.result = .Token(deviceToken)
         NSNotificationCenter.defaultCenter().postNotificationName(self.remoteNotificationPermissionName, object: nil, userInfo: ["token": deviceToken])
     }
     
+    /// This method has to be called inside the `UIApplicationDelegate` response to the registration error.
+    ///
+    /// - parameter error: The received error.
     public static func didFailToRegisterForRemoteNotificationsWithError(error: NSError) {
         self.result = .Error(error)
         NSNotificationCenter.defaultCenter().postNotificationName(self.remoteNotificationPermissionName, object: nil, userInfo: ["error": error])
@@ -61,7 +67,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
                     }
                 }
                 
-                NSOperationQueue.mainQueue().addOperationWithBlock {
+                dispatch_async(dispatch_get_main_queue()) {
                     application.registerForRemoteNotifications()
                 }
                 
@@ -77,6 +83,13 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
         }
     }
 
+    /// Initializes a condition for verifying that the app has the ability to receive push notifications.
+    ///
+    /// - parameter application: The application instance.
+    ///
+    /// - returns: A condition for verifying that the app has the ability to receive push notifications.
+    ///
+    /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
     public init(application: UIApplication) {
         super.init(dependencyTask: RemoteNotificationPermissionTaskCondition.asyncWaitResponseFromApplication(application)) { result in
             switch RemoteNotificationPermissionTaskCondition.result {

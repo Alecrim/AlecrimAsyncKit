@@ -14,6 +14,9 @@ import PassKit
 /// A condition for verifying that Passbook exists and is accessible.
 public final class PassLibraryAvailableCondition: TaskCondition {
     
+    /// Initializes a condition for verifying that Passbook exists and is accessible.
+    ///
+    /// - returns: A condition for verifying that Passbook exists and is accessible.
     public init() {
         super.init() { result in
             if PKPassLibrary.isPassLibraryAvailable() {

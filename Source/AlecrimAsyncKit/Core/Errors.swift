@@ -10,6 +10,10 @@ import Foundation
 
 // MARK: -
 
+/// The possible errors related to task condition evalution.
+///
+/// - NotSatisfied: The condition was not satisfied.
+/// - Failed:       The condition evaluation was failed with an error.
 public enum TaskConditionError: ErrorType {
     case NotSatisfied
     case Failed(ErrorType)
