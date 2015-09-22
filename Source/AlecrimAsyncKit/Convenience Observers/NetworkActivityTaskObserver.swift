@@ -10,47 +10,50 @@ import Foundation
 
 #if os(iOS)
 
-private var _activitySpinLock = OS_SPINLOCK_INIT
-private var _activity: Int = 0
-
 /// A task observer that will cause the network activity indicator to appear as long as the observed task is executing.
 public final class NetworkActivityTaskObserver: TaskObserver {
-    
+
+    private static var _activitySpinLock = OS_SPINLOCK_INIT
+    private static var _activity: Int = 0
+
     private let delay: NSTimeInterval = 0.5
     private let application: UIApplication
     
-    private var activity: Int {
-        get {
-            withUnsafeMutablePointer(&_activitySpinLock, OSSpinLockLock)
-            let v = _activity
-            withUnsafeMutablePointer(&_activitySpinLock, OSSpinLockUnlock)
+    private func incrementActivity() {
+        withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockLock)
+        NetworkActivityTaskObserver._activity++
+        withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockUnlock)
+        
+        self.showOrHideActivityIndicatorAfterDelay()
+    }
+    
+    private func decrementActivity() {
+        withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockLock)
+        NetworkActivityTaskObserver._activity--
+        withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockUnlock)
+        
+        self.showOrHideActivityIndicatorAfterDelay()
+    }
+    
+    private func showOrHideActivityIndicatorAfterDelay() {
+        let when = dispatch_time(DISPATCH_TIME_NOW, Int64(self.delay * Double(NSEC_PER_SEC)))
+        dispatch_after(when, dispatch_get_main_queue()) {
+            withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockLock)
             
-            return v
-        }
-        set {
-            withUnsafeMutablePointer(&_activitySpinLock, OSSpinLockLock)
-            _activity = newValue
-            withUnsafeMutablePointer(&_activitySpinLock, OSSpinLockUnlock)
+            let value = NetworkActivityTaskObserver._activity
             
-            if self.activity > 0 {
-                let when = dispatch_time(DISPATCH_TIME_NOW, Int64(self.delay * Double(NSEC_PER_SEC)))
-                dispatch_after(when, dispatch_get_main_queue()) {
-                    if self.activity > 0 {
-                        self.application.networkActivityIndicatorVisible = true
-                    }
-                }
+            if value > 0 {
+                self.application.networkActivityIndicatorVisible = true
             }
             else {
-                let when = dispatch_time(DISPATCH_TIME_NOW, Int64((self.delay / 2.0) * Double(NSEC_PER_SEC)))
-                dispatch_after(when, dispatch_get_main_queue()) {
-                    if self.activity == 0 {
-                        self.application.networkActivityIndicatorVisible = false
-                    }
-                }
+                self.application.networkActivityIndicatorVisible = false
             }
+
+            withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockUnlock)
+
         }
     }
-
+    
     /// Initializes a task observer that will cause the network activity indicator to appear as long as the observed task is executing.
     ///
     /// - parameter application: The application where the network activity indicator belongs to.
@@ -63,11 +66,11 @@ public final class NetworkActivityTaskObserver: TaskObserver {
         super.init()
         
         self.didStart { [unowned self] _ in
-            self.activity++
+            self.incrementActivity()
         }
         
         self.didFinish { [unowned self] _ in
-            self.activity--
+            self.decrementActivity()
         }
     }
     

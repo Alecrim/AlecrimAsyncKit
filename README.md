@@ -142,7 +142,7 @@ func asyncDoSomething() -> Task<Void> {
 
 #### Conditions
 
-One or many conditions (that can be either "satisfied" or "failed") can be taken into account before a task is started.
+One or many conditions (that can be either "satisfied", "not satisfied" or "failed") can be taken into account before a task is started.
 
 A condition is an instance from the `TaskCondition` class that can be passed as parameter to the `async` global function when a task is created.
 
@@ -157,7 +157,7 @@ func asyncDoSomething() -> Task<Void> {
             result(.Satisfied)
         }
         else {
-            result(.FailedWithError(NSError(...)))
+            result(.Failed(NSError(...)))
         }
     }
 
