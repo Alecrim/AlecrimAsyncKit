@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		143045511BB7AB5900CD0AED /* ActivityTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143045501BB7AB5900CD0AED /* ActivityTaskObserver.swift */; settings = {ASSET_TAGS = (); }; };
 		14749B841B9C437700661E98 /* EventStorePermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
 		14749B861B9C4DA300661E98 /* BooleanTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */; settings = {ASSET_TAGS = (); }; };
 		147B5F371B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift */; settings = {ASSET_TAGS = (); }; };
@@ -30,6 +31,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		143045501BB7AB5900CD0AED /* ActivityTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityTaskObserver.swift; sourceTree = "<group>"; };
 		14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStorePermissionTaskCondition.swift; sourceTree = "<group>"; };
 		14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BooleanTaskCondition.swift; sourceTree = "<group>"; };
 		147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationBackgroundTaskObserver.swift; sourceTree = "<group>"; };
@@ -105,6 +107,7 @@
 		148513AA1B9BD19700FAB0FA /* Convenience Observers */ = {
 			isa = PBXGroup;
 			children = (
+				143045501BB7AB5900CD0AED /* ActivityTaskObserver.swift */,
 				147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift */,
 				148513AB1B9BD19700FAB0FA /* NetworkActivityTaskObserver.swift */,
 			);
@@ -241,6 +244,7 @@
 				148513A31B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift in Sources */,
 				148513A81B9BD15100FAB0FA /* TaskCondition.swift in Sources */,
 				147B5F371B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift in Sources */,
+				143045511BB7AB5900CD0AED /* ActivityTaskObserver.swift in Sources */,
 				1485139E1B9BD15100FAB0FA /* NegateTaskCondition.swift in Sources */,
 				148513A61B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift in Sources */,
 				148513B11B9BD9A500FAB0FA /* TimeoutTaskObserver.swift in Sources */,
@@ -299,7 +303,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -345,7 +349,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator watchos watchsimulator";
