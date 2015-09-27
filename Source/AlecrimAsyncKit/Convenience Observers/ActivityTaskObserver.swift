@@ -16,7 +16,7 @@ public final class ActivityTaskObserver: TaskObserver {
         var activity: NSObjectProtocol!
         
         self.didStart { _ in
-            NSProcessInfo.processInfo().beginActivityWithOptions(options, reason: reason)
+            activity = NSProcessInfo.processInfo().beginActivityWithOptions(options, reason: reason)
         }
         
         self.didFinish { _ in
