@@ -20,7 +20,7 @@ public final class LocationPermissionTaskCondition: TaskCondition {
     }
     
     private static func asyncRequestAuthorizationIfNeededForUsage(usage: LocationPermissionTaskCondition.Usage) -> Task<Void> {
-        return asyncEx(condition: MutuallyExclusiveTaskCondition(.Alert)) { task in
+        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
             /*
             Not only do we need to handle the "Not Determined" case, but we also
             need to handle the "upgrade" (.WhenInUse -> .Always) case.

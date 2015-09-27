@@ -16,7 +16,7 @@ private let _sharedEventStore = EKEventStore()
 public final class EventStorePermissionTaskCondition: TaskCondition {
     
     private static func asyncRequestAuthorization(entityType: EKEntityType) -> Task<Void> {
-        return asyncEx(condition: MutuallyExclusiveTaskCondition(.Alert)) { task in
+        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
             let status = EKEventStore.authorizationStatusForEntityType(entityType)
 
             switch status {

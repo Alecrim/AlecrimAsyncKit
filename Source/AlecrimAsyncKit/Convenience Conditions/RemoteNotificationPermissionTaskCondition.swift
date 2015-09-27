@@ -41,7 +41,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
     }
     
     private static func asyncWaitResponseFromApplication(application: UIApplication) -> Task<Void> {
-        return asyncEx(condition: MutuallyExclusiveTaskCondition(.Alert)) { task in
+        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
             switch self.result {
             case .Unknown:
                 self.result = .Waiting
