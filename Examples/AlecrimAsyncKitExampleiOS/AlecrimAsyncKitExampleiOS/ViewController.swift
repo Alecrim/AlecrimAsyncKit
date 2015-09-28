@@ -66,7 +66,8 @@ class ViewController: UIViewController {
         }
         
         // normally you will have a already created NSOperationQueue and use it
-        // or dispatch the closure ("block" is so 2009) to some GCD queue, but here we do not need that
+        // or dispatch the closure ("block" is so 2009) to some GCD queue,
+        // here we did it using a helper function (see it at the end of this file)
         backgroundThread {
             // we always wait for a task finishing on background
             // (if we do it on main thread, it will block the app
