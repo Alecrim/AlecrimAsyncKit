@@ -50,6 +50,7 @@ class ViewController: UIViewController {
         }
 
         self.t3 = asyncEx { task in
+            await(self.t1)
             await(self.t2)
             
             mainThread {
@@ -58,6 +59,8 @@ class ViewController: UIViewController {
         }
 
         self.t4 = asyncEx { task in
+            await(self.t1)
+            await(self.t2)
             await(self.t3)
             
             mainThread {
@@ -140,7 +143,10 @@ extension ViewController {
 
     func asyncDone() -> NonFailableTask<Void> {
         return asyncEx { task in
-            await(self.t4)
+            await(self.t1)
+            await(self.t2)
+            await(self.t3)
+            await(self.t4) // OK, we could wait for this task only, but... this is an example
             
             mainThread {
                 self.doneLabel.text = "Done!"
