@@ -43,7 +43,7 @@ class ViewController: UIViewController {
         self.t2 = asyncEx { task in
             await(self.t1)
             
-            NSOperationQueue.mainQueue().addOperationWithBlock {
+            mainThread {
                 // interface elements have to be updated on the main thread
                 self.twoButton.enabled = true
             }
@@ -52,7 +52,7 @@ class ViewController: UIViewController {
         self.t3 = asyncEx { task in
             await(self.t2)
             
-            NSOperationQueue.mainQueue().addOperationWithBlock {
+            mainThread {
                 self.threeButton.enabled = true
             }
         }
@@ -60,14 +60,14 @@ class ViewController: UIViewController {
         self.t4 = asyncEx { task in
             await(self.t3)
             
-            NSOperationQueue.mainQueue().addOperationWithBlock {
+            mainThread {
                 self.fourButton.enabled = true
             }
         }
         
         // normally you will have a already created NSOperationQueue and use it
         // or dispatch the closure ("block" is so 2009) to some GCD queue, but here we do not need that
-        NSOperationQueue().addOperationWithBlock {
+        backgroundThread {
             // we always wait for a task finishing on background
             // (if we do it on main thread, it will block the app
             // [AlecrimAsyncKit has an assertion to prevent that, anyway])
@@ -76,7 +76,7 @@ class ViewController: UIViewController {
             // to demonstrate delay condition...
             // (even if we do not wait for this task, it will be started after two seconds anyway)
             let _: Task<Void> = asyncEx(conditions: [DelayTaskCondition(timeInterval: 2)]) { task in
-                NSOperationQueue.mainQueue().addOperationWithBlock {
+                mainThread {
                     self.doneLabel.text = "And now for something\ncompletely different..."
                     task.finish() // we have always to tell when the task is finished
                 }
@@ -86,7 +86,7 @@ class ViewController: UIViewController {
             do {
                 let image = try await { self.asyncLoadImage() }
                 
-                NSOperationQueue.mainQueue().addOperationWithBlock {
+                mainThread {
                     self.doneLabel.hidden = true
 
                     // OK, we can now eat some bananas... finally!
@@ -95,7 +95,7 @@ class ViewController: UIViewController {
                 }
             }
             catch {
-                NSOperationQueue.mainQueue().addOperationWithBlock {
+                mainThread {
                     self.doneLabel.text = "Could not load image. :/"
                 }
             }
@@ -141,7 +141,7 @@ extension ViewController {
         return asyncEx { task in
             await(self.t4)
             
-            NSOperationQueue.mainQueue().addOperationWithBlock {
+            mainThread {
                 self.doneLabel.text = "Done!"
                 self.doneLabel.hidden = false
                 
@@ -178,4 +178,12 @@ extension ViewController {
         }
     }
     
+}
+
+private func mainThread(block: () -> Void) {
+    dispatch_async(dispatch_get_main_queue(), block)
+}
+
+private func backgroundThread(block: () -> Void) {
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UNSPECIFIED, 0), block)
 }
