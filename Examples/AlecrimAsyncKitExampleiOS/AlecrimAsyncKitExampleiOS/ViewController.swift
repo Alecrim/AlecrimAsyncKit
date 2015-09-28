@@ -75,7 +75,7 @@ class ViewController: UIViewController {
 
             // to demonstrate delay condition...
             // (even if we do not wait for this task, it will be started after two seconds anyway)
-            let _: Task<Void> = asyncEx(condition: DelayTaskCondition(timeInterval: 2)) { task in
+            let _: Task<Void> = asyncEx(conditions: [DelayTaskCondition(timeInterval: 2)]) { task in
                 NSOperationQueue.mainQueue().addOperationWithBlock {
                     self.doneLabel.text = "And now for something\ncompletely different..."
                     task.finish() // we have always to tell when the task is finished
