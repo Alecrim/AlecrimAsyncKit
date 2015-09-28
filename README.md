@@ -146,7 +146,7 @@ One or many conditions (that can be either "satisfied", "not satisfied" or "fail
 
 A condition is an instance from the `TaskCondition` class that can be passed as parameter to the `async` global function when a task is created.
 
-One task can have one or more conditions. Different tasks can have the same conditions if applicable in your logic. Also: static conditions and newly created ones are treated the same way, they are always evaluated each time a task that have them is to start.
+One task may have one or more conditions. Different tasks can have the same conditions if applicable to your logic. Also: static conditions and newly created ones are treated the same way, they are always evaluated each time a task that have them is to start.
 
 The **AlecrimAsyncKit** framework provides some predefined conditions, but you can create others. The `MutuallyExclusiveTaskCondition` is one special kind of condition that prevents tasks that share the same behavior from running at the same time.
 
@@ -161,7 +161,7 @@ func asyncDoSomething() -> Task<Void> {
         }
     }
 
-    return async(condition: condition) {
+    return async(conditions: [condition]) {
         // ...
     }
 }
