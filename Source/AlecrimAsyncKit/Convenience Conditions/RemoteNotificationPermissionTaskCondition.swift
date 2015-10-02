@@ -90,7 +90,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
     /// - returns: A condition for verifying that the app has the ability to receive push notifications.
     ///
     /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
-    public init(application: UIApplication) {
+    private init(application: UIApplication) {
         super.init(dependencyTask: RemoteNotificationPermissionTaskCondition.asyncWaitResponseFromApplication(application)) { result in
             switch RemoteNotificationPermissionTaskCondition.result {
             case .Token:
@@ -101,6 +101,28 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
                 
             default:
                 result(.NotSatisfied)
+            }
+        }
+    }
+    
+}
+
+extension UIApplication {
+    
+    private struct AssociatedKeys {
+        private static var remoteNotificationPermissionTaskCondition = "com.alecrim.AlecrimAsyncKit.UIApplication.RemoteNotificationPermissionTaskCondition"
+    }
+    
+    public var remoteNotificationPermissionTaskCondition: RemoteNotificationPermissionTaskCondition {
+        get {
+            if let value = objc_getAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionTaskCondition) as? RemoteNotificationPermissionTaskCondition {
+                return value
+            }
+            else {
+                let newValue = RemoteNotificationPermissionTaskCondition(application: self)
+                objc_setAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionTaskCondition, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                
+                return newValue
             }
         }
     }

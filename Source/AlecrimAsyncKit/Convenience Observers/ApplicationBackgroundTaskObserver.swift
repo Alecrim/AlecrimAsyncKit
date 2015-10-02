@@ -25,7 +25,7 @@ public final class ApplicationBackgroundTaskObserver: TaskObserver {
     ///
     /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
     /// - note: The *"background task"* term as used here is in the context of of `UIApplication`. In this observer it will be related but it is not the same as `Task<V>` or `NonFailableTask<V>`.
-    public init(application: UIApplication) {
+    private init(application: UIApplication) {
         //
         self.application = application
         
@@ -84,6 +84,28 @@ public final class ApplicationBackgroundTaskObserver: TaskObserver {
         }
     }
 
+}
+
+extension UIApplication {
+    
+    private struct AssociatedKeys {
+        private static var applicationBackgroundTaskObserver = "com.alecrim.AlecrimAsyncKit.UIApplication.ApplicationBackgroundTaskObserver"
+    }
+    
+    public var applicationBackgroundTaskObserver: ApplicationBackgroundTaskObserver {
+        get {
+            if let value = objc_getAssociatedObject(self, &AssociatedKeys.applicationBackgroundTaskObserver) as? ApplicationBackgroundTaskObserver {
+                return value
+            }
+            else {
+                let newValue = ApplicationBackgroundTaskObserver(application: self)
+                objc_setAssociatedObject(self, &AssociatedKeys.applicationBackgroundTaskObserver, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                
+                return newValue
+            }
+        }
+    }
+    
 }
 
 #endif
