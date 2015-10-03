@@ -141,6 +141,8 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
         return c
     }
     
+    public var cancellationHandler: (() -> Void)?
+    
     internal init(queue: NSOperationQueue, conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Task<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
@@ -231,6 +233,8 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
     /// - note: After a task is cancelled no action to stop it will be taken by the framework. You will have to check the `cancelled` property and stops any activity as soon as possible after it returns `true`.
     public func cancel() {
         self.setValue(nil, error: taskCancelledError)
+        self.cancellationHandler?()
+        self.cancellationHandler = nil
     }
     
     // MARK: -
