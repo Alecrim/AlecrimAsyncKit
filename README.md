@@ -206,18 +206,19 @@ Only failable tasks can be cancelled.
 
 #### The main thread
 
-Even if you cannot "await" a task on main thread, you still can start a background task from the main thread using the `runTask` helper global function (and you can run the risk of getting lost in the pyramid again, but this is your choice). In this case there will be an optional completion handler that will be performed when the task is finished.
+Even if you cannot "await" a task on main thread, you still can start a background task from the main thread and handle its completion using the `didFinish` method. If the queue parameter is not added, the callback closure will be called on the main thread.
 
 ```swift
 // this code is running on the main thread
-runTask(asyncCalculate()) { value, error in
-    if let error = error {
-        // do a nice error handling here
+asyncCalculate()
+    .didFinish { value, error in
+        if let error = error {
+            // do a nice error handling here
+        }
+        else {
+            print("The result is \(value)")
+        }
     }
-    else {
-        print("The result is \(value)")
-    }
-}
 
 // it is better to have "async" as a prefix to maintain consistency
 func asyncCalculate() -> Task<Int> {
@@ -239,7 +240,7 @@ func asyncCalculate() -> Task<Int> {
 }
 ```
 
-The difference between a failable task and a non-failable task when running them using `runTask` is that a non-failable does not have the `error` parameter in its `runTask` completion handler closure.
+The difference between a failable task and a non-failable task is that a non-failable does not have the `error` parameter in its `didFinish` closure. Also a failable task has also a `didCancel` method (note that the `didFinish` will be called too even if the task was cancelled).
 
 ### Considerations
 
