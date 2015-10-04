@@ -30,7 +30,7 @@ private let _defaultRunTaskQueue: NSOperationQueue = {
     }
     
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
-
+    
     return queue
     }()
 
@@ -184,7 +184,7 @@ public func await<V>(task: NonFailableTask<V>) -> V {
 public func runTask<V>(task: NonFailableTask<V>, queue: NSOperationQueue = _defaultRunTaskQueue, completionQueue: NSOperationQueue = _defaultRunTaskCompletionQueue, completion completionHandler: ((V) -> Void)? = nil) {
     queue.addOperationWithBlock {
         let value = task.waitForCompletionAndReturnValue()
-
+        
         if let completionHandler = completionHandler {
             completionQueue.addOperationWithBlock {
                 completionHandler(value)
