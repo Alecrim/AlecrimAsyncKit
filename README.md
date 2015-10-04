@@ -240,7 +240,7 @@ func asyncCalculate() -> Task<Int> {
 }
 ```
 
-The difference between a failable task and a non-failable task is that a non-failable does not have the `error` parameter in its `didFinish` closure. Also a failable task has also a `didCancel` method (note that the `didFinish` will be called too even if the task was cancelled).
+The difference between a failable task and a non-failable task is that a non-failable does not have the `error` parameter in its `didFinish` closure. A failable task has also a `didCancel` method (note that the `didFinish` closure will be called even if the task was cancelled).
 
 ### Considerations
 
