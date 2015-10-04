@@ -131,6 +131,7 @@ public func await<V>(task: Task<V>) throws -> V {
 /// - parameter queue:             The queue where the task will be "awaited".
 /// - parameter completionQueue:   The queue where the completion handler will be called.
 /// - parameter completionHandler: The optional completion handler.
+@available(*, deprecated, message="Use `difFinish` or `didCancel` Task methods instead.")
 public func runTask<V>(task: Task<V>, queue: NSOperationQueue = _defaultRunTaskQueue, completionQueue: NSOperationQueue = _defaultRunTaskCompletionQueue, completion completionHandler: ((V!, ErrorType?) -> Void)? = nil) {
     queue.addOperationWithBlock {
         do {
@@ -179,6 +180,7 @@ public func await<V>(task: NonFailableTask<V>) -> V {
 /// - parameter queue:             The queue where the task will be "awaited".
 /// - parameter completionQueue:   The queue where the completion handler will be called.
 /// - parameter completionHandler: The optional completion handler.
+@available(*, deprecated, message="Use `difFinish` NonFailableTask method instead.")
 public func runTask<V>(task: NonFailableTask<V>, queue: NSOperationQueue = _defaultRunTaskQueue, completionQueue: NSOperationQueue = _defaultRunTaskCompletionQueue, completion completionHandler: ((V) -> Void)? = nil) {
     queue.addOperationWithBlock {
         let value = task.waitForCompletionAndReturnValue()

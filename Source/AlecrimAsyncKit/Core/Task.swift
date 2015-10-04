@@ -141,8 +141,6 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
         return c
     }
     
-    public var cancellationHandler: (() -> Void)?
-    
     internal init(queue: NSOperationQueue, conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Task<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
@@ -233,8 +231,6 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
     /// - note: After a task is cancelled no action to stop it will be taken by the framework. You will have to check the `cancelled` property and stops any activity as soon as possible after it returns `true`.
     public func cancel() {
         self.setValue(nil, error: taskCancelledError)
-        self.cancellationHandler?()
-        self.cancellationHandler = nil
     }
     
     // MARK: -
@@ -287,6 +283,67 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
     public func continueWithTask(task: NonFailableTask<V>) {
         let value = task.waitForCompletionAndReturnValue()
         self.finishWithValue(value)
+    }
+
+}
+
+// MARK: - 
+
+extension Task {
+    
+    public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V!, ErrorType?) -> Void) -> Self {
+        self.addDeferredClosure {
+            if let callbackQueue = callbackQueue {
+                callbackQueue.addOperationWithBlock {
+                    if !self.cancelled {
+                        closure(self.value, self.error)
+                    }
+                }
+            }
+            else {
+                if !self.cancelled {
+                    closure(self.value, self.error)
+                }
+            }
+        }
+        
+        return self
+    }
+    
+    public func didCancel(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: () -> Void) -> Self {
+        self.addDeferredClosure {
+            if let callbackQueue = callbackQueue {
+                callbackQueue.addOperationWithBlock {
+                    if self.cancelled {
+                        closure()
+                    }
+                }
+            }
+            else {
+                if self.cancelled {
+                    closure()
+                }
+            }
+        }
+        return self
+    }
+    
+}
+
+extension NonFailableTask {
+
+    public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
+        self.addDeferredClosure {
+            if let callbackQueue = callbackQueue {
+                callbackQueue.addOperationWithBlock {
+                    closure(self.value)
+                }
+            }
+            else {
+                closure(self.value)
+            }
+        }
+        return self
     }
 
 }
