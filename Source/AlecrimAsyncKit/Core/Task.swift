@@ -88,8 +88,10 @@ public class BaseTask<V>: TaskType {
             withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
             
             //
-            self.deferredClosures?.forEach { $0() }
-            self.deferredClosures = nil
+            if let deferredClosures = self.deferredClosures {
+                deferredClosures.forEach { $0() }
+                self.deferredClosures = nil
+            }
         }
         
         // assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
@@ -316,9 +318,11 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
 extension Task {
     
     public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V!, ErrorType?) -> Void) -> Self {
+        let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+
         self.addDeferredClosure {
-            if let callbackQueue = callbackQueue {
-                callbackQueue.addOperationWithBlock {
+            if let queue = queue {
+                queue.addOperationWithBlock {
                     closure(self.value, self.error)
                 }
             }
@@ -331,9 +335,11 @@ extension Task {
     }
     
     public func didCancel(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: () -> Void) -> Self {
+        let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+        
         self.addDeferredClosure {
-            if let callbackQueue = callbackQueue {
-                callbackQueue.addOperationWithBlock {
+            if let queue = queue {
+                queue.addOperationWithBlock {
                     if self.cancelled {
                         closure()
                     }
@@ -354,9 +360,11 @@ extension Task {
 extension NonFailableTask {
     
     public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
+        let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+
         self.addDeferredClosure {
-            if let callbackQueue = callbackQueue {
-                callbackQueue.addOperationWithBlock {
+            if let queue = queue {
+                queue.addOperationWithBlock {
                     closure(self.value)
                 }
             }
