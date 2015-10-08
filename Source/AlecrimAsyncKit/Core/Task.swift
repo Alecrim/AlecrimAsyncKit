@@ -52,22 +52,6 @@ public class BaseTask<V>: TaskType {
     
     private var deferredClosuresSpinlock = OS_SPINLOCK_INIT
     private var _deferredClosures: Array<() -> Void>?
-    private var deferredClosures: Array<() -> Void>? {
-        get {
-            let v: Array<() -> Void>?
-            
-            withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockLock)
-            v = self._deferredClosures
-            withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockUnlock)
-            
-            return v
-        }
-        set {
-            withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockLock)
-            self._deferredClosures = newValue
-            withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockUnlock)
-        }
-    }
     
     private init() {
         dispatch_group_enter(self.dispatchGroup)
@@ -88,14 +72,15 @@ public class BaseTask<V>: TaskType {
             withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
             
             //
-            if let deferredClosures = self.deferredClosures {
+            withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockLock)
+            if let deferredClosures = self._deferredClosures {
                 deferredClosures.forEach { $0() }
-                self.deferredClosures = nil
+                self._deferredClosures = nil
             }
+            withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockUnlock)
         }
         
-        // assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
-        // we do not assert anymore, but the value or error can be assigned only once anyway
+        // the value or error can be assigned only once
         guard self.value == nil && self.error == nil else { return }
         
         assert(value != nil || error != nil, "Invalid combination of value/error.")

@@ -13,28 +13,19 @@ import Foundation
 /// A task observer that will cause the network activity indicator to appear as long as the observed task is executing.
 public final class NetworkActivityTaskObserver: TaskObserver {
 
-    private static var _activitySpinLock = OS_SPINLOCK_INIT
+    public static var delay: NSTimeInterval = 0.5
+
+    private static var activitySpinLock = OS_SPINLOCK_INIT
     private static var _activity: Int = 0
 
-    private let delay: NSTimeInterval = 0.5
     private let application: UIApplication
     
     private func showOrHideActivityIndicatorAfterDelay() {
-        let when = dispatch_time(DISPATCH_TIME_NOW, Int64(self.delay * Double(NSEC_PER_SEC)))
+        let when = dispatch_time(DISPATCH_TIME_NOW, Int64(NetworkActivityTaskObserver.delay * Double(NSEC_PER_SEC)))
         dispatch_after(when, dispatch_get_main_queue()) {
-            withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockLock)
-            
-            let value = NetworkActivityTaskObserver._activity
-            
-            if value > 0 {
-                self.application.networkActivityIndicatorVisible = true
-            }
-            else {
-                self.application.networkActivityIndicatorVisible = false
-            }
-
-            withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockUnlock)
-
+            withUnsafeMutablePointer(&NetworkActivityTaskObserver.activitySpinLock, OSSpinLockLock)
+            self.application.networkActivityIndicatorVisible = (NetworkActivityTaskObserver._activity > 0)
+            withUnsafeMutablePointer(&NetworkActivityTaskObserver.activitySpinLock, OSSpinLockUnlock)
         }
     }
     
@@ -59,17 +50,24 @@ public final class NetworkActivityTaskObserver: TaskObserver {
     }
     
     public func incrementActivity() {
-        withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockLock)
+        withUnsafeMutablePointer(&NetworkActivityTaskObserver.activitySpinLock, OSSpinLockLock)
         NetworkActivityTaskObserver._activity++
-        withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockUnlock)
+        withUnsafeMutablePointer(&NetworkActivityTaskObserver.activitySpinLock, OSSpinLockUnlock)
         
         self.showOrHideActivityIndicatorAfterDelay()
     }
     
     public func decrementActivity() {
-        withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockLock)
+        withUnsafeMutablePointer(&NetworkActivityTaskObserver.activitySpinLock, OSSpinLockLock)
         NetworkActivityTaskObserver._activity--
-        withUnsafeMutablePointer(&NetworkActivityTaskObserver._activitySpinLock, OSSpinLockUnlock)
+        
+        //assert(NetworkActivityTaskObserver._activity >= 0)
+        if NetworkActivityTaskObserver._activity < 0 {
+            print("Something is wrong -> activity:", NetworkActivityTaskObserver._activity)
+            NetworkActivityTaskObserver._activity = 0
+        }
+        
+        withUnsafeMutablePointer(&NetworkActivityTaskObserver.activitySpinLock, OSSpinLockUnlock)
         
         self.showOrHideActivityIndicatorAfterDelay()
     }
