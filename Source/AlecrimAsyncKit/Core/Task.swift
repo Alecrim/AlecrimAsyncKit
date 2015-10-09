@@ -47,11 +47,19 @@ public class BaseTask<V>: TaskType {
         return v
     }
     
+    //
+    
+    public var progress: NSProgress?
+    
+    //
+    
     private let dispatchGroup: dispatch_group_t = dispatch_group_create()
     private var spinlock = OS_SPINLOCK_INIT
     
     private var deferredClosuresSpinlock = OS_SPINLOCK_INIT
     private var _deferredClosures: Array<() -> Void>?
+    
+    //
     
     private init() {
         dispatch_group_enter(self.dispatchGroup)
@@ -60,6 +68,8 @@ public class BaseTask<V>: TaskType {
     deinit {
         assert(self.finished, "Either value or error were never assigned or task was never cancelled.")
     }
+    
+    //
     
     private final func waitForCompletion() {
         assert(!NSThread.isMainThread(), "Cannot wait task on main thread.")
@@ -152,6 +162,28 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
         return v
     }
     
+    //
+    
+    public override var progress: NSProgress? {
+        didSet {
+            if let progress = self.progress {
+                if let cancellationHandler = progress.cancellationHandler {
+                    progress.cancellationHandler = { [unowned self] in
+                        cancellationHandler()
+                        self.cancel()
+                    }
+                }
+                else {
+                    progress.cancellationHandler = { [unowned self] in
+                        self.cancel()
+                    }
+                }
+            }
+        }
+    }
+    
+    //
+    
     internal init(queue: NSOperationQueue, conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Task<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
@@ -206,6 +238,8 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
             }
         }
     }
+    
+    //
     
     @warn_unused_result
     internal func waitForCompletionAndReturnValue() throws -> V {
@@ -264,6 +298,8 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
 /// An asynchronous non-failable task. A "non-failable" task in the context of this framework is a task that cannot return or throw an error.
 public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
     
+    //
+    
     internal init(queue: NSOperationQueue, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
@@ -279,6 +315,8 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
             closure(self)
         }
     }
+    
+    //
     
     @warn_unused_result
     internal func waitForCompletionAndReturnValue() -> V {
