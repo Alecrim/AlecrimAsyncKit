@@ -23,8 +23,8 @@ public enum TaskConditionError: ErrorType {
 
 extension NSError {
     
-    public static func userCancelledError(userInfo dict: [NSObject : AnyObject]? = nil) -> NSError {
-        return NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: dict)
+    public static func userCancelledError(domain: String = NSCocoaErrorDomain, userInfo dict: [NSObject : AnyObject]? = nil) -> NSError {
+        return NSError(domain: domain, code: NSUserCancelledError, userInfo: dict)
     }
     
 }
