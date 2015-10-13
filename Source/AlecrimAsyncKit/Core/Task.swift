@@ -14,7 +14,6 @@ import Foundation
 public protocol TaskType: class {
     var finished: Bool { get }
     
-    func addDidStartClosure(didStartClosure: () -> Void)
     func addDeferredClosure(deferredClosure: () -> Void)
 }
 
@@ -58,9 +57,6 @@ public class BaseTask<V>: TaskType {
     
     private let dispatchGroup: dispatch_group_t = dispatch_group_create()
     private var spinlock = OS_SPINLOCK_INIT
-    
-    private var didStartClosuresSpinlock = OS_SPINLOCK_INIT
-    private var _didStartClosures: Array<() -> Void>?
     
     private var deferredClosuresSpinlock = OS_SPINLOCK_INIT
     private var _deferredClosures: Array<() -> Void>?
@@ -135,20 +131,6 @@ public class BaseTask<V>: TaskType {
     
     // MARK: -
     
-    public func addDidStartClosure(didStartClosure: () -> Void) {
-        withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockLock)
-        
-        if self._didStartClosures == nil {
-            self._didStartClosures = [didStartClosure]
-        }
-        else {
-            self._didStartClosures!.append(didStartClosure)
-        }
-        
-        withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockUnlock)
-    }
-
-    
     public func addDeferredClosure(deferredClosure: () -> Void) {
         withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockLock)
         
@@ -210,14 +192,6 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
         
         queue.addOperationWithBlock {
             do {
-                //
-                withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockLock)
-                if let didStartClosures = self._didStartClosures {
-                    didStartClosures.forEach { $0() }
-                    self._didStartClosures = nil
-                }
-                withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockUnlock)
-                
                 //
                 if let conditions = conditions where !conditions.isEmpty {
                     //
@@ -324,15 +298,6 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
         super.init()
         
         queue.addOperationWithBlock {
-            //
-            withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockLock)
-            if let didStartClosures = self._didStartClosures {
-                didStartClosures.forEach { $0() }
-                self._didStartClosures = nil
-            }
-            withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockUnlock)
-
-            //
             closure(self)
         }
     }
@@ -361,10 +326,9 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
 
 extension TaskType {
 
-    public func didStart(closure: (Self) -> Void) -> Self {
-        self.addDidStartClosure {
-            closure(self)
-        }
+    // WARNING: this can be called after didFinish
+    public func didStart(@noescape closure: (Self) -> Void) -> Self {
+        closure(self)
         
         return self
     }
