@@ -342,20 +342,15 @@ extension Task {
     
     public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V!, ErrorType?) -> Void) -> Self {
         self.addDeferredClosure {
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-            let value = self.value
-            let error = self.error
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-
             let queue = callbackQueue ?? NSOperationQueue.currentQueue()
 
             if let queue = queue {
                 queue.addOperationWithBlock {
-                    closure(value, error)
+                    closure(self.value, self.error)
                 }
             }
             else {
-                closure(value, error)
+                closure(self.value, self.error)
             }
         }
         
@@ -364,11 +359,7 @@ extension Task {
 
     public func didFinishWithValue(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
         self.addDeferredClosure {
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-            let value = self.value
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-            
-            if let value = value {
+            if let value = self.value {
                 let queue = callbackQueue ?? NSOperationQueue.currentQueue()
 
                 if let queue = queue {
@@ -387,11 +378,7 @@ extension Task {
 
     public func didFinishWithError(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (ErrorType) -> Void) -> Self {
         self.addDeferredClosure {
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-            let error = self.error
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-
-            if let error = error where !error.userCancelled {
+            if let error = self.error where !error.userCancelled {
                 let queue = callbackQueue ?? NSOperationQueue.currentQueue()
                 
                 if let queue = queue {
@@ -410,11 +397,7 @@ extension Task {
 
     public func didCancel(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: () -> Void) -> Self {
         self.addDeferredClosure {
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-            let error = self.error
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-            
-            if let error = error where error.userCancelled {
+            if let error = self.error where error.userCancelled {
                 let queue = callbackQueue ?? NSOperationQueue.currentQueue()
                 
                 if let queue = queue {
@@ -437,19 +420,15 @@ extension NonFailableTask {
     
     public func didFinishWithValue(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
         self.addDeferredClosure {
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-            let value = self.value
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-
             let queue = callbackQueue ?? NSOperationQueue.currentQueue()
 
             if let queue = queue {
                 queue.addOperationWithBlock {
-                    closure(value)
+                    closure(self.value)
                 }
             }
             else {
-                closure(value)
+                closure(self.value)
             }
         }
         
