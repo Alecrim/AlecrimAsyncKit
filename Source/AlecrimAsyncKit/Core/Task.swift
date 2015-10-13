@@ -341,9 +341,9 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
 extension Task {
     
     public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V!, ErrorType?) -> Void) -> Self {
-        let queue = callbackQueue ?? NSOperationQueue.currentQueue()
-
         self.addDeferredClosure {
+            let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+
             if let queue = queue {
                 queue.addOperationWithBlock {
                     closure(self.value, self.error)
@@ -356,20 +356,56 @@ extension Task {
         
         return self
     }
-    
-    public func didCancel(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: () -> Void) -> Self {
-        let queue = callbackQueue ?? NSOperationQueue.currentQueue()
-        
+
+    public func didFinishWithValue(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
         self.addDeferredClosure {
-            if let queue = queue {
-                queue.addOperationWithBlock {
-                    if self.cancelled {
+            if let value = self.value {
+                let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+
+                if let queue = queue {
+                    queue.addOperationWithBlock {
+                        closure(value)
+                    }
+                }
+                else {
+                    closure(value)
+                }
+            }
+        }
+        
+        return self
+    }
+
+    public func didFinishWithError(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (ErrorType) -> Void) -> Self {
+        self.addDeferredClosure {
+            if let error = self.error as? NSError where error.code != NSUserCancelledError {
+                let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+                
+                if let queue = queue {
+                    queue.addOperationWithBlock {
+                        closure(error)
+                    }
+                }
+                else {
+                    closure(error)
+                }
+            }
+        }
+        
+        return self
+    }
+
+    public func didCancel(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: () -> Void) -> Self {
+        self.addDeferredClosure {
+            if self.cancelled {
+                let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+                
+                if let queue = queue {
+                    queue.addOperationWithBlock {
                         closure()
                     }
                 }
-            }
-            else {
-                if self.cancelled {
+                else {
                     closure()
                 }
             }
@@ -382,10 +418,10 @@ extension Task {
 
 extension NonFailableTask {
     
-    public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
-        let queue = callbackQueue ?? NSOperationQueue.currentQueue()
-
+    public func didFinishWithValue(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
         self.addDeferredClosure {
+            let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+
             if let queue = queue {
                 queue.addOperationWithBlock {
                     closure(self.value)
