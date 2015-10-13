@@ -8,11 +8,14 @@
 
 import Foundation
 
-// MARK: - Protocols needed to support task observers in this version.
+// MARK: - Protocols needed to support task observers.
 
 /// The basic task type protocol.
 public protocol TaskType: class {
     var finished: Bool { get }
+    
+    func addDidStartClosure(didStartClosure: () -> Void)
+    func addDeferredClosure(deferredClosure: () -> Void)
 }
 
 /// The failable task type protocol.
@@ -55,6 +58,9 @@ public class BaseTask<V>: TaskType {
     
     private let dispatchGroup: dispatch_group_t = dispatch_group_create()
     private var spinlock = OS_SPINLOCK_INIT
+    
+    private var didStartClosuresSpinlock = OS_SPINLOCK_INIT
+    private var _didStartClosures: Array<() -> Void>?
     
     private var deferredClosuresSpinlock = OS_SPINLOCK_INIT
     private var _deferredClosures: Array<() -> Void>?
@@ -129,7 +135,21 @@ public class BaseTask<V>: TaskType {
     
     // MARK: -
     
-    private func addDeferredClosure(deferredClosure: () -> Void) {
+    public func addDidStartClosure(didStartClosure: () -> Void) {
+        withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockLock)
+        
+        if self._didStartClosures == nil {
+            self._didStartClosures = [didStartClosure]
+        }
+        else {
+            self._didStartClosures!.append(didStartClosure)
+        }
+        
+        withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockUnlock)
+    }
+
+    
+    public func addDeferredClosure(deferredClosure: () -> Void) {
         withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockLock)
         
         if self._deferredClosures == nil {
@@ -184,12 +204,20 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
     
     //
     
-    internal init(queue: NSOperationQueue, conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Task<V>) -> Void) {
+    internal init(queue: NSOperationQueue, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
         
         queue.addOperationWithBlock {
             do {
+                //
+                withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockLock)
+                if let didStartClosures = self._didStartClosures {
+                    didStartClosures.forEach { $0() }
+                    self._didStartClosures = nil
+                }
+                withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockUnlock)
+                
                 //
                 if let conditions = conditions where !conditions.isEmpty {
                     //
@@ -214,18 +242,9 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
                 }
                 
                 //
-                guard !self.cancelled else { return }
-                
-                //
-                if let observers = observers where !observers.isEmpty {
-                    observers.forEach { $0.taskDidStart(self) }
-                    self.addDeferredClosure { [unowned self] in
-                        observers.forEach { $0.taskDidFinish(self) }
-                    }
+                if !self.cancelled {
+                    closure(self)
                 }
-                
-                //
-                closure(self)
             }
             catch TaskConditionError.NotSatisfied {
                 self.cancel()
@@ -300,18 +319,20 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
     
     //
     
-    internal init(queue: NSOperationQueue, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
+    internal init(queue: NSOperationQueue, closure: (NonFailableTask<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
         
         queue.addOperationWithBlock {
-            if let observers = observers where !observers.isEmpty {
-                observers.forEach { $0.taskDidStart(self) }
-                self.addDeferredClosure { [unowned self] in
-                    observers.forEach { $0.taskDidFinish(self) }
-                }
+            //
+            withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockLock)
+            if let didStartClosures = self._didStartClosures {
+                didStartClosures.forEach { $0() }
+                self._didStartClosures = nil
             }
-            
+            withUnsafeMutablePointer(&self.didStartClosuresSpinlock, OSSpinLockUnlock)
+
+            //
             closure(self)
         }
     }
@@ -338,32 +359,45 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
 
 // MARK: -
 
-extension Task {
-    
-    public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V!, ErrorType?) -> Void) -> Self {
-        self.addDeferredClosure {
-            let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+extension TaskType {
 
-            if let queue = queue {
-                queue.addOperationWithBlock {
-                    closure(self.value, self.error)
+    public func didStart(closure: (Self) -> Void) -> Self {
+        self.addDidStartClosure {
+            closure(self)
+        }
+        
+        return self
+    }
+    
+    public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (Self) -> Void) -> Self {
+        self.addDeferredClosure {
+            if let callbackQueue = callbackQueue {
+                callbackQueue.addOperationWithBlock {
+                    closure(self)
                 }
             }
             else {
-                closure(self.value, self.error)
+                closure(self)
             }
         }
         
         return self
     }
 
+    
+}
+
+extension Task {
+
     public func didFinishWithValue(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
         self.addDeferredClosure {
-            if let value = self.value {
-                let queue = callbackQueue ?? NSOperationQueue.currentQueue()
-
-                if let queue = queue {
-                    queue.addOperationWithBlock {
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            let value = self.value
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+            
+            if let value = value {
+                if let callbackQueue = callbackQueue {
+                    callbackQueue.addOperationWithBlock {
                         closure(value)
                     }
                 }
@@ -378,11 +412,13 @@ extension Task {
 
     public func didFinishWithError(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (ErrorType) -> Void) -> Self {
         self.addDeferredClosure {
-            if let error = self.error where !error.userCancelled {
-                let queue = callbackQueue ?? NSOperationQueue.currentQueue()
-                
-                if let queue = queue {
-                    queue.addOperationWithBlock {
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            let error = self.error
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+
+            if let error = error where !error.userCancelled {
+                if let callbackQueue = callbackQueue {
+                    callbackQueue.addOperationWithBlock {
                         closure(error)
                     }
                 }
@@ -397,11 +433,13 @@ extension Task {
 
     public func didCancel(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: () -> Void) -> Self {
         self.addDeferredClosure {
-            if let error = self.error where error.userCancelled {
-                let queue = callbackQueue ?? NSOperationQueue.currentQueue()
-                
-                if let queue = queue {
-                    queue.addOperationWithBlock {
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            let error = self.error
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+            
+            if let error = error where error.userCancelled {
+                if let callbackQueue = callbackQueue {
+                    callbackQueue.addOperationWithBlock {
                         closure()
                     }
                 }
@@ -420,15 +458,17 @@ extension NonFailableTask {
     
     public func didFinishWithValue(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
         self.addDeferredClosure {
-            let queue = callbackQueue ?? NSOperationQueue.currentQueue()
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            let value = self.value
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
 
-            if let queue = queue {
-                queue.addOperationWithBlock {
-                    closure(self.value)
+            if let callbackQueue = callbackQueue {
+                callbackQueue.addOperationWithBlock {
+                    closure(value)
                 }
             }
             else {
-                closure(self.value)
+                closure(value)
             }
         }
         
@@ -436,4 +476,3 @@ extension NonFailableTask {
     }
     
 }
-
