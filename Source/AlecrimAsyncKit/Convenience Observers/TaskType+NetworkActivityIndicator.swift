@@ -47,10 +47,8 @@ public final class NetworkActivityIndicatorCounter {
         withUnsafeMutablePointer(&self.dynamicType.activitySpinLock, OSSpinLockLock)
         self.dynamicType._activity--
         
-        //assert(NetworkActivityTaskObserver._activity >= 0)
         if self.dynamicType._activity < 0 {
-            print("Something is wrong -> activity:", self.dynamicType._activity)
-            self.dynamicType._activity = 0
+            print("Something is wrong -> activity count:", self.dynamicType._activity)
         }
         
         withUnsafeMutablePointer(&self.dynamicType.activitySpinLock, OSSpinLockUnlock)
