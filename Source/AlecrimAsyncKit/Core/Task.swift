@@ -327,7 +327,7 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
 extension TaskType {
 
     // WARNING: this can be called after didFinish
-    public func didStart(@noescape closure: (Self) -> Void) -> Self {
+    internal func didStart(@noescape closure: (Self) -> Void) -> Self {
         closure(self)
         
         return self
