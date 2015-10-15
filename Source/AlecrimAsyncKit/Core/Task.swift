@@ -85,11 +85,13 @@ public class BaseTask<V>: TaskType {
             
             //
             withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockLock)
-            if let deferredClosures = self._deferredClosures {
-                deferredClosures.forEach { $0() }
-                self._deferredClosures = nil
-            }
+            let deferredClosures = self._deferredClosures
+            self._deferredClosures = nil
             withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockUnlock)
+            
+            if let deferredClosures = deferredClosures {
+                deferredClosures.forEach { $0() }
+            }
         }
         
         // the value or error can be assigned only once
