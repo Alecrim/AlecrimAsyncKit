@@ -21,14 +21,18 @@ public enum TaskConditionError: ErrorType {
 
 // MARK: -
 
-internal let taskCancelledError = NSError(code: NSUserCancelledError)
-
-// MARK: -
-
 extension NSError {
+    
+    public static func userCancelledError(domain domain: String = NSCocoaErrorDomain, userInfo dict: [NSObject : AnyObject]? = nil) -> NSError {
+        return NSError(domain: domain, code: NSUserCancelledError, userInfo: dict)
+    }
+    
+}
 
-    private convenience init(code: Int, userInfo dict: [NSObject : AnyObject]? = nil) {
-        self.init(domain: "com.alecrim.AlecrimAsyncKit", code: code, userInfo: dict)
+extension ErrorType {
+    
+    public var userCancelled: Bool {
+        return (self as NSError).code == NSUserCancelledError
     }
     
 }

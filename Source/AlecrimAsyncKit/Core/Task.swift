@@ -8,11 +8,13 @@
 
 import Foundation
 
-// MARK: - Protocols needed to support task observers in this version.
+// MARK: - Protocols needed to support task observers.
 
 /// The basic task type protocol.
 public protocol TaskType: class {
     var finished: Bool { get }
+    
+    func addDeferredClosure(deferredClosure: () -> Void)
 }
 
 /// The failable task type protocol.
@@ -38,19 +40,28 @@ public class BaseTask<V>: TaskType {
     
     /// If either `value` or `error` properties are not `nil`, this property will return `true`.
     public var finished: Bool {
-        var f = false
+        let v: Bool
         
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-        f = self.value != nil || self.error != nil
+        v = self.value != nil || self.error != nil
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
         
-        return f
+        return v
     }
-
+    
+    //
+    
+    public var progress: NSProgress?
+    
+    //
+    
     private let dispatchGroup: dispatch_group_t = dispatch_group_create()
     private var spinlock = OS_SPINLOCK_INIT
     
-    private var deferredClosures: Array<() -> Void>?
+    private var deferredClosuresSpinlock = OS_SPINLOCK_INIT
+    private var _deferredClosures: Array<() -> Void>?
+    
+    //
     
     private init() {
         dispatch_group_enter(self.dispatchGroup)
@@ -59,6 +70,8 @@ public class BaseTask<V>: TaskType {
     deinit {
         assert(self.finished, "Either value or error were never assigned or task was never cancelled.")
     }
+    
+    //
     
     private final func waitForCompletion() {
         assert(!NSThread.isMainThread(), "Cannot wait task on main thread.")
@@ -69,14 +82,19 @@ public class BaseTask<V>: TaskType {
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
         defer {
             withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-
+            
             //
-            self.deferredClosures?.forEach { $0() }
-            self.deferredClosures = nil
+            withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockLock)
+            let deferredClosures = self._deferredClosures
+            self._deferredClosures = nil
+            withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockUnlock)
+            
+            if let deferredClosures = deferredClosures {
+                deferredClosures.forEach { $0() }
+            }
         }
         
-        // assert(self.value == nil && self.error == nil, "value or error can be assigned only once.")
-        // we do not assert anymore, but the value or error can be assigned only once anyway
+        // the value or error can be assigned only once
         guard self.value == nil && self.error == nil else { return }
         
         assert(value != nil || error != nil, "Invalid combination of value/error.")
@@ -112,16 +130,20 @@ public class BaseTask<V>: TaskType {
     public final func finishWithValue(value: V) {
         self.setValue(value, error: nil)
     }
-
+    
     // MARK: -
-
-    private func addDeferredClosure(deferredClosure: () -> Void) {
-        if self.deferredClosures == nil {
-            self.deferredClosures = [deferredClosure]
+    
+    public func addDeferredClosure(deferredClosure: () -> Void) {
+        withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockLock)
+        
+        if self._deferredClosures == nil {
+            self._deferredClosures = [deferredClosure]
         }
         else {
-            self.deferredClosures!.append(deferredClosure)
+            self._deferredClosures!.append(deferredClosure)
         }
+        
+        withUnsafeMutablePointer(&self.deferredClosuresSpinlock, OSSpinLockUnlock)
     }
 }
 
@@ -130,18 +152,43 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
     
     /// If the `error` property is not `nil` and the error code is `NSUserCancelledError`, this property will return `true`.
     public var cancelled: Bool {
-        var c = false
+        let v: Bool
         
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-        if let error = self.error as? NSError where error.code == NSUserCancelledError {
-            c = true
+        if let error = self.error where error.userCancelled {
+            v = true
+        }
+        else {
+            v = false
         }
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-
-        return c
+        
+        return v
     }
     
-    internal init(queue: NSOperationQueue, observers: [TaskObserver]?, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
+    //
+    
+    public override var progress: NSProgress? {
+        didSet {
+            if let progress = self.progress {
+                if let cancellationHandler = progress.cancellationHandler {
+                    progress.cancellationHandler = { [unowned self] in
+                        cancellationHandler()
+                        self.cancel()
+                    }
+                }
+                else {
+                    progress.cancellationHandler = { [unowned self] in
+                        self.cancel()
+                    }
+                }
+            }
+        }
+    }
+    
+    //
+    
+    internal init(queue: NSOperationQueue, conditions: [TaskCondition]?, closure: (Task<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
         
@@ -151,7 +198,7 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
                 if let conditions = conditions where !conditions.isEmpty {
                     //
                     guard !self.cancelled else { return }
-
+                    
                     //
                     let mutuallyExclusiveConditions = conditions.flatMap { $0 as? MutuallyExclusiveTaskCondition }
                     if !mutuallyExclusiveConditions.isEmpty {
@@ -165,24 +212,15 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
                             }
                         }
                     }
-
+                    
                     //
                     try await(TaskCondition.asyncEvaluateConditions(conditions))
                 }
                 
                 //
-                guard !self.cancelled else { return }
-                
-                //
-                if let observers = observers where !observers.isEmpty {
-                    observers.forEach { $0.taskDidStart(self) }
-                    self.addDeferredClosure { [unowned self] in
-                        observers.forEach { $0.taskDidFinish(self) }
-                    }
+                if !self.cancelled {
+                    closure(self)
                 }
-                
-                //
-                closure(self)
             }
             catch TaskConditionError.NotSatisfied {
                 self.cancel()
@@ -195,6 +233,8 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
             }
         }
     }
+    
+    //
     
     @warn_unused_result
     internal func waitForCompletionAndReturnValue() throws -> V {
@@ -230,7 +270,7 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
     ///
     /// - note: After a task is cancelled no action to stop it will be taken by the framework. You will have to check the `cancelled` property and stops any activity as soon as possible after it returns `true`.
     public func cancel() {
-        self.setValue(nil, error: taskCancelledError)
+        self.setValue(nil, error: NSError.userCancelledError())
     }
     
     // MARK: -
@@ -247,34 +287,31 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
             self.finishWithError(error)
         }
     }
-
+    
 }
 
 /// An asynchronous non-failable task. A "non-failable" task in the context of this framework is a task that cannot return or throw an error.
 public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
-
-    internal init(queue: NSOperationQueue, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
+    
+    //
+    
+    internal init(queue: NSOperationQueue, closure: (NonFailableTask<V>) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         super.init()
-
+        
         queue.addOperationWithBlock {
-            if let observers = observers where !observers.isEmpty {
-                observers.forEach { $0.taskDidStart(self) }
-                self.addDeferredClosure { [unowned self] in
-                    observers.forEach { $0.taskDidFinish(self) }
-                }
-            }
-
             closure(self)
         }
     }
+    
+    //
     
     @warn_unused_result
     internal func waitForCompletionAndReturnValue() -> V {
         self.waitForCompletion()
         return self.value
     }
-
+    
     // MARK: -
     
     /// Waits for the execution of another task of the same generic type.
@@ -284,5 +321,124 @@ public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
         let value = task.waitForCompletionAndReturnValue()
         self.finishWithValue(value)
     }
+    
+}
 
+// MARK: -
+
+extension TaskType {
+
+    // WARNING: this can be called after didFinish
+    internal func didStart(@noescape closure: (Self) -> Void) -> Self {
+        closure(self)
+        
+        return self
+    }
+    
+    public func didFinish(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (Self) -> Void) -> Self {
+        self.addDeferredClosure {
+            if let callbackQueue = callbackQueue {
+                callbackQueue.addOperationWithBlock {
+                    closure(self)
+                }
+            }
+            else {
+                closure(self)
+            }
+        }
+        
+        return self
+    }
+
+    
+}
+
+extension Task {
+
+    public func didFinishWithValue(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
+        self.addDeferredClosure {
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            let value = self.value
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+            
+            if let value = value {
+                if let callbackQueue = callbackQueue {
+                    callbackQueue.addOperationWithBlock {
+                        closure(value)
+                    }
+                }
+                else {
+                    closure(value)
+                }
+            }
+        }
+        
+        return self
+    }
+
+    public func didFinishWithError(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (ErrorType) -> Void) -> Self {
+        self.addDeferredClosure {
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            let error = self.error
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+
+            if let error = error where !error.userCancelled {
+                if let callbackQueue = callbackQueue {
+                    callbackQueue.addOperationWithBlock {
+                        closure(error)
+                    }
+                }
+                else {
+                    closure(error)
+                }
+            }
+        }
+        
+        return self
+    }
+
+    public func didCancel(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: () -> Void) -> Self {
+        self.addDeferredClosure {
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            let error = self.error
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+            
+            if let error = error where error.userCancelled {
+                if let callbackQueue = callbackQueue {
+                    callbackQueue.addOperationWithBlock {
+                        closure()
+                    }
+                }
+                else {
+                    closure()
+                }
+            }
+        }
+        
+        return self
+    }
+    
+}
+
+extension NonFailableTask {
+    
+    public func didFinishWithValue(callbackQueue: NSOperationQueue? = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> Self {
+        self.addDeferredClosure {
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            let value = self.value
+            //withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+
+            if let callbackQueue = callbackQueue {
+                callbackQueue.addOperationWithBlock {
+                    closure(value)
+                }
+            }
+            else {
+                closure(value)
+            }
+        }
+        
+        return self
+    }
+    
 }

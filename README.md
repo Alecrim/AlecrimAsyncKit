@@ -146,7 +146,7 @@ One or many conditions (that can be either "satisfied", "not satisfied" or "fail
 
 A condition is an instance from the `TaskCondition` class that can be passed as parameter to the `async` global function when a task is created.
 
-One task can have one or more conditions. Different tasks can have the same conditions if applicable in your logic. Also: static conditions and newly created ones are treated the same way, they are always evaluated each time a task that have them is to start.
+One task may have one or more conditions. Different tasks can have the same conditions if applicable to your logic. Also: static conditions and newly created ones are treated the same way, they are always evaluated each time a task that have them is to start.
 
 The **AlecrimAsyncKit** framework provides some predefined conditions, but you can create others. The `MutuallyExclusiveTaskCondition` is one special kind of condition that prevents tasks that share the same behavior from running at the same time.
 
@@ -161,7 +161,7 @@ func asyncDoSomething() -> Task<Void> {
         }
     }
 
-    return async(condition: condition) {
+    return async(conditions: [condition]) {
         // ...
     }
 }
@@ -206,18 +206,19 @@ Only failable tasks can be cancelled.
 
 #### The main thread
 
-Even if you cannot "await" a task on main thread, you still can start a background task from the main thread using the `runTask` helper global function (and you can run the risk of getting lost in the pyramid again, but this is your choice). In this case there will be an optional completion handler that will be performed when the task is finished.
+Even if you cannot "await" a task on main thread, you still can start a background task from the main thread and handle its completion using the `didFinish` method. If the queue parameter is not added, the callback closure will be called on the main thread.
 
 ```swift
 // this code is running on the main thread
-runTask(asyncCalculate()) { value, error in
-    if let error = error {
-        // do a nice error handling here
+asyncCalculate()
+    .didFinish { value, error in
+        if let error = error {
+            // do a nice error handling here
+        }
+        else {
+            print("The result is \(value)")
+        }
     }
-    else {
-        print("The result is \(value)")
-    }
-}
 
 // it is better to have "async" as a prefix to maintain consistency
 func asyncCalculate() -> Task<Int> {
@@ -239,7 +240,7 @@ func asyncCalculate() -> Task<Int> {
 }
 ```
 
-The difference between a failable task and a non-failable task when running them using `runTask` is that a non-failable does not have the `error` parameter in its `runTask` completion handler closure.
+The difference between a failable task and a non-failable task is that a non-failable does not have the `error` parameter in its `didFinish` closure. A failable task has also a `didCancel` method (note that the `didFinish` closure will be called even if the task was cancelled).
 
 ### Considerations
 

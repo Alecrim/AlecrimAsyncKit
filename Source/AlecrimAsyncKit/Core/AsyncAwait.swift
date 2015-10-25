@@ -30,23 +30,24 @@ private let _defaultRunTaskQueue: NSOperationQueue = {
     }
     
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
-
+    
     return queue
     }()
 
 private let _defaultRunTaskCompletionQueue: NSOperationQueue = NSOperationQueue.mainQueue()
 
-// MARK: - async
+// MARK: - async - failable task
 
 /// Creates and returns a `Task<V>` instance with the specified parameters.
 ///
-/// - parameter queue:   The queue where the task will run.
-/// - parameter closure: The closure that will be executed and that will return the tasks's associated value or throw errors.
+/// - parameter queue:      The queue where the task will run.
+/// - parameter conditions: The conditions that determine if the task will be started or not.
+/// - parameter closure:    The closure that will be executed and that will return the tasks's associated value or throw errors.
 ///
 /// - returns: A `Task<V>` instance with the specified parameters.
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, closure: () throws -> V) -> Task<V> {
-    return Task<V>(queue: queue, observers: nil, conditions: nil) { (task: Task<V>) -> Void in
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [TaskCondition]? = nil, closure: () throws -> V) -> Task<V> {
+    return Task<V>(queue: queue, conditions: conditions) { (task: Task<V>) -> Void  in
         do {
             let value = try closure()
             task.finishWithValue(value)
@@ -57,29 +58,16 @@ public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, closure: () th
     }
 }
 
-/// Creates and returns a `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-///
-/// - parameter queue:   The queue where the task will run.
-/// - parameter closure: The closure that will be executed and that, at some thread or context, will finish the task with a value or an error.
-///
-/// - returns: A `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-@warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(queue: queue, observers: nil, conditions: nil, closure: closure)
-}
-
-//
-
 /// Creates and returns a `Task<V>` instance with the specified parameters.
 ///
-/// - parameter queue:     The queue where the task will run.
-/// - parameter condition: A condition that determines if the task will be started or not.
-/// - parameter closure:   The closure that will be executed and that will return the tasks's associated value or throw errors.
+/// - parameter queue:      The queue where the task will run.
+/// - parameter condition:  The condition that determine if the task will be started or not.
+/// - parameter closure:    The closure that will be executed and that will return the tasks's associated value or throw errors.
 ///
 /// - returns: A `Task<V>` instance with the specified parameters.
 @warn_unused_result
 public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, condition: TaskCondition, closure: () throws -> V) -> Task<V> {
-    return Task<V>(queue: queue, observers: nil, conditions: [condition]) { (task: Task<V>) -> Void  in
+    return Task<V>(queue: queue, conditions: [condition]) { (task: Task<V>) -> Void  in
         do {
             let value = try closure()
             task.finishWithValue(value)
@@ -92,195 +80,39 @@ public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, condition: Tas
 
 /// Creates and returns a `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
 ///
-/// - parameter queue:     The queue where the task will run.
-/// - parameter condition: A condition that determines if the task will be started or not.
-/// - parameter closure:   The closure that will be executed and that, at some thread or context, will finish the task with a value or an error.
+/// - parameter queue:      The queue where the task will run.
+/// - parameter conditions: The conditions that determine if the task will be started or not.
+/// - parameter closure:    The closure that will be executed and that, at some thread or context, will finish the task with a value or an error.
+///
+/// - returns: A `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
+@warn_unused_result
+public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [TaskCondition]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
+    return Task<V>(queue: queue, conditions: conditions, closure: closure)
+}
+
+/// Creates and returns a `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
+///
+/// - parameter queue:      The queue where the task will run.
+/// - parameter condition:  The condition that determine if the task will be started or not.
+/// - parameter closure:    The closure that will be executed and that, at some thread or context, will finish the task with a value or an error.
 ///
 /// - returns: A `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
 @warn_unused_result
 public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, condition: TaskCondition, closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(queue: queue, observers: nil, conditions: [condition], closure: closure)
-}
-
-//
-
-/// Creates and returns a `Task<V>` instance with the specified parameters.
-///
-/// - parameter queue:      The queue where the task will run.
-/// - parameter conditions: The conditions that determine if the task will be started or not.
-/// - parameter closure:    The closure that will be executed and that will return the tasks's associated value or throw errors.
-///
-/// - returns: A `Task<V>` instance with the specified parameters.
-@warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [TaskCondition], closure: () throws -> V) -> Task<V> {
-    return Task<V>(queue: queue, observers: nil, conditions: conditions) { (task: Task<V>) -> Void  in
-        do {
-            let value = try closure()
-            task.finishWithValue(value)
-        }
-        catch let error {
-            task.finishWithError(error)
-        }
-    }
-}
-
-/// Creates and returns a `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-///
-/// - parameter queue:      The queue where the task will run.
-/// - parameter conditions: The conditions that determine if the task will be started or not.
-/// - parameter closure:    The closure that will be executed and that, at some thread or context, will finish the task with a value or an error.
-///
-/// - returns: A `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-@warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [TaskCondition], closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(queue: queue, observers: nil, conditions: conditions, closure: closure)
-}
-
-//
-
-/// Creates and returns a `Task<V>` instance with the specified parameters.
-///
-/// - parameter queue:     The queue where the task will run.
-/// - parameter observers: Observer instances that will be notified when a task is about to start and when a task is finished.
-/// - parameter closure:   The closure that will be executed and that will return the tasks's associated value or throw errors.
-///
-/// - returns: A `Task<V>` instance with the specified parameters.
-@warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [TaskObserver], closure: () throws -> V) -> Task<V> {
-    return Task<V>(queue: queue, observers: observers, conditions: nil) { (task: Task<V>) -> Void  in
-        do {
-            let value = try closure()
-            task.finishWithValue(value)
-        }
-        catch let error {
-            task.finishWithError(error)
-        }
-    }
-}
-
-/// Creates and returns a `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-///
-/// - parameter queue:     The queue where the task will run.
-/// - parameter observers: Observer instances that will be notified when a task is about to start and when a task is finished.
-/// - parameter closure:   The closure that will be executed and that, at some thread or context, will finish the task with a value or an error.
-///
-/// - returns: A `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-@warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [TaskObserver], closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(queue: queue, observers: observers, conditions: nil, closure: closure)
-}
-
-//
-
-/// Creates and returns a `Task<V>` instance with the specified parameters.
-///
-/// - parameter queue:     The queue where the task will run.
-/// - parameter condition: A condition that determines if the task will be started or not.
-/// - parameter observers: Observer instances that will be notified when a task is about to start and when a task is finished.
-/// - parameter closure:   The closure that will be executed and that will return the tasks's associated value or throw errors.
-///
-/// - returns: A `Task<V>` instance with the specified parameters.
-@warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, condition: TaskCondition, observers: [TaskObserver], closure: () throws -> V) -> Task<V> {
-    return Task<V>(queue: queue, observers: observers, conditions: [condition]) { (task: Task<V>) -> Void  in
-        do {
-            let value = try closure()
-            task.finishWithValue(value)
-        }
-        catch let error {
-            task.finishWithError(error)
-        }
-    }
-}
-
-/// Creates and returns a `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-///
-/// - parameter queue:     The queue where the task will run.
-/// - parameter condition: A condition that determines if the task will be started or not.
-/// - parameter observers: Observer instances that will be notified when a task is about to start and when a task is finished.
-/// - parameter closure:   The closure that will be executed and that, at some thread or context, will finish the task with a value or an error.
-///
-/// - returns: A `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-@warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, condition: TaskCondition, observers: [TaskObserver], closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(queue: queue, observers: observers, conditions: [condition], closure: closure)
-}
-
-//
-
-/// Creates and returns a `Task<V>` instance with the specified parameters.
-///
-/// - parameter queue:      The queue where the task will run.
-/// - parameter conditions: The conditions that determine if the task will be started or not.
-/// - parameter observers:  Observer instances that will be notified when a task is about to start and when a task is finished.
-/// - parameter closure:    The closure that will be executed and that will return the tasks's associated value or throw errors.
-///
-/// - returns: A `Task<V>` instance with the specified parameters.
-@warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [TaskCondition], observers: [TaskObserver], closure: () throws -> V) -> Task<V> {
-    return Task<V>(queue: queue, observers: observers, conditions: conditions) { (task: Task<V>) -> Void  in
-        do {
-            let value = try closure()
-            task.finishWithValue(value)
-        }
-        catch let error {
-            task.finishWithError(error)
-        }
-    }
-}
-
-/// Creates and returns a `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-///
-/// - parameter queue:      The queue where the task will run.
-/// - parameter conditions: The conditions that determine if the task will be started or not.
-/// - parameter observers:  Observer instances that will be notified when a task is about to start and when a task is finished.
-/// - parameter closure:    The closure that will be executed and that, at some thread or context, will finish the task with a value or an error.
-///
-/// - returns: A `Task<V>` instance that can be finished or cancelled in any thread with the specified parameters.
-@warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, conditions: [TaskCondition], observers: [TaskObserver], closure: (Task<V>) -> Void) -> Task<V> {
-    return Task<V>(queue: queue, observers: observers, conditions: conditions, closure: closure)
+    return Task<V>(queue: queue, conditions: [condition], closure: closure)
 }
 
 // MARK: - async - non failable task
 
 /// Creates and returns a `NonFailableTask<V>` instance with the specified parameters.
 ///
-/// - parameter queue:   The queue where the task will run.
-/// - parameter closure: The closure that will be executed and that will return the tasks's associated value.
-///
-/// - returns: A `NonFailableTask<V>` instance with the specified parameters.
-@warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, closure: () -> V) -> NonFailableTask<V> {
-    return NonFailableTask<V>(queue: queue, observers: nil) { (task: NonFailableTask<V>) -> Void in
-        let value = closure()
-        task.finishWithValue(value)
-    }
-}
-
-/// Creates and returns a `NonFailableTask<V>` instance that can be finished in any thread with the specified parameters.
-///
-/// - parameter queue:   The queue where the task will run.
-/// - parameter closure: The closure that will be executed and that, at some thread or context, will finish the task with a value.
-///
-/// - returns: A `NonFailableTask<V>` instance that can be finished in any thread with the specified parameters.
-@warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
-    return NonFailableTask<V>(queue: queue, observers: nil, closure: closure)
-}
-
-//
-
-/// Creates and returns a `NonFailableTask<V>` instance with the specified parameters.
-///
 /// - parameter queue:     The queue where the task will run.
-/// - parameter observers: Observer instances that will be notified when a task is about to start and when a task is finished.
 /// - parameter closure:   The closure that will be executed and that will return the tasks's associated value.
 ///
 /// - returns: A `NonFailableTask<V>` instance with the specified parameters.
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [TaskObserver], closure: () -> V) -> NonFailableTask<V> {
-    return NonFailableTask<V>(queue: queue, observers: observers) { (task: NonFailableTask<V>) -> Void in
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, closure: () -> V) -> NonFailableTask<V> {
+    return NonFailableTask<V>(queue: queue) { (task: NonFailableTask<V>) -> Void in
         let value = closure()
         task.finishWithValue(value)
     }
@@ -289,13 +121,12 @@ public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [Ta
 /// Creates and returns a `Task<V>` instance that can be finished in any thread with the specified parameters.
 ///
 /// - parameter queue:     The queue where the task will run.
-/// - parameter observers: Observer instances that will be notified when a task is about to start and when a task is finished.
 /// - parameter closure:   The closure that will be executed and that, at some thread or context, will finish the task with a value.
 ///
 /// - returns: A `Task<V>` instance that can be finished in any thread with the specified parameters.
 @warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, observers: [TaskObserver], closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
-    return NonFailableTask<V>(queue: queue, observers: observers, closure: closure)
+public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
+    return NonFailableTask<V>(queue: queue, closure: closure)
 }
 
 // MARK: - await
@@ -328,6 +159,7 @@ public func await<V>(task: Task<V>) throws -> V {
 /// - parameter queue:             The queue where the task will be "awaited".
 /// - parameter completionQueue:   The queue where the completion handler will be called.
 /// - parameter completionHandler: The optional completion handler.
+@available(*, deprecated, message="Use `difFinish` or `didCancel` Task methods instead.")
 public func runTask<V>(task: Task<V>, queue: NSOperationQueue = _defaultRunTaskQueue, completionQueue: NSOperationQueue = _defaultRunTaskCompletionQueue, completion completionHandler: ((V!, ErrorType?) -> Void)? = nil) {
     queue.addOperationWithBlock {
         do {
@@ -376,10 +208,11 @@ public func await<V>(task: NonFailableTask<V>) -> V {
 /// - parameter queue:             The queue where the task will be "awaited".
 /// - parameter completionQueue:   The queue where the completion handler will be called.
 /// - parameter completionHandler: The optional completion handler.
+@available(*, deprecated, message="Use `difFinish` NonFailableTask method instead.")
 public func runTask<V>(task: NonFailableTask<V>, queue: NSOperationQueue = _defaultRunTaskQueue, completionQueue: NSOperationQueue = _defaultRunTaskCompletionQueue, completion completionHandler: ((V) -> Void)? = nil) {
     queue.addOperationWithBlock {
         let value = task.waitForCompletionAndReturnValue()
-
+        
         if let completionHandler = completionHandler {
             completionQueue.addOperationWithBlock {
                 completionHandler(value)
