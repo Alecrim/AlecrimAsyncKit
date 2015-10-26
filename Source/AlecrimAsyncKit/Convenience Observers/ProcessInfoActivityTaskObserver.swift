@@ -1,5 +1,5 @@
 //
-//  TaskType+Activity.swift
+//  ProcessInfoActivityTaskObserver.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-09-27.
@@ -8,21 +8,21 @@
 
 import Foundation
 
-extension TaskType {
+public final class ProcessInfoActivityTaskObserver<T: TaskType, V where T.ValueType == V>: TaskObserver<T, V> {
     
-    public func bindToActivityWithOptions(options: NSActivityOptions, reason: String) -> Self {
+    public init(options: NSActivityOptions, reason: String) {
+        super.init()
+        
         var activity: NSObjectProtocol!
         
-        self.didStart { _ in
+        self.taskDidStart { _ in
             activity = NSProcessInfo.processInfo().beginActivityWithOptions(options, reason: reason)
         }
         
-        self.didFinish { _ in
+        self.taskDidFinish { _ in
             NSProcessInfo.processInfo().endActivity(activity)
             activity = nil
         }
-        
-        return self
     }
     
 }

@@ -112,6 +112,10 @@ public class TaskCondition {
         self.dependencyTaskClosure = dependencyTaskClosure
         self.evaluationClosure = evaluationClosure
     }
+    
+    deinit {
+        print("TASKCONDITION deinit")
+    }
 
     internal func asyncEvaluate() -> Task<Void> {
         return asyncEx(_defaultTaskConditionQueue) { [unowned self] task in

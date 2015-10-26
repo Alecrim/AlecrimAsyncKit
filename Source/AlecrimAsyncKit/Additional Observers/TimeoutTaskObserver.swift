@@ -8,10 +8,12 @@
 
 import Foundation
 
-extension FailableTaskType {
-
-    public func cancelAfterTimeout(timeout: NSTimeInterval) -> Self {
-        self.didStart { task in
+public final class TimeoutTaskObserver<T: FailableTaskType, V where T.ValueType == V>: TaskObserver<T, V> {
+    
+    public init(timeout: NSTimeInterval) {
+        super.init()
+        
+        self.taskWillStart { task in
             weak var weakTask = task
             
             let when = dispatch_time(DISPATCH_TIME_NOW, Int64(timeout * Double(NSEC_PER_SEC)))
@@ -27,8 +29,6 @@ extension FailableTaskType {
                 weakTask?.cancel()
             }
         }
-        
-        return self
     }
     
 }

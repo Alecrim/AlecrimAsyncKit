@@ -120,21 +120,25 @@ extension ViewController {
     @IBAction func oneButtonPressed(sender: UIButton) {
         sender.hidden = true
         self.t1.finish() // yes, we can finish the task outside its inner block
+        self.t1 = nil // we do not it anymore
     }
     
     @IBAction func twoButtonPressed(sender: UIButton) {
         sender.hidden = true
         self.t2.finish()
+        self.t2 = nil // we do not it anymore
     }
     
     @IBAction func threeButtonPressed(sender: UIButton) {
         sender.hidden = true
         self.t3.finish()
+        self.t3 = nil // we do not it anymore
     }
     
     @IBAction func fourButtonPressed(sender: UIButton) {
         sender.hidden = true
         self.t4.finish()
+        self.t4 = nil // we do not it anymore
     }
     
 }
@@ -160,10 +164,10 @@ extension ViewController {
 
     func asyncLoadImage() -> Task<UIImage> {
         // an observer is not needed to the task finish its job, but to have a network activity indicator at the top would be nice...
-        let networkActivityObserver = UIApplication.sharedApplication().networkActivityTaskObserver
+        let networkActivityObserver = NetworkActivityIndicatorTaskObserver<Task<UIImage>, UIImage>(application: UIApplication.sharedApplication())
 
         // if you replace 10 for 2, for example, the task will be cancelled before it is finished
-        let timeoutObserver = TimeoutTaskObserver(timeout: 10)
+        let timeoutObserver = TimeoutTaskObserver<Task<UIImage>, UIImage>(timeout: 10)
         
         // here we have the common case where a func returns a task
         // and the task is finished inside its inner block
