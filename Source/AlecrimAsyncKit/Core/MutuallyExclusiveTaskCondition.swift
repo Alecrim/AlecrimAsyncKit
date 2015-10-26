@@ -47,6 +47,8 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
     }
     
     internal static func increment(categoryName: String) {
+        assert(!NSThread.isMainThread())
+        
         let semaphore: dispatch_semaphore_t
         
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class ProcessInfoActivityTaskObserver<T: TaskType, V where T.ValueType == V>: TaskObserver<T, V> {
+public final class ProcessInfoActivityTaskObserver: TaskObserver {
     
     public init(options: NSActivityOptions, reason: String) {
         super.init()
