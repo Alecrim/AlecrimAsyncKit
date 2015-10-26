@@ -8,65 +8,35 @@
 
 import Foundation
 
-public class TaskObserver<T: TaskType, V where T.ValueType == V> {
+public class TaskObserver {
     
-    internal final var taskWillStartClosure: ((T) -> Void)?
-    internal final var taskDidStartClosure: ((T) -> Void)?
+    internal final var taskWillStartClosure: ((Any) -> Void)?
+    internal final var taskDidStartClosure: ((Any) -> Void)?
 
-    internal final var taskWillFinishClosure: ((T) -> Void)?
-    internal final var taskDidFinishClosure: ((T) -> Void)?
-    
-    internal final var taskDidFinishWithValueClosure: ((T, V) -> Void)?
-    
-    internal final var taskDidCancelClosure: ((T) -> Void)?
-    internal final var taskDidFinishWithErrorClosure: ((T, ErrorType) -> Void)?
+    internal final var taskWillFinishClosure: ((Any) -> Void)?
+    internal final var taskDidFinishClosure: ((Any) -> Void)?
     
     public init() {
     }
     
-    deinit {
-        print("TASKOBSERVER deinit")
-    }
-
-    
-    public final func taskWillStart(closure: (T) -> Void) -> Self {
+    public final func taskWillStart(closure: (Any) -> Void) -> Self {
         self.taskWillStartClosure = closure
         return self
     }
 
-    public final func taskDidStart(closure: (T) -> Void) -> Self {
+    public final func taskDidStart(closure: (Any) -> Void) -> Self {
         self.taskDidStartClosure = closure
         return self
     }
 
-    public final func taskWillFinish(closure: (T) -> Void) -> Self {
+    public final func taskWillFinish(closure: (Any) -> Void) -> Self {
         self.taskWillFinishClosure = closure
         return self
     }
 
-    public final func taskDidFinish(closure: (T) -> Void) -> Self {
+    public final func taskDidFinish(closure: (Any) -> Void) -> Self {
         self.taskDidFinishClosure = closure
         return self
     }
 
-    public final func taskDidFinishWithValue(closure: (T, V) -> Void) -> Self {
-        self.taskDidFinishWithValueClosure = closure
-        return self
-    }
-    
 }
-
-extension TaskObserver where T: FailableTaskType {
-    
-    public final func taskDidCancel(closure: (T) -> Void) -> Self {
-        self.taskDidCancelClosure = closure
-        return self
-    }
-    
-    public final func taskDidFinishWithError(closure: (T, ErrorType) -> Void) -> Self {
-        self.taskDidFinishWithErrorClosure = closure
-        return self
-    }
-    
-}
-

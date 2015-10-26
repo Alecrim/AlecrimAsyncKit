@@ -8,6 +8,11 @@
 
 import Foundation
 
+public protocol CancellableTaskType: class {
+    var cancelled: Bool { get }
+    func cancel()
+}
+
 public protocol BaseTaskType: class {
     typealias ValueType
     
@@ -15,34 +20,25 @@ public protocol BaseTaskType: class {
     
     var value: Self.ValueType! { get }
     
-    var progress: NSProgress? { get set }
+    var progress: NSProgress { get }
     
     func finishWithValue(value: Self.ValueType)
     
 }
 
 public protocol TaskType: BaseTaskType {
-    
     init(closure: (Self) -> Void)
-    
 }
 
 
 public protocol NonFailableTaskType: TaskType {
-    
 }
 
-public protocol FailableTaskType: TaskType {
-    
+public protocol FailableTaskType: TaskType, CancellableTaskType {
     var error: ErrorType? { get }
-    
-    var cancelled: Bool { get }
-    
-    func cancel()
     
     func finishWithValue(value: Self.ValueType!, error: ErrorType?)
     func finishWithError(error: ErrorType)
-    
 }
 
 extension TaskType where Self.ValueType == Void {

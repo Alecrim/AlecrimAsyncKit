@@ -51,6 +51,8 @@ public class BaseTask<V>: BaseTaskType {
             }
 
             guard newValue != self._state else { return }
+            guard self._state != .Finished else { return }
+            
             assert(self._state.canTransitionToState(newValue))
             
             self._state = newValue
@@ -69,9 +71,41 @@ public class BaseTask<V>: BaseTaskType {
     
     
     public final var finished: Bool { return self.state == .Finished }
+
+    // MARK: -
+
+    internal final var progressAssigned = false
     
-    public var progress: NSProgress?
-    
+    public lazy final var progress: NSProgress = {
+        let p = NSProgress()
+        p.totalUnitCount = 1
+        p.completedUnitCount = 0
+        
+        self.progressAssigned = true
+        
+        return p
+    }()
+
+    public var cancellationHandler: (() -> Void)? {
+        get { return self.progress.cancellationHandler }
+        set {
+            if let oldValue = self.cancellationHandler {
+                if let newValue = newValue {
+                    self.progress.cancellationHandler = {
+                        oldValue()
+                        newValue()
+                    }
+                }
+                else {
+                    self.progress.cancellationHandler = oldValue
+                }
+            }
+            else {
+                self.progress.cancellationHandler = newValue
+            }
+        }
+    }
+
     // MARK: -
     
     private final let dispatchGroup: dispatch_group_t = dispatch_group_create()
@@ -93,7 +127,6 @@ public class BaseTask<V>: BaseTaskType {
     }
     
     deinit {
-        print("TASK deinit")
         assert(self.finished, "Either value or error were never assigned or task was never cancelled.")
     }
     
@@ -155,26 +188,6 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
         defer { self.didAccessValue() }
         
         return self.error?.userCancelled ?? false
-    }
-    
-    // MARK: -
-    
-    public override var progress: NSProgress? {
-        didSet {
-            if let progress = self.progress {
-                if let cancellationHandler = progress.cancellationHandler {
-                    progress.cancellationHandler = { [unowned self] in
-                        cancellationHandler()
-                        self.cancel()
-                    }
-                }
-                else {
-                    progress.cancellationHandler = { [unowned self] in
-                        self.cancel()
-                    }
-                }
-            }
-        }
     }
     
     // MARK: -

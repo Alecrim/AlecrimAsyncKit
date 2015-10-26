@@ -21,10 +21,23 @@ private let _defaultTaskQueue: NSOperationQueue = {
     return queue
 }()
 
+private let _defaultConditionEvaluationQueue: NSOperationQueue = {
+    let queue = NSOperationQueue()
+    queue.name = "com.alecrim.AlecrimAsyncKit.ConditionEvaluation"
+    
+    if #available(OSXApplicationExtension 10.10, *) {
+        queue.qualityOfService = .Background
+    }
+    
+    queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
+    
+    return queue
+}()
+
 // MARK: - async
 
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, observers: [TaskObserver<NonFailableTask<V>, V>]? = nil, closure: () -> V) -> NonFailableTask<V> {
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, observers: [TaskObserver]? = nil, closure: () -> V) -> NonFailableTask<V> {
     return asyncEx(queue, userInitiated: userInitiated, observers: observers) { task in
         let value = closure()
         task.finishWithValue(value)
@@ -32,12 +45,12 @@ public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated:
 }
 
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, condition: TaskCondition, observers: [TaskObserver<Task<V>, V>]? = nil, closure: () throws -> V) -> Task<V> {
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, condition: TaskCondition, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
     return async(queue, userInitiated: userInitiated, conditions: [condition], observers: observers, closure: closure)
 }
 
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, conditions: [TaskCondition]? = nil, observers: [TaskObserver<Task<V>, V>]? = nil, closure: () throws -> V) -> Task<V> {
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
     return asyncEx(queue, userInitiated: userInitiated, observers: observers) { task in
         do {
             let value = try closure()
@@ -52,18 +65,18 @@ public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated:
 // MARK: - asyncEx
 
 @warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, observers: [TaskObserver<NonFailableTask<V>, V>]? = nil, closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
+public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, observers: [TaskObserver]? = nil, closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
     return TaskBuilder(queue: queue, userInitiated: userInitiated, conditions: nil, observers: observers, closure: closure).start()
 }
 
 @warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, condition: TaskCondition, observers: [TaskObserver<Task<V>, V>]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
+public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, condition: TaskCondition, observers: [TaskObserver]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
     return asyncEx(queue, userInitiated: userInitiated, conditions: [condition], observers: observers, closure: closure)
 }
 
 
 @warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, conditions: [TaskCondition]? = nil, observers: [TaskObserver<Task<V>, V>]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
+public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
     return TaskBuilder(queue: queue, userInitiated: userInitiated, conditions: conditions, observers: observers, closure: closure).start()
 }
 
@@ -98,10 +111,10 @@ private final class TaskBuilder<T: TaskType, V where T.ValueType == V> {
     private let queue: NSOperationQueue
     private let userInitiated: Bool
     private let conditions: [TaskCondition]?
-    private let observers: [TaskObserver<T, V>]?
+    private let observers: [TaskObserver]?
     private var closure: ((T) -> Void)!
 
-    private init!(queue: NSOperationQueue, userInitiated: Bool, conditions: [TaskCondition]?, observers: [TaskObserver<T, V>]?, closure: (T) -> Void) {
+    private init!(queue: NSOperationQueue, userInitiated: Bool, conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (T) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         
         //
@@ -110,10 +123,6 @@ private final class TaskBuilder<T: TaskType, V where T.ValueType == V> {
         self.conditions = conditions
         self.observers = observers
         self.closure = closure
-    }
-    
-    deinit {
-        print("TASKBUILDER deinit")
     }
     
     private func start() -> T {
@@ -145,28 +154,39 @@ extension TaskBuilder: BaseTaskDelegate {
             
         case .EvaluatingConditions:
             if let conditions = self.conditions where !conditions.isEmpty, let ft = task as? Task<V> {
-                //
-                let mutuallyExclusiveConditions = conditions.flatMap { $0 as? MutuallyExclusiveTaskCondition }
-                if !mutuallyExclusiveConditions.isEmpty {
-                    mutuallyExclusiveConditions.forEach { mutuallyExclusiveCondition in
-                        MutuallyExclusiveTaskCondition.increment(mutuallyExclusiveCondition.categoryName)
+                let conditionEvaluationOperation = NSBlockOperation {
+                    //
+                    let mutuallyExclusiveConditions = conditions.flatMap { $0 as? MutuallyExclusiveTaskCondition }
+                    if !mutuallyExclusiveConditions.isEmpty {
+                        mutuallyExclusiveConditions.forEach { mutuallyExclusiveCondition in
+                            MutuallyExclusiveTaskCondition.increment(mutuallyExclusiveCondition.categoryName)
+                        }
+                    }
+                    
+                    //
+                    do {
+                        try await(TaskCondition.asyncEvaluateConditions(conditions))
+                        ft.state = .Ready
+                    }
+                    catch TaskConditionError.NotSatisfied {
+                        ft.cancel()
+                    }
+                    catch TaskConditionError.Failed(let innerError) {
+                        ft.finishWithError(innerError)
+                    }
+                    catch let error {
+                        ft.finishWithError(error)
                     }
                 }
                 
-                //
-                do {
-                    try await(TaskCondition.asyncEvaluateConditions(conditions))
-                    ft.state = .Ready
+                if self.userInitiated {
+                    conditionEvaluationOperation.qualityOfService = .UserInitiated
                 }
-                catch TaskConditionError.NotSatisfied {
-                    ft.cancel()
+                else {
+                    conditionEvaluationOperation.qualityOfService = self.queue.qualityOfService
                 }
-                catch TaskConditionError.Failed(let innerError) {
-                    ft.finishWithError(innerError)
-                }
-                catch let error {
-                    ft.finishWithError(error)
-                }
+
+                _defaultConditionEvaluationQueue.addOperation(conditionEvaluationOperation)
             }
             else {
                 task.state = .Ready
@@ -175,7 +195,7 @@ extension TaskBuilder: BaseTaskDelegate {
         case .Ready:
             //
             if let observers = self.observers where !observers.isEmpty {
-                observers.forEach { $0.taskWillStartClosure?(task as! T) }
+                observers.forEach { $0.taskWillStartClosure?(task) }
             }
             
             // enqueue
@@ -201,14 +221,14 @@ extension TaskBuilder: BaseTaskDelegate {
             
         case .Executing:
             if let observers = self.observers where !observers.isEmpty {
-                observers.forEach { $0.taskDidStartClosure?(task as! T) }
+                observers.forEach { $0.taskDidStartClosure?(task) }
             }
             
             // transition to .Finishing is handled by task class
             
         case .Finishing:
             if let observers = self.observers where !observers.isEmpty {
-                observers.forEach { $0.taskWillFinishClosure?(task as! T) }
+                observers.forEach { $0.taskWillFinishClosure?(task) }
             }
             
             // transition to .Finished is handled by task class
@@ -226,26 +246,17 @@ extension TaskBuilder: BaseTaskDelegate {
             
             //
             if let observers = self.observers where !observers.isEmpty {
-                if let t = task as? T, let value = t.value {
-                    for observer in observers {
-                        observer.taskDidFinishWithValueClosure?(task as! T, value)
-                    }
+                observers.forEach { $0.taskDidFinishClosure?(task) }
+            }
+            
+            //
+            if task.progressAssigned {
+                if task.value != nil {
+                    task.progress.completedUnitCount = task.progress.totalUnitCount
                 }
-                
-                if let ft = task as? Task<V> {
-                    observers.forEach {
-                        if let error = ft.error as? NSError {
-                            if error.userCancelled {
-                                $0.taskDidCancelClosure?(task as! T)
-                            }
-                            else {
-                                $0.taskDidFinishWithErrorClosure?(task as! T, error)
-                            }
-                        }
-                    }
+                else if let ft = task as? Task<V>, let error = ft.error as? NSError where error.userCancelled {
+                    task.progress.cancellationHandler?()
                 }
-                
-                observers.forEach { $0.taskDidFinishClosure?(task as! T) }
             }
             
             // to ensure
