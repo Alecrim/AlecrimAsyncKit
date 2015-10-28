@@ -109,22 +109,8 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
 
 extension UIApplication {
     
-    private struct AssociatedKeys {
-        private static var remoteNotificationPermissionTaskCondition = "com.alecrim.AlecrimAsyncKit.UIApplication.RemoteNotificationPermissionTaskCondition"
-    }
-    
-    public var remoteNotificationPermissionTaskCondition: RemoteNotificationPermissionTaskCondition {
-        get {
-            if let value = objc_getAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionTaskCondition) as? RemoteNotificationPermissionTaskCondition {
-                return value
-            }
-            else {
-                let newValue = RemoteNotificationPermissionTaskCondition(application: self)
-                objc_setAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionTaskCondition, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-                
-                return newValue
-            }
-        }
+    public func remoteNotificationPermissionTaskCondition() -> RemoteNotificationPermissionTaskCondition {
+        return RemoteNotificationPermissionTaskCondition(application: self)
     }
     
 }
