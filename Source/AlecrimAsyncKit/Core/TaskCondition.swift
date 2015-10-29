@@ -11,11 +11,7 @@ import Foundation
 private let _defaultTaskConditionQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.TaskCondition"
-    
-    if #available(OSXApplicationExtension 10.10, *) {
-        queue.qualityOfService = .Background
-    }
-    
+    queue.qualityOfService = .Background
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue

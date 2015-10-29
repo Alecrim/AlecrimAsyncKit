@@ -11,11 +11,7 @@ import Foundation
 private let _defaultTaskQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.Task"
-    
-    if #available(OSXApplicationExtension 10.10, *) {
-        queue.qualityOfService = .Background
-    }
-    
+    queue.qualityOfService = .Background
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
@@ -24,11 +20,7 @@ private let _defaultTaskQueue: NSOperationQueue = {
 private let _defaultConditionEvaluationQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.ConditionEvaluation"
-    
-    if #available(OSXApplicationExtension 10.10, *) {
-        queue.qualityOfService = .Background
-    }
-    
+    queue.qualityOfService = .Background
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
@@ -37,21 +29,21 @@ private let _defaultConditionEvaluationQueue: NSOperationQueue = {
 // MARK: - async
 
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, observers: [TaskObserver]? = nil, closure: () -> V) -> NonFailableTask<V> {
-    return asyncEx(queue, userInitiated: userInitiated, observers: observers) { task in
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, observers: [TaskObserver]? = nil, closure: () -> V) -> NonFailableTask<V> {
+    return asyncEx(queue, qualityOfService: qualityOfService, observers: observers) { task in
         let value = closure()
         task.finishWithValue(value)
     }
 }
 
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, condition: TaskCondition, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
-    return async(queue, userInitiated: userInitiated, conditions: [condition], observers: observers, closure: closure)
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, condition: TaskCondition, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
+    return async(queue, qualityOfService: qualityOfService, conditions: [condition], observers: observers, closure: closure)
 }
 
 @warn_unused_result
-public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
-    return asyncEx(queue, userInitiated: userInitiated, observers: observers) { task in
+public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
+    return asyncEx(queue, qualityOfService: qualityOfService, observers: observers) { task in
         do {
             let value = try closure()
             task.finishWithValue(value)
@@ -65,19 +57,19 @@ public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated:
 // MARK: - asyncEx
 
 @warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, observers: [TaskObserver]? = nil, closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
-    return TaskBuilder(queue: queue, userInitiated: userInitiated, conditions: nil, observers: observers, closure: closure).start()
+public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, observers: [TaskObserver]? = nil, closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
+    return TaskBuilder(queue: queue, qualityOfService: qualityOfService, conditions: nil, observers: observers, closure: closure).start()
 }
 
 @warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, condition: TaskCondition, observers: [TaskObserver]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
-    return asyncEx(queue, userInitiated: userInitiated, conditions: [condition], observers: observers, closure: closure)
+public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, condition: TaskCondition, observers: [TaskObserver]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
+    return asyncEx(queue, qualityOfService: qualityOfService, conditions: [condition], observers: observers, closure: closure)
 }
 
 
 @warn_unused_result
-public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, userInitiated: Bool = false, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
-    return TaskBuilder(queue: queue, userInitiated: userInitiated, conditions: conditions, observers: observers, closure: closure).start()
+public func asyncEx<V>(queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
+    return TaskBuilder(queue: queue, qualityOfService: qualityOfService, conditions: conditions, observers: observers, closure: closure).start()
 }
 
 
@@ -109,17 +101,17 @@ public func await<V>(task: Task<V>) throws -> V {
 private final class TaskBuilder<T: TaskType, V where T.ValueType == V> {
     
     private let queue: NSOperationQueue
-    private let userInitiated: Bool
+    private let qualityOfService: NSQualityOfService
     private let conditions: [TaskCondition]?
     private let observers: [TaskObserver]?
     private var closure: ((T) -> Void)!
 
-    private init!(queue: NSOperationQueue, userInitiated: Bool, conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (T) -> Void) {
+    private init!(queue: NSOperationQueue, qualityOfService: NSQualityOfService?, conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (T) -> Void) {
         assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
         
         //
         self.queue = queue
-        self.userInitiated = userInitiated
+        self.qualityOfService = qualityOfService ?? queue.qualityOfService
         self.conditions = conditions
         self.observers = observers
         self.closure = closure
@@ -179,13 +171,7 @@ extension TaskBuilder: BaseTaskDelegate {
                     }
                 }
                 
-                if self.userInitiated {
-                    conditionEvaluationOperation.qualityOfService = .UserInitiated
-                }
-                else {
-                    conditionEvaluationOperation.qualityOfService = self.queue.qualityOfService
-                }
-
+                conditionEvaluationOperation.qualityOfService = self.qualityOfService
                 _defaultConditionEvaluationQueue.addOperation(conditionEvaluationOperation)
             }
             else {
@@ -206,17 +192,7 @@ extension TaskBuilder: BaseTaskDelegate {
                 task.execute()
             }
             
-            if self.userInitiated {
-                if #available(OSXApplicationExtension 10.10, *) {
-                    operation.qualityOfService = .UserInitiated
-                }
-            }
-            else {
-                if #available(OSXApplicationExtension 10.10, *) {
-                    operation.qualityOfService = self.queue.qualityOfService
-                }
-            }
-            
+            operation.qualityOfService = self.qualityOfService
             self.queue.addOperation(operation)
             
         case .Executing:
