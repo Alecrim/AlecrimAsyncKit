@@ -11,7 +11,7 @@ import Foundation
 private let _defaultTaskQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.Task"
-    queue.qualityOfService = .Background
+    queue.qualityOfService = .Default
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
@@ -20,7 +20,7 @@ private let _defaultTaskQueue: NSOperationQueue = {
 private let _defaultConditionEvaluationQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.ConditionEvaluation"
-    queue.qualityOfService = .Background
+    queue.qualityOfService = .Default
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
