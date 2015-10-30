@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1413F62C1BDCAE56001049D5 /* TaskState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1413F62B1BDCAE56001049D5 /* TaskState.swift */; };
 		1413F62E1BDCAE8B001049D5 /* TaskType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1413F62D1BDCAE8B001049D5 /* TaskType.swift */; };
 		1416E08D1BDC931A00F1EA73 /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */; };
+		142561B51BE31B9D00A4C974 /* TaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142561B41BE31B9D00A4C974 /* TaskOperation.swift */; };
 		143045511BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143045501BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift */; };
 		14749B841B9C437700661E98 /* EventStorePermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */; };
 		14749B861B9C4DA300661E98 /* BooleanTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */; };
@@ -34,9 +34,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1413F62B1BDCAE56001049D5 /* TaskState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskState.swift; sourceTree = "<group>"; };
 		1413F62D1BDCAE8B001049D5 /* TaskType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskType.swift; sourceTree = "<group>"; };
 		1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
+		142561B41BE31B9D00A4C974 /* TaskOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskOperation.swift; sourceTree = "<group>"; };
 		143045501BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessInfoActivityTaskObserver.swift; sourceTree = "<group>"; };
 		14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStorePermissionTaskCondition.swift; sourceTree = "<group>"; };
 		14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BooleanTaskCondition.swift; sourceTree = "<group>"; };
@@ -102,7 +102,7 @@
 			children = (
 				148513981B9BD15100FAB0FA /* Task.swift */,
 				1413F62D1BDCAE8B001049D5 /* TaskType.swift */,
-				1413F62B1BDCAE56001049D5 /* TaskState.swift */,
+				142561B41BE31B9D00A4C974 /* TaskOperation.swift */,
 				148513951B9BD15100FAB0FA /* TaskBuilder.swift */,
 				14C2903F1BDE544B006F1BB3 /* TaskWaiter.swift */,
 				148513961B9BD15100FAB0FA /* Errors.swift */,
@@ -250,7 +250,6 @@
 			files = (
 				148513A11B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift in Sources */,
 				14C290401BDE544B006F1BB3 /* TaskWaiter.swift in Sources */,
-				1413F62C1BDCAE56001049D5 /* TaskState.swift in Sources */,
 				148513A01B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift in Sources */,
 				148513A31B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift in Sources */,
 				148513A81B9BD15100FAB0FA /* TaskCondition.swift in Sources */,
@@ -259,6 +258,7 @@
 				1485139E1B9BD15100FAB0FA /* NegateTaskCondition.swift in Sources */,
 				148513A61B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift in Sources */,
 				148513B11B9BD9A500FAB0FA /* TimeoutTaskObserver.swift in Sources */,
+				142561B51BE31B9D00A4C974 /* TaskOperation.swift in Sources */,
 				1413F62E1BDCAE8B001049D5 /* TaskType.swift in Sources */,
 				148513A21B9BD15100FAB0FA /* ReachabilityTaskCondition.swift in Sources */,
 				148513A71B9BD15100FAB0FA /* Task.swift in Sources */,

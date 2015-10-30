@@ -8,13 +8,6 @@
 
 import Foundation
 
-// MARK: - protocols
-
-internal protocol BaseTaskDelegate: class {
-    func task<V>(task: BaseTask<V>, didChangeToState state: TaskState)
-}
-
-
 // MARK: - classes
 
 public class BaseTask<V>: BaseTaskType {
@@ -25,56 +18,19 @@ public class BaseTask<V>: BaseTaskType {
     
     // MARK: -
     
-    private final var _state: TaskState = TaskState.Initialized
-    internal final var state: TaskState {
-        get {
-            self.willAccessValue()
-            defer { self.didAccessValue() }
-            
-            return self._state
-        }
-        set {
-            self.setState(state: newValue, lock: true)
-        }
-    }
-    
-    private func setState(state newValue: TaskState, lock: Bool) {
-        do {
-            if lock {
-                self.willAccessValue()
-            }
-            
-            defer {
-                if lock {
-                    self.didAccessValue()
-                }
-            }
-
-            guard newValue != self._state else { return }
-            guard self._state != .Finished else { return }
-            
-            assert(self._state.canTransitionToState(newValue))
-            
-            self._state = newValue
-            
-            if self._state == .Finished {
-                dispatch_group_leave(self.dispatchGroup)
-            }
-        }
-        
-        self.delegate?.task(self, didChangeToState: self._state)
-    }
-    
-    // MARK: -
-    
     public private(set) final var value: V!
     
     
-    public final var finished: Bool { return self.state == .Finished }
+    public private(set) final var finished: Bool = false {
+        didSet {
+            guard self.finished != oldValue && self.finished == true else { return }
+            dispatch_group_leave(self.dispatchGroup)
+        }
+    }
 
     // MARK: -
 
-    internal final var progressAssigned = false
+    internal private(set) final var progressAssigned = false
     
     public lazy final var progress: NSProgress = {
         let p = NSProgress()
@@ -117,11 +73,6 @@ public class BaseTask<V>: BaseTaskType {
     
     // MARK: -
     
-    internal /* weak */ var delegate: BaseTaskDelegate?
-    
-    
-    // MARK: -
-    
     private init() {
         dispatch_group_enter(self.dispatchGroup)
     }
@@ -147,9 +98,8 @@ public class BaseTask<V>: BaseTaskType {
         
         guard self.value == nil else { return }
         
-        self.setState(state: .Finishing, lock: false)
         self.value = value
-        self.setState(state: .Finished, lock: false)
+        self.finished = true
     }
     
     // MARK: -
@@ -227,11 +177,19 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
     public func finishWithValue(value: V!, error: ErrorType?) {
         self.willAccessValue()
         defer { self.didAccessValue() }
+        defer {
+            if self.progressAssigned {
+                if self.value != nil {
+                    self.progress.completedUnitCount = self.progress.totalUnitCount
+                }
+                else if let error = self.error as? NSError where error.userCancelled, let cancellationHandler = self.cancellationHandler {
+                    cancellationHandler()
+                }
+            }
+        }
         
         guard self.value == nil && self.error == nil else { return }
         assert(value != nil || error != nil, "Invalid combination of value/error.")
-        
-        self.setState(state: .Finishing, lock: false)
         
         if let error = error {
             self.value = nil
@@ -242,7 +200,7 @@ public final class Task<V>: BaseTask<V>, FailableTaskType {
             self.error = nil
         }
         
-        self.setState(state: .Finished, lock: false)
+        self.finished = true
     }
     
 }

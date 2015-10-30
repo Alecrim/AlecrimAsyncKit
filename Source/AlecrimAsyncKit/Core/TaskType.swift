@@ -10,6 +10,7 @@ import Foundation
 
 public protocol CancellableTaskType: class {
     var cancelled: Bool { get }
+
     func cancel()
 }
 
@@ -17,13 +18,10 @@ public protocol BaseTaskType: class {
     typealias ValueType
     
     var finished: Bool { get }
-    
     var value: Self.ValueType! { get }
-    
     var progress: NSProgress { get }
     
     func finishWithValue(value: Self.ValueType)
-    
 }
 
 public protocol TaskType: BaseTaskType {
