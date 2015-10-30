@@ -40,7 +40,7 @@ private enum TaskOperationState {
 
         case (.EvaluatingConditions, .Ready):
             return true
-            
+
         case (.Ready, .Executing):
             return true
             
@@ -60,7 +60,7 @@ private enum TaskOperationState {
 }
 
 
-internal final class TaskOperation<T: TaskType, V where T.ValueType == V>: NSOperation {
+public class TaskOperation: NSOperation {
 
     // MARK: -
     
@@ -121,9 +121,7 @@ internal final class TaskOperation<T: TaskType, V where T.ValueType == V>: NSOpe
     
     // MARK: -
     
-    let u = NSUUID().UUIDString
-    
-    internal override var ready: Bool {
+    public override final var ready: Bool {
         switch self.state {
         case .Initialized:
             return self.cancelled
@@ -148,24 +146,22 @@ internal final class TaskOperation<T: TaskType, V where T.ValueType == V>: NSOpe
     }
 
 
-    internal override var executing: Bool {
+    public override final var executing: Bool {
         return self.state == .Executing
     }
     
-    internal override var finished: Bool {
+    public override final var finished: Bool {
         return self.state == .Finished
     }
 
     // MARK: -
     
-    internal let task: T
     private let conditions: [TaskCondition]?
     private let observers: [TaskObserver]?
     
-    private var baseTask: BaseTask<V> { return self.task as! BaseTask<V> }
-    
-    internal init(task: T, conditions: [TaskCondition]?, observers: [TaskObserver]?) {
-        self.task = task
+    internal final var closure: (() -> Void)!
+
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?) {
         self.conditions = conditions
         self.observers = observers
         
@@ -173,37 +169,59 @@ internal final class TaskOperation<T: TaskType, V where T.ValueType == V>: NSOpe
     }
     
     // MARK: -
-    
-    override final func main() {
+
+    public override final func start() {
+        super.start()
+        
+        if self.cancelled {
+            self.internalFinish()
+        }
+    }
+
+    public override final func main() {
         assert(self.state == .Ready)
+        
+        if let observers = self.observers where !observers.isEmpty, let task = self as? TaskType {
+            observers.forEach { $0.taskWillStartClosure?(task) }
+        }
         
         if !self.cancelled {
             self.execute()
         }
         else {
-            self.finish()
+            self.internalFinish()
         }
     }
-
     
-    internal override func start() {
-        super.start()
-
-        if self.cancelled {
-            self.finish()
+    public override final func cancel() {
+        guard !self.cancelled else { return }
+        
+        super.cancel()
+        
+        if let task = self as? CancellableTaskType, let cancellationHandler = task.cancellationHandler {
+            cancellationHandler()
         }
+        
+        if let task = self as? TaskWithErrorType {
+            task.finishWithError(NSError.userCancelledError())
+        }
+    }
+    
+    public override final func waitUntilFinished() {
+        assert(!NSThread.isMainThread(), "Cannot wait on main thread.")
+        super.waitUntilFinished()
     }
     
     // MARK: -
     
-    internal func willEnqueue() {
+    internal final func willEnqueue() {
         self.state = .Pending
     }
     
     private func evaluateConditions() {
         assert(self.state == .Pending && !self.cancelled)
         
-        guard let failableTask = self.task as? Task<V> where !failableTask.cancelled, let conditions = self.conditions else {
+        guard let conditions = self.conditions where !conditions.isEmpty else {
             self.state = .Ready
             return
         }
@@ -212,112 +230,96 @@ internal final class TaskOperation<T: TaskType, V where T.ValueType == V>: NSOpe
         self.state = .EvaluatingConditions
         
         //
-        let incrementMutuallyExclusiveConditionsOperation = NSBlockOperation { [unowned self] in
-            self.incrementMutuallyExclusiveConditions()
-        }
-        
-        //
         let evaluateConditionsOperation = NSBlockOperation { [unowned self] in
+            guard !self.cancelled else { return }
+            
             do {
-                try await(TaskCondition.asyncEvaluateConditions(conditions))
+                defer {
+                    self.state = .Ready
+                }
+
+                let evaluateConditionsTask = TaskCondition.asyncEvaluateConditions(conditions)
+                
+                if let task = self as? CancellableTaskType {
+                    task.cancellationHandler = { [weak evaluateConditionsTask] in
+                        evaluateConditionsTask?.cancel()
+                    }
+                }
+                
+                try await(evaluateConditionsTask)
             }
             catch TaskConditionError.NotSatisfied {
-                failableTask.cancel()
                 self.cancel()
             }
             catch TaskConditionError.Failed(let innerError) {
-                failableTask.finishWithError(innerError)
-                self.cancel()
+                if let task = self as? TaskWithErrorType {
+                    task.finishWithError(innerError)
+                }
+                else {
+                    self.cancel()
+                }
             }
             catch let error {
-                failableTask.finishWithError(error)
-                self.cancel()
+                if let task = self as? TaskWithErrorType {
+                    task.finishWithError(error)
+                }
+                else {
+                    self.cancel()
+                }
             }
         }
         
-        evaluateConditionsOperation.completionBlock = { [unowned self] in
-            self.state = .Ready
-        }
-        
         //
-        let decrementMutuallyExclusiveConditionsOperation = NSBlockOperation { [unowned self] in
-            self.decrementMutuallyExclusiveConditions()
-        }
-        
-        //
-        evaluateConditionsOperation.addDependency(incrementMutuallyExclusiveConditionsOperation)
-        self.addDependency(evaluateConditionsOperation)
-        decrementMutuallyExclusiveConditionsOperation.addDependency(self)
-        
-        //
-        _conditionEvaluationQueue.addOperation(incrementMutuallyExclusiveConditionsOperation)
         _conditionEvaluationQueue.addOperation(evaluateConditionsOperation)
-        _conditionEvaluationQueue.addOperation(decrementMutuallyExclusiveConditionsOperation)
     }
     
     private func execute() {
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskWillStartClosure?(self.task) }
-        }
-
         self.state = .Executing
         
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskDidStartClosure?(self.task) }
+        if let observers = self.observers where !observers.isEmpty, let task = self as? TaskType {
+            observers.forEach { $0.taskDidStartClosure?(task) }
         }
 
-        self.baseTask.execute()
-        
-        defer {
-            self.finish()
+        if let mutuallyExclusiveConditions = self.conditions?.flatMap({ $0 as? MutuallyExclusiveTaskCondition }) where !mutuallyExclusiveConditions.isEmpty {
+            self.incrementMutuallyExclusiveConditions(mutuallyExclusiveConditions)
+            self.completionBlock = { [unowned self] in
+                self.decrementMutuallyExclusiveConditions(mutuallyExclusiveConditions)
+            }
         }
-        
-        do {
-            try self.baseTask.wait()
-        }
-        catch {
-            self.cancel()
-        }
+
+        self.closure()
     }
     
-    private func finish() {
-        guard self.state != .Finished else { return }
+    private var _hasFinishedAlready = false
+    internal final func internalFinish() {
+        guard !self._hasFinishedAlready else { return }
+        self._hasFinishedAlready = true
         
         self.state = .Finishing
         
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskWillFinishClosure?(self.task) }
+        if let observers = self.observers where !observers.isEmpty, let task = self as? TaskType {
+            observers.forEach { $0.taskWillFinishClosure?(task) }
         }
         
         self.state = .Finished
 
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskDidFinishClosure?(self.task) }
+        if let observers = self.observers where !observers.isEmpty, let task = self as? TaskType {
+            observers.forEach { $0.taskDidFinishClosure?(task) }
         }
     }
     
-    override func cancel() {
-        print(u, "CANCELLED")
-        super.cancel()
-    }
     
     // MARK: -
     
-    private func incrementMutuallyExclusiveConditions() {
-        if let mutuallyExclusiveConditions = self.conditions?.flatMap({ $0 as? MutuallyExclusiveTaskCondition }) where !mutuallyExclusiveConditions.isEmpty {
-            mutuallyExclusiveConditions.forEach {
-                MutuallyExclusiveTaskCondition.increment($0.categoryName)
-                print(u, "INCREMENT", $0.categoryName)
-            }
+    private func incrementMutuallyExclusiveConditions(mutuallyExclusiveConditions: [MutuallyExclusiveTaskCondition]) {
+        mutuallyExclusiveConditions.forEach {
+            MutuallyExclusiveTaskCondition.increment($0.categoryName)
         }
     }
     
-    private func decrementMutuallyExclusiveConditions() {
-        if let mutuallyExclusiveConditions = self.conditions?.flatMap({ $0 as? MutuallyExclusiveTaskCondition }) where !mutuallyExclusiveConditions.isEmpty {
-            mutuallyExclusiveConditions.forEach {
-                MutuallyExclusiveTaskCondition.decrement($0.categoryName)
-                print(u, "DECREMENT", $0.categoryName)
-            }
+    private func decrementMutuallyExclusiveConditions(mutuallyExclusiveConditions: [MutuallyExclusiveTaskCondition]) {
+        mutuallyExclusiveConditions.forEach {
+            MutuallyExclusiveTaskCondition.decrement($0.categoryName)
         }
     }
 

@@ -21,7 +21,7 @@
 		148513A11B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513911B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift */; };
 		148513A21B9BD15100FAB0FA /* ReachabilityTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513921B9BD15100FAB0FA /* ReachabilityTaskCondition.swift */; };
 		148513A31B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513931B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift */; };
-		148513A41B9BD15100FAB0FA /* TaskBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513951B9BD15100FAB0FA /* TaskBuilder.swift */; };
+		148513A41B9BD15100FAB0FA /* AsyncAwait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513951B9BD15100FAB0FA /* AsyncAwait.swift */; };
 		148513A51B9BD15100FAB0FA /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513961B9BD15100FAB0FA /* Errors.swift */; };
 		148513A61B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513971B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift */; };
 		148513A71B9BD15100FAB0FA /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513981B9BD15100FAB0FA /* Task.swift */; };
@@ -48,7 +48,7 @@
 		148513911B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotosPermissionTaskCondition.swift; sourceTree = "<group>"; };
 		148513921B9BD15100FAB0FA /* ReachabilityTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityTaskCondition.swift; sourceTree = "<group>"; };
 		148513931B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteNotificationPermissionTaskCondition.swift; sourceTree = "<group>"; };
-		148513951B9BD15100FAB0FA /* TaskBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskBuilder.swift; sourceTree = "<group>"; };
+		148513951B9BD15100FAB0FA /* AsyncAwait.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncAwait.swift; sourceTree = "<group>"; };
 		148513961B9BD15100FAB0FA /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		148513971B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MutuallyExclusiveTaskCondition.swift; sourceTree = "<group>"; };
 		148513981B9BD15100FAB0FA /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
@@ -100,10 +100,10 @@
 		148513941B9BD15100FAB0FA /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				148513951B9BD15100FAB0FA /* AsyncAwait.swift */,
 				148513981B9BD15100FAB0FA /* Task.swift */,
 				1413F62D1BDCAE8B001049D5 /* TaskType.swift */,
 				142561B41BE31B9D00A4C974 /* TaskOperation.swift */,
-				148513951B9BD15100FAB0FA /* TaskBuilder.swift */,
 				14C2903F1BDE544B006F1BB3 /* TaskWaiter.swift */,
 				148513961B9BD15100FAB0FA /* Errors.swift */,
 				148513991B9BD15100FAB0FA /* TaskCondition.swift */,
@@ -263,7 +263,7 @@
 				148513A21B9BD15100FAB0FA /* ReachabilityTaskCondition.swift in Sources */,
 				148513A71B9BD15100FAB0FA /* Task.swift in Sources */,
 				148513A51B9BD15100FAB0FA /* Errors.swift in Sources */,
-				148513A41B9BD15100FAB0FA /* TaskBuilder.swift in Sources */,
+				148513A41B9BD15100FAB0FA /* AsyncAwait.swift in Sources */,
 				148513AE1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift in Sources */,
 				1485139D1B9BD15100FAB0FA /* DelayTaskCondition.swift in Sources */,
 				1485139F1B9BD15100FAB0FA /* SilentTaskCondition.swift in Sources */,
