@@ -87,6 +87,7 @@ public func await<V>(@noescape closure: () -> Task<V>) throws -> V {
 
 public func await<V>(task: Task<V>) throws -> V {
     task.waitUntilFinished()
+    
     if let error = task.error {
         throw error
     }
@@ -113,6 +114,7 @@ private func taskWithQueue<T: InitializableTaskType>(queue: NSOperationQueue, qu
             operation.queuePriority = taskPriority
         }
         
+        //
         operation.willEnqueue()
         queue.addOperation(operation)
     }

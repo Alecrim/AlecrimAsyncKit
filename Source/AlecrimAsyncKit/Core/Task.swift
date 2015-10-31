@@ -31,25 +31,51 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
     
     public private(set) final var value: V!
     
-    public final func finishWithValue(value: V) {
-        guard !self.finished else { return }
-        
+    public func finishWithValue(value: V) {
         self.willAccessValue()
-        defer { self.didAccessValue() }
-        
-        if self.value == nil {
-            self.value = value
-            self.internalFinish()
+        defer {
+            self.didAccessValue()
+            self.finishOperation()
         }
+        
+        guard self.value == nil else { return }
+        
+        self.value = value
     }
+
+    // MARK: -
+    
+    public override final func waitUntilFinished() {
+        assert(!NSThread.isMainThread(), "Cannot wait task on main thread.")
+        super.waitUntilFinished()
+    }
+
+    // MARK: -
+    
+    private final var closure: (() -> Void)?
     
     private override init(conditions: [TaskCondition]?, observers: [TaskObserver]?) {
         super.init(conditions: conditions, observers: observers)
+    }
+    
+    // MARK: -
+    
+    internal override final func execute() {
+        super.execute()
+        
+        if !self.cancelled, let closure = self.closure {
+            closure()
+        }
+        else {
+            self.finishOperation()
+        }
     }
 
 }
 
 public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType {
+    
+    // MARK: -
 
     private var _cancellationHandler: (() -> Void)?
     public var cancellationHandler: (() -> Void)? {
@@ -73,23 +99,54 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
             }
         }
     }
-
+    
+    public override func cancel() {
+        if let cancellationHandler = self.cancellationHandler {
+            self.cancellationHandler = nil
+            cancellationHandler()
+        }
+        
+        self.willAccessValue()
+        defer {
+            self.didAccessValue()
+            super.cancel()
+            self.finishOperation()
+        }
+        
+        guard self.value == nil && self.error == nil else { return }
+        
+        self.error = NSError.userCancelledError()
+    }
+    
+    // MARK: -
     
     public private(set) var error: ErrorType?
     
-    public func finishWithError(error: ErrorType) {
-        guard !self.finished else { return }
-        
+    public override func finishWithValue(value: V) {
         self.willAccessValue()
-        defer { self.didAccessValue() }
-
-        assert(self.value == nil)
-        
-        if self.error == nil {
-            self.error = error
-            self.internalFinish()
+        defer {
+            self.didAccessValue()
+            self.finishOperation()
         }
+        
+        guard self.value == nil && self.error == nil else { return }
+        
+        self.value = value
     }
+    
+    public func finishWithError(error: ErrorType) {
+        self.willAccessValue()
+        defer {
+            self.didAccessValue()
+            self.finishOperation()
+        }
+        
+        guard self.value == nil && self.error == nil else { return }
+        
+        self.error = error
+    }
+    
+    // MARK: -
     
     public required init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Task<V>) -> Void) {
         super.init(conditions: conditions, observers: observers)

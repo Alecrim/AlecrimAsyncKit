@@ -18,64 +18,14 @@ private let _conditionEvaluationQueue: NSOperationQueue = {
 }()
 
 
-private enum TaskOperationState {
-    case Initialized
-    case Pending
-    case EvaluatingConditions
-    case Ready
-    case Executing
-    case Finishing
-    case Finished
+public class TaskOperation: NSOperation, TaskType {
     
-    private func canTransitionToState(target: TaskOperationState) -> Bool {
-        switch (self, target) {
-        case (.Initialized, .Pending):
-            return true
-            
-        case (.Pending, .EvaluatingConditions):
-            return true
-
-        case (.Pending, .Ready):
-            return true
-
-        case (.EvaluatingConditions, .Ready):
-            return true
-
-        case (.Ready, .Executing):
-            return true
-            
-        case (.Ready, .Finishing):
-            return true
-            
-        case (.Executing, .Finishing):
-            return true
-            
-        case (.Finishing, .Finished):
-            return true
-            
-        default:
-            return false
-        }
+    private enum StateKey: String {
+        case Executing = "isExecuting"
+        case Finished = "isFinished"
+        case Ready = "isReady"
     }
-}
 
-
-public class TaskOperation: NSOperation {
-
-    // MARK: -
-    
-    @objc private class func keyPathsForValuesAffectingIsReady() -> Set<NSObject> {
-        return ["state"]
-    }
-    
-    @objc private class func keyPathsForValuesAffectingIsExecuting() -> Set<NSObject> {
-        return ["state"]
-    }
-    
-    @objc private class func keyPathsForValuesAffectingIsFinished() -> Set<NSObject> {
-        return ["state"]
-    }
-    
     // MARK: -
     
     private var stateSpinlock = OS_SPINLOCK_INIT
@@ -88,165 +38,97 @@ public class TaskOperation: NSOperation {
         withUnsafeMutablePointer(&self.stateSpinlock, OSSpinLockUnlock)
     }
     
-    private func willChangeState() {
-        self.willChangeValueForKey("state")
+    private func willChangeValueForStateKey(stateKey: StateKey) {
+        self.willChangeValueForKey(stateKey.rawValue)
         self.willAccessState()
     }
     
-    private func didChangeState() {
+    private func didChangeValueForStateKey(stateKey: StateKey) {
         self.didAccessState()
-        self.didChangeValueForKey("state")
+        self.didChangeValueForKey(stateKey.rawValue)
     }
     
-    // MARK: -
+    //
     
-    private var _state: TaskOperationState = .Initialized
-    private var state: TaskOperationState {
+    private var __executing: Bool = false
+    public private(set) override var executing: Bool {
         get {
             self.willAccessState()
             defer { self.didAccessState() }
             
-            return self._state
+            return self.__executing
         }
         set {
-            self.willChangeState()
-            defer { self.didChangeState() }
+            self.willChangeValueForStateKey(.Executing)
+            defer { self.didChangeValueForStateKey(.Executing) }
             
-            guard self._state != .Finished else { return }
+            self.__executing = newValue
+        }
+    }
+
+    private var __finished: Bool = false
+    public private(set) override var finished: Bool {
+        get {
+            self.willAccessState()
+            defer { self.didAccessState() }
             
-            assert(self._state.canTransitionToState(newValue))
-            self._state = newValue
+            return self.__finished
+        }
+        set {
+            self.willChangeValueForStateKey(.Finished)
+            defer { self.didChangeValueForStateKey(.Finished) }
+            
+            self.__finished = newValue
+        }
+    }
+
+    private var __ready: Bool = false
+    public private(set) override var ready: Bool {
+        get {
+            self.willAccessState()
+            defer { self.didAccessState() }
+            
+            return self.__ready
+        }
+        set {
+            self.willChangeValueForStateKey(.Ready)
+            defer { self.didChangeValueForStateKey(.Ready) }
+            
+            self.__ready = newValue
         }
     }
     
     // MARK: -
     
-    public override final var ready: Bool {
-        switch self.state {
-        case .Initialized:
-            return self.cancelled
-            
-        case .Pending:
-            guard !self.cancelled else {
-                return true
-            }
-            
-            if super.ready {
-                self.evaluateConditions()
-            }
-            
-            return false
-            
-        case .Ready:
-            return super.ready || self.cancelled
-            
-        default:
-            return false
-        }
-    }
-
-
-    public override final var executing: Bool {
-        return self.state == .Executing
-    }
-    
-    public override final var finished: Bool {
-        return self.state == .Finished
-    }
-
-    // MARK: -
-    
-    private let conditions: [TaskCondition]?
-    private let observers: [TaskObserver]?
-    
-    internal final var closure: (() -> Void)!
-
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?) {
-        self.conditions = conditions
-        self.observers = observers
-        
-        super.init()
-    }
-    
-    // MARK: -
-
-    public override final func start() {
-        super.start()
-        
-        if self.cancelled {
-            self.internalFinish()
-        }
-    }
-
-    public override final func main() {
-        assert(self.state == .Ready)
-        
-        if let observers = self.observers where !observers.isEmpty, let task = self as? TaskType {
-            observers.forEach { $0.taskWillStartClosure?(task) }
-        }
-        
-        if !self.cancelled {
-            self.execute()
-        }
-        else {
-            self.internalFinish()
-        }
-    }
-    
-    public override final func cancel() {
-        guard !self.cancelled else { return }
-        
+    public override func cancel() {
         super.cancel()
         
-        if let task = self as? CancellableTaskType, let cancellationHandler = task.cancellationHandler {
-            cancellationHandler()
-        }
-        
-        if let task = self as? TaskWithErrorType {
-            task.finishWithError(NSError.userCancelledError())
-        }
-    }
-    
-    public override final func waitUntilFinished() {
-        assert(!NSThread.isMainThread(), "Cannot wait on main thread.")
-        super.waitUntilFinished()
+        self.executing = false
+        self.ready = true
     }
     
     // MARK: -
     
     internal final func willEnqueue() {
-        self.state = .Pending
+        self.evaluateConditions()
     }
     
-    private func evaluateConditions() {
-        assert(self.state == .Pending && !self.cancelled)
-        
-        guard let conditions = self.conditions where !conditions.isEmpty else {
-            self.state = .Ready
+    internal final func evaluateConditions() {
+        guard !self.cancelled, let conditions = self.conditions where !conditions.isEmpty else {
+            self.ready = true
             return
         }
-        
+
         //
-        self.state = .EvaluatingConditions
-        
-        //
-        let evaluateConditionsOperation = NSBlockOperation { [unowned self] in
-            guard !self.cancelled else { return }
-            
+        let evaluateConditionsOperation = NSBlockOperation {
             do {
                 defer {
-                    self.state = .Ready
-                }
-
-                let evaluateConditionsTask = TaskCondition.asyncEvaluateConditions(conditions)
-                
-                if let task = self as? CancellableTaskType {
-                    task.cancellationHandler = { [weak evaluateConditionsTask] in
-                        evaluateConditionsTask?.cancel()
-                    }
+                    self.ready = true
                 }
                 
-                try await(evaluateConditionsTask)
+                if !self.cancelled {
+                    try await(TaskCondition.asyncEvaluateConditions(conditions))
+                }
             }
             catch TaskConditionError.NotSatisfied {
                 self.cancel()
@@ -273,54 +155,92 @@ public class TaskOperation: NSOperation {
         _conditionEvaluationQueue.addOperation(evaluateConditionsOperation)
     }
     
-    private func execute() {
-        self.state = .Executing
-        
-        if let observers = self.observers where !observers.isEmpty, let task = self as? TaskType {
-            observers.forEach { $0.taskDidStartClosure?(task) }
-        }
+    internal let u = NSUUID().UUIDString
+    
 
+    internal func execute() {
+        // to be overrided calling super
+        self.ready = false
+        self.executing = true
+        
+        //
         if let mutuallyExclusiveConditions = self.conditions?.flatMap({ $0 as? MutuallyExclusiveTaskCondition }) where !mutuallyExclusiveConditions.isEmpty {
-            self.incrementMutuallyExclusiveConditions(mutuallyExclusiveConditions)
-            self.completionBlock = { [unowned self] in
-                self.decrementMutuallyExclusiveConditions(mutuallyExclusiveConditions)
+            mutuallyExclusiveConditions.forEach { MutuallyExclusiveTaskCondition.increment($0.categoryName) }
+            var decremented = false
+            
+            self.completionBlock = {
+                if !decremented {
+                    decremented = true
+                    mutuallyExclusiveConditions.forEach { MutuallyExclusiveTaskCondition.decrement($0.categoryName) }
+                }
             }
         }
-
-        self.closure()
-    }
-    
-    private var _hasFinishedAlready = false
-    internal final func internalFinish() {
-        guard !self._hasFinishedAlready else { return }
-        self._hasFinishedAlready = true
         
-        self.state = .Finishing
-        
-        if let observers = self.observers where !observers.isEmpty, let task = self as? TaskType {
-            observers.forEach { $0.taskWillFinishClosure?(task) }
-        }
-        
-        self.state = .Finished
-
-        if let observers = self.observers where !observers.isEmpty, let task = self as? TaskType {
-            observers.forEach { $0.taskDidFinishClosure?(task) }
+        //
+        if let observers = self.observers where !observers.isEmpty {
+            observers.forEach { $0.taskDidStartClosure?(self) }
         }
     }
     
+    private var hasFinishedAlready = false
+    internal final func finishOperation() {
+        guard self.hasStarted else {
+            self.cancel()
+            return
+        }
+
+        guard !self.hasFinishedAlready else { return }
+        self.hasFinishedAlready = true
+        
+        if let observers = self.observers where !observers.isEmpty {
+            observers.forEach { $0.taskWillFinishClosure?(self) }
+        }
+        
+        self.ready = false
+        self.executing = false
+        self.finished = true
+        
+        if let observers = self.observers where !observers.isEmpty {
+            observers.forEach { $0.taskDidFinishClosure?(self) }
+        }
+    }
     
     // MARK: -
     
-    private func incrementMutuallyExclusiveConditions(mutuallyExclusiveConditions: [MutuallyExclusiveTaskCondition]) {
-        mutuallyExclusiveConditions.forEach {
-            MutuallyExclusiveTaskCondition.increment($0.categoryName)
+    private let conditions: [TaskCondition]?
+    private let observers: [TaskObserver]?
+    
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?) {
+        self.conditions = conditions
+        self.observers = observers
+        
+        super.init()
+    }
+    
+    // MARK : -
+    
+    private var hasStarted = false
+    public override final func start() {
+        self.hasStarted = true
+        
+        super.start()
+        
+        if self.cancelled {
+            self.finishOperation()
         }
     }
     
-    private func decrementMutuallyExclusiveConditions(mutuallyExclusiveConditions: [MutuallyExclusiveTaskCondition]) {
-        mutuallyExclusiveConditions.forEach {
-            MutuallyExclusiveTaskCondition.decrement($0.categoryName)
+    public override func main() {
+        if let observers = self.observers where !observers.isEmpty {
+            observers.forEach { $0.taskWillStartClosure?(self) }
+        }
+
+        if self.cancelled {
+            self.finishOperation()
+        }
+        else {
+            self.execute()
         }
     }
-
+    
 }

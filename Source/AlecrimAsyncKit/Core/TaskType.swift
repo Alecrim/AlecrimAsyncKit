@@ -9,9 +9,6 @@
 import Foundation
 
 public protocol TaskType: class {
-    var executing: Bool { get }
-    var finished: Bool { get }
-    
     func waitUntilFinished()
 }
 
