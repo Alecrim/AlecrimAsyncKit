@@ -35,7 +35,12 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
         self.willAccessValue()
         defer {
             self.didAccessValue()
+            
             self.finishOperation()
+            
+            if let progress = self._progress {
+                progress.completedUnitCount = progress.totalUnitCount
+            }
         }
         
         guard self.value == nil else { return }
@@ -48,6 +53,16 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
     public override final func waitUntilFinished() {
         assert(!NSThread.isMainThread(), "Cannot wait task on main thread.")
         super.waitUntilFinished()
+    }
+    
+    // MARK: -
+    private var _progress: NSProgress?
+    public final var progress: NSProgress {
+        if self._progress == nil {
+            self._progress = TaskProgress(task: self)
+        }
+        
+        return self._progress!
     }
 
     // MARK: -
@@ -126,7 +141,12 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
         self.willAccessValue()
         defer {
             self.didAccessValue()
+            
             self.finishOperation()
+            
+            if let progress = self._progress {
+                progress.completedUnitCount = progress.totalUnitCount
+            }
         }
         
         guard self.value == nil && self.error == nil else { return }
@@ -167,5 +187,56 @@ public final class NonFailableTask<V>: BaseTask<V>, InitializableTaskType, NonFa
             closure(self)
         }
     }
+    
+    @available(*, unavailable)
+    public override func cancel() {
+        super.cancel()
+    }
 
 }
+
+
+// MARK: -
+
+private final class TaskProgress: NSProgress {
+    
+    private unowned let task: TaskType
+    
+    private init(task: TaskType) {
+        self.task = task
+        super.init(parent: nil, userInfo: nil)
+        
+        self.totalUnitCount = 1
+        self.cancellable = self.task is CancellableTaskType
+    }
+    
+    //
+    private override var cancellationHandler: (() -> Void)? {
+        get {
+            if let cancellableTask = self.task as? CancellableTaskType {
+                return cancellableTask.cancellationHandler
+            }
+            else {
+                return super.cancellationHandler
+            }
+        }
+        set {
+            if let cancellableTask = self.task as? CancellableTaskType {
+                cancellableTask.cancellationHandler = newValue
+            }
+            else {
+                super.cancellationHandler = newValue
+            }
+        }
+    }
+    
+    private override func cancel() {
+        super.cancel()
+        
+        if let cancellableTask = self.task as? CancellableTaskType {
+            cancellableTask.cancel()
+        }
+    }
+    
+}
+
