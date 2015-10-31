@@ -47,12 +47,20 @@ public protocol NonFailableTaskType: TaskWithValueType {
 
 extension CancellableTaskType {
     
-    public func propagateCancellationToTask(task otherTask: CancellableTaskType) {
-        self.cancellationHandler = { [weak otherTask] in
-            otherTask?.cancel()
+    public func forwardCancellationTo(task: CancellableTaskType) -> Self {
+        self.cancellationHandler = { [weak task] in
+            task?.cancel()
         }
+        
+        return self
     }
     
+    public func inheritCancellationFrom(task: CancellableTaskType) -> Self {
+        task.forwardCancellationTo(self)
+        
+        return self
+    }
+
 }
 
 // MARK: -
