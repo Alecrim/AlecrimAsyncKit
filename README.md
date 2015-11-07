@@ -1,5 +1,11 @@
 #AlecrimAsyncKit
 
+[![Language: Swift](https://img.shields.io/badge/lang-Swift-orange.svg?style=flat)](https://developer.apple.com/swift/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/Alecrim/AlecrimAsyncKit/develop/LICENSE)
+[![CocoaPods](https://img.shields.io/cocoapods/v/AlecrimAsyncKit.svg?style=flat)](http://cocoapods.org)
+[![Forks](https://img.shields.io/github/forks/Alecrim/AlecrimAsyncKit.svg?style=flat)](https://github.com/Alecrim/AlecrimAsyncKit/network)
+[![Stars](https://img.shields.io/github/stars/Alecrim/AlecrimAsyncKit.svg?style=flat)](https://github.com/Alecrim/AlecrimAsyncKit/stargazers)
+
 Bringing async and await to Swift world with some flavouring.
 
 ## Using the framework
@@ -206,13 +212,24 @@ Only failable tasks can be cancelled.
 
 #### The main thread
 
-Even if you cannot "await" a task on main thread, you still can start a background task from the main thread and handle its completion using the `didFinish` method. If the queue parameter is not added, the callback closure will be called on the main thread.
+Even if you cannot "await" a task on main thread, you still can start a background task from the main thread. If you want to handle its completion you can use `TaskWaiter` helper class. If the queue parameter is not added, the callback closure will be called on the main thread.
 
 ```swift
 // this code is running on the main thread
-asyncCalculate()
-    .didFinish { value, error in
-        if let error = error {
+TaskWaiter(task: asyncCalculate())
+    .didFinishWithValue { vaue in
+        print("The result is \(value)")
+    }
+    .didFinishWithError { error in
+        // do a nice error handling here
+    }
+    .didCancel {
+        print("Task was cancelled")
+    }
+    .didFinish { task in
+        // this closure will be called always even if a task was cancelled
+
+        if let error = error where !error.userCancelled {
             // do a nice error handling here
         }
         else {
@@ -240,7 +257,7 @@ func asyncCalculate() -> Task<Int> {
 }
 ```
 
-The difference between a failable task and a non-failable task is that a non-failable does not have the `error` parameter in its `didFinish` closure. A failable task has also a `didCancel` method (note that the `didFinish` closure will be called even if the task was cancelled).
+The difference between a failable task and a non-failable task is that a non-failable does not have the `didFinishWithError` nor `didCancel` methods.
 
 ### Considerations
 
