@@ -1,4 +1,4 @@
-#AlecrimAsyncKit
+![AlecrimAsyncKit](https://raw.githubusercontent.com/Alecrim/AlecrimAsyncKit/develop/AlecrimAsyncKit.png)
 
 [![Language: Swift](https://img.shields.io/badge/lang-Swift-orange.svg?style=flat)](https://developer.apple.com/swift/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/Alecrim/AlecrimAsyncKit/develop/LICENSE)
@@ -257,7 +257,7 @@ func asyncCalculate() -> Task<Int> {
 }
 ```
 
-The difference between a failable task and a non-failable task is that a non-failable task waiter is called `NonFailableTaskWaiter` and it does not have the `didFinishWithError` nor `didCancel` methods.
+The difference between a failable task and a non-failable task is that a non-failable task waiter is called `NonFailableTaskWaiter` and it does not have the `didFinishWithError` and `didCancel` methods.
 
 ### Considerations
 
