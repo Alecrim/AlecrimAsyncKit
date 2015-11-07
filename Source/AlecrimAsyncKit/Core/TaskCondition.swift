@@ -11,11 +11,7 @@ import Foundation
 private let _defaultTaskConditionQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.TaskCondition"
-    
-    if #available(OSXApplicationExtension 10.10, *) {
-        queue.qualityOfService = .Background
-    }
-    
+    queue.qualityOfService = .Default
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
@@ -135,17 +131,24 @@ public class TaskCondition {
 extension TaskCondition {
     
     internal static func asyncEvaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
-        return async(_defaultTaskConditionQueue) {
-            for condition in conditions {
-                if let subconditions = condition.subconditions where !subconditions.isEmpty {
-                    try await(TaskCondition.asyncEvaluateConditions(subconditions))
+        return asyncEx(_defaultTaskConditionQueue) { task in
+            do {
+                for condition in conditions {
+                    if let subconditions = condition.subconditions where !subconditions.isEmpty {
+                        try await(TaskCondition.asyncEvaluateConditions(subconditions))
+                    }
+                    
+                    if let dependencyTask = condition.dependencyTaskClosure() {
+                        try await(dependencyTask)
+                    }
+                    
+                    try await(condition.asyncEvaluate())
                 }
                 
-                if let dependencyTask = condition.dependencyTaskClosure() {
-                    try await(dependencyTask)
-                }
-                
-                try await(condition.asyncEvaluate())
+                task.finish()
+            }
+            catch let error {
+                task.finishWithError(error)
             }
         }
     }

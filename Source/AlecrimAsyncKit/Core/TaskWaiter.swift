@@ -11,11 +11,7 @@ import Foundation
 private let _defaultTaskWaiterQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.TaskWaiter"
-    
-    if #available(OSXApplicationExtension 10.10, *) {
-        queue.qualityOfService = .Background
-    }
-    
+    queue.qualityOfService = .Default
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue

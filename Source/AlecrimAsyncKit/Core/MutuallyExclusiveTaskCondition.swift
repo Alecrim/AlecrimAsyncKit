@@ -51,18 +51,21 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
         
         let semaphore: dispatch_semaphore_t
         
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-
-        if self.mutuallyExclusiveSemaphores[categoryName] == nil {
-            semaphore = dispatch_semaphore_create(1)
-            self.mutuallyExclusiveSemaphores[categoryName] = (semaphore, 1)
+        do {
+            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            defer {
+                withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+            }
+            
+            if self.mutuallyExclusiveSemaphores[categoryName] == nil {
+                semaphore = dispatch_semaphore_create(1)
+                self.mutuallyExclusiveSemaphores[categoryName] = (semaphore, 1)
+            }
+            else {
+                semaphore = self.mutuallyExclusiveSemaphores[categoryName]!.semaphore
+                self.mutuallyExclusiveSemaphores[categoryName]!.count++
+            }
         }
-        else {
-            semaphore = self.mutuallyExclusiveSemaphores[categoryName]!.semaphore
-            self.mutuallyExclusiveSemaphores[categoryName]!.count++
-        }
-
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
         
         dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
     }
@@ -70,17 +73,20 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
     internal static func decrement(categoryName: String) {
         let semaphore: dispatch_semaphore_t
         
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-
-        semaphore = self.mutuallyExclusiveSemaphores[categoryName]!.semaphore
-
-        self.mutuallyExclusiveSemaphores[categoryName]!.count--
-        
-        if self.mutuallyExclusiveSemaphores[categoryName]!.count == 0 {
-            self.mutuallyExclusiveSemaphores.removeValueForKey(categoryName)
+        do {
+            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+            defer {
+                withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
+            }
+            
+            semaphore = self.mutuallyExclusiveSemaphores[categoryName]!.semaphore
+            
+            self.mutuallyExclusiveSemaphores[categoryName]!.count--
+            
+            if self.mutuallyExclusiveSemaphores[categoryName]!.count == 0 {
+                self.mutuallyExclusiveSemaphores.removeValueForKey(categoryName)
+            }
         }
-        
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
         
         dispatch_semaphore_signal(semaphore)
     }

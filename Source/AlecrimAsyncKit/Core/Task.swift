@@ -8,241 +8,235 @@
 
 import Foundation
 
-// MARK: - protocols
+public class BaseTask<V>: TaskOperation, TaskWithValueType {
 
-internal protocol BaseTaskDelegate: class {
-    func task<V>(task: BaseTask<V>, didChangeToState state: TaskState)
-}
-
-
-// MARK: - classes
-
-public class BaseTask<V>: BaseTaskType {
-    
     // MARK: -
     
     public typealias ValueType = V
     
     // MARK: -
     
-    private final var _state: TaskState = TaskState.Initialized
-    internal final var state: TaskState {
-        get {
-            self.willAccessValue()
-            defer { self.didAccessValue() }
-            
-            return self._state
-        }
-        set {
-            self.setState(state: newValue, lock: true)
-        }
+    private final var valueSpinlock = OS_SPINLOCK_INIT
+    
+    private final func willAccessValue() {
+        withUnsafeMutablePointer(&self.valueSpinlock, OSSpinLockLock)
     }
     
-    private func setState(state newValue: TaskState, lock: Bool) {
-        do {
-            if lock {
-                self.willAccessValue()
-            }
-            
-            defer {
-                if lock {
-                    self.didAccessValue()
-                }
-            }
-
-            guard newValue != self._state else { return }
-            guard self._state != .Finished else { return }
-            
-            assert(self._state.canTransitionToState(newValue))
-            
-            self._state = newValue
-            
-            if self._state == .Finished {
-                dispatch_group_leave(self.dispatchGroup)
-            }
-        }
-        
-        self.delegate?.task(self, didChangeToState: self._state)
+    private final func didAccessValue() {
+        withUnsafeMutablePointer(&self.valueSpinlock, OSSpinLockUnlock)
     }
+
     
     // MARK: -
     
     public private(set) final var value: V!
     
-    
-    public final var finished: Bool { return self.state == .Finished }
+    public func finishWithValue(value: V) {
+        self.willAccessValue()
+        defer {
+            self.didAccessValue()
+            
+            self.finishOperation()
+            
+            if let progress = self._progress {
+                progress.completedUnitCount = progress.totalUnitCount
+            }
+        }
+        
+        guard self.value == nil else { return }
+        
+        self.value = value
+    }
 
     // MARK: -
-
-    internal final var progressAssigned = false
     
-    public lazy final var progress: NSProgress = {
-        let p = NSProgress()
-        p.totalUnitCount = 1
-        p.completedUnitCount = 0
+    public override final func waitUntilFinished() {
+        assert(!NSThread.isMainThread(), "Cannot wait task on main thread.")
+        super.waitUntilFinished()
+    }
+    
+    // MARK: -
+    private var _progress: NSProgress?
+    public final var progress: NSProgress {
+        if self._progress == nil {
+            self._progress = TaskProgress(task: self)
+        }
         
-        self.progressAssigned = true
-        
-        return p
-    }()
+        return self._progress!
+    }
 
+    // MARK: -
+    
+    private final var closure: (() -> Void)?
+    
+    private override init(conditions: [TaskCondition]?, observers: [TaskObserver]?) {
+        super.init(conditions: conditions, observers: observers)
+    }
+    
+    // MARK: -
+    
+    internal override final func execute() {
+        super.execute()
+        
+        if !self.cancelled, let closure = self.closure {
+            closure()
+        }
+        else {
+            self.finishOperation()
+        }
+    }
+
+}
+
+public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType {
+    
+    // MARK: -
+
+    private var _cancellationHandler: (() -> Void)?
     public var cancellationHandler: (() -> Void)? {
-        get { return self.progress.cancellationHandler }
+        get {
+            return self._cancellationHandler
+        }
         set {
-            if let oldValue = self.cancellationHandler {
+            if let oldValue = self._cancellationHandler {
                 if let newValue = newValue {
-                    self.progress.cancellationHandler = {
+                    self._cancellationHandler = {
                         oldValue()
                         newValue()
                     }
                 }
                 else {
-                    self.progress.cancellationHandler = oldValue
+                    self._cancellationHandler = newValue
                 }
             }
             else {
-                self.progress.cancellationHandler = newValue
+                self._cancellationHandler = newValue
             }
         }
     }
-
-    // MARK: -
     
-    private final let dispatchGroup: dispatch_group_t = dispatch_group_create()
-    private final var spinlock = OS_SPINLOCK_INIT
-    
-    // MARK: -
-    
-    private final var closure: (() -> Void)!
-    
-    // MARK: -
-    
-    internal /* weak */ var delegate: BaseTaskDelegate?
-    
-    
-    // MARK: -
-    
-    private init() {
-        dispatch_group_enter(self.dispatchGroup)
-    }
-    
-    deinit {
-        assert(self.finished, "Either value or error were never assigned or task was never cancelled.")
-    }
-    
-    internal func execute() {
-        self.closure()
-    }
-    
-    internal func wait() throws {
-        assert(!NSThread.isMainThread(), "Cannot wait task on main thread.")
-        dispatch_group_wait(self.dispatchGroup, DISPATCH_TIME_FOREVER)
-    }
-    
-    // MARK: -
-    
-    public func finishWithValue(value: V) {
-        self.willAccessValue()
-        defer { self.didAccessValue() }
-        
-        guard self.value == nil else { return }
-        
-        self.setState(state: .Finishing, lock: false)
-        self.value = value
-        self.setState(state: .Finished, lock: false)
-    }
-    
-    // MARK: -
-    
-    private final func willAccessValue() {
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-    }
-    
-    private final func didAccessValue() {
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock)
-    }
-    
-}
-
-public final class NonFailableTask<V>: BaseTask<V>, NonFailableTaskType {
-    
-    // MARK: -
-    
-    public init(closure: (NonFailableTask<V>) -> Void) {
-        super.init()
-        
-        self.closure = { [unowned self] in
-            closure(self)
+    public override func cancel() {
+        if let cancellationHandler = self.cancellationHandler {
+            self.cancellationHandler = nil
+            cancellationHandler()
         }
+        
+        self.willAccessValue()
+        defer {
+            self.didAccessValue()
+            super.cancel()
+            self.finishOperation()
+        }
+        
+        guard self.value == nil && self.error == nil else { return }
+        
+        self.error = NSError.userCancelledError()
     }
-    
-}
-
-public final class Task<V>: BaseTask<V>, FailableTaskType {
     
     // MARK: -
     
     public private(set) var error: ErrorType?
-    public var cancelled: Bool {
+    
+    public override func finishWithValue(value: V) {
         self.willAccessValue()
-        defer { self.didAccessValue() }
+        defer {
+            self.didAccessValue()
+            
+            self.finishOperation()
+            
+            if let progress = self._progress {
+                progress.completedUnitCount = progress.totalUnitCount
+            }
+        }
         
-        return self.error?.userCancelled ?? false
+        guard self.value == nil && self.error == nil else { return }
+        
+        self.value = value
+    }
+    
+    public func finishWithError(error: ErrorType) {
+        self.willAccessValue()
+        defer {
+            self.didAccessValue()
+            self.finishOperation()
+        }
+        
+        guard self.value == nil && self.error == nil else { return }
+        
+        self.error = error
     }
     
     // MARK: -
     
-    public init(closure: (Task<V>) -> Void) {
-        super.init()
+    public required init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Task<V>) -> Void) {
+        super.init(conditions: conditions, observers: observers)
         
         self.closure = { [unowned self] in
             closure(self)
         }
     }
     
-    // MARK: -
-    
-    internal override func wait() throws {
-        try super.wait()
+}
+
+public final class NonFailableTask<V>: BaseTask<V>, InitializableTaskType, NonFailableTaskType {
+
+    public required init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
+        super.init(conditions: conditions, observers: observers)
         
-        if let error = self.error {
-            throw error
+        self.closure = { [unowned self] in
+            closure(self)
         }
     }
     
-    // MARK: -
+    @available(*, unavailable)
+    public override func cancel() {
+        super.cancel()
+    }
+
+}
+
+
+// MARK: -
+
+private final class TaskProgress: NSProgress {
     
-    public func cancel() {
-        self.finishWithError(NSError.userCancelledError())
+    private unowned let task: TaskType
+    
+    private init(task: TaskType) {
+        self.task = task
+        super.init(parent: nil, userInfo: nil)
+        
+        self.totalUnitCount = 1
+        self.cancellable = self.task is CancellableTaskType
     }
     
-    public override func finishWithValue(value: V) {
-        self.finishWithValue(value, error: nil)
-    }
-    
-    public func finishWithError(error: ErrorType) {
-        self.finishWithValue(nil, error: error)
-    }
-    
-    public func finishWithValue(value: V!, error: ErrorType?) {
-        self.willAccessValue()
-        defer { self.didAccessValue() }
-        
-        guard self.value == nil && self.error == nil else { return }
-        assert(value != nil || error != nil, "Invalid combination of value/error.")
-        
-        self.setState(state: .Finishing, lock: false)
-        
-        if let error = error {
-            self.value = nil
-            self.error = error
+    //
+    private override var cancellationHandler: (() -> Void)? {
+        get {
+            if let cancellableTask = self.task as? CancellableTaskType {
+                return cancellableTask.cancellationHandler
+            }
+            else {
+                return super.cancellationHandler
+            }
         }
-        else {
-            self.value = value
-            self.error = nil
+        set {
+            if let cancellableTask = self.task as? CancellableTaskType {
+                cancellableTask.cancellationHandler = newValue
+            }
+            else {
+                super.cancellationHandler = newValue
+            }
         }
+    }
+    
+    private override func cancel() {
+        super.cancel()
         
-        self.setState(state: .Finished, lock: false)
+        if let cancellableTask = self.task as? CancellableTaskType {
+            cancellableTask.cancel()
+        }
     }
     
 }
+
