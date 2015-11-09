@@ -116,11 +116,13 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     }
     
     public override func cancel() {
+        //
         if let cancellationHandler = self.cancellationHandler {
             self.cancellationHandler = nil
             cancellationHandler()
         }
 
+        //
         do {
             self.willAccessValue()
             defer {
@@ -132,9 +134,11 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
             self.error = NSError.userCancelledError()
         }
         
+        //
+        let hasStarted = self.hasStarted
         super.cancel()
         
-        if self.hasStarted {
+        if hasStarted {
             self.finishOperation()
         }
     }
