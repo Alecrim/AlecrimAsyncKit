@@ -120,17 +120,23 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
             self.cancellationHandler = nil
             cancellationHandler()
         }
-        
-        self.willAccessValue()
-        defer {
-            self.didAccessValue()
-            super.cancel()
-            self.finishOperation()
+
+        do {
+            self.willAccessValue()
+            defer {
+                self.didAccessValue()
+            }
+            
+            guard self.value == nil && self.error == nil else { return }
+            
+            self.error = NSError.userCancelledError()
         }
         
-        guard self.value == nil && self.error == nil else { return }
+        super.cancel()
         
-        self.error = NSError.userCancelledError()
+        if self.hasStarted {
+            self.finishOperation()
+        }
     }
     
     // MARK: -
