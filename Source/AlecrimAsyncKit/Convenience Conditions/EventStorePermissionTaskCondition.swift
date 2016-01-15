@@ -6,6 +6,8 @@
 //  Copyright © 2015 Alecrim. All rights reserved.
 //
 
+#if !os(tvOS)
+
 import Foundation
 import EventKit
 
@@ -56,3 +58,5 @@ public final class EventStorePermissionTaskCondition: TaskCondition {
     }
     
 }
+
+#endif
