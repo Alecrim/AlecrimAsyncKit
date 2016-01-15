@@ -219,7 +219,7 @@ public class TaskOperation: NSOperation, TaskType {
     
     // MARK : -
     
-    private var hasStarted = false
+    internal private(set) var hasStarted = false
     public override final func start() {
         self.hasStarted = true
         

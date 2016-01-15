@@ -116,21 +116,31 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     }
     
     public override func cancel() {
+        //
         if let cancellationHandler = self.cancellationHandler {
             self.cancellationHandler = nil
             cancellationHandler()
         }
-        
-        self.willAccessValue()
-        defer {
-            self.didAccessValue()
-            super.cancel()
-            self.finishOperation()
+
+        //
+        do {
+            self.willAccessValue()
+            defer {
+                self.didAccessValue()
+            }
+            
+            guard self.value == nil && self.error == nil else { return }
+            
+            self.error = NSError.userCancelledError()
         }
         
-        guard self.value == nil && self.error == nil else { return }
+        //
+        let hasStarted = self.hasStarted
+        super.cancel()
         
-        self.error = NSError.userCancelledError()
+        if hasStarted {
+            self.finishOperation()
+        }
     }
     
     // MARK: -

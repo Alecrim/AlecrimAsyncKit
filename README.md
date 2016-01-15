@@ -32,7 +32,7 @@ do {
     // ...
 
     // now we need the value
-    let value = await(task)
+    let value = try await(task)
     print("The result is \(value)")
 }
 catch let error {
