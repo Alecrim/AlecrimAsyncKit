@@ -29,7 +29,7 @@
 		148513AC1B9BD19700FAB0FA /* NetworkActivityIndicatorTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorTaskObserver.swift */; };
 		148513AE1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AD1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift */; };
 		148513B11B9BD9A500FAB0FA /* TimeoutTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513B01B9BD9A500FAB0FA /* TimeoutTaskObserver.swift */; };
-		14C290401BDE544B006F1BB3 /* TaskWaiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2903F1BDE544B006F1BB3 /* TaskWaiter.swift */; };
+		14C290401BDE544B006F1BB3 /* TaskAwaiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */; };
 		14E585BF1B7803EC003EC4DC /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
@@ -56,7 +56,7 @@
 		148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorTaskObserver.swift; sourceTree = "<group>"; };
 		148513AD1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationPermissionTaskCondition.swift; sourceTree = "<group>"; };
 		148513B01B9BD9A500FAB0FA /* TimeoutTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeoutTaskObserver.swift; sourceTree = "<group>"; };
-		14C2903F1BDE544B006F1BB3 /* TaskWaiter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskWaiter.swift; sourceTree = "<group>"; };
+		14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskAwaiter.swift; sourceTree = "<group>"; };
 		14E585BB1B7803EC003EC4DC /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AlecrimAsyncKit.h; sourceTree = "<group>"; };
 		14E585C01B7803EC003EC4DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -104,7 +104,7 @@
 				148513981B9BD15100FAB0FA /* Task.swift */,
 				1413F62D1BDCAE8B001049D5 /* TaskType.swift */,
 				142561B41BE31B9D00A4C974 /* TaskOperation.swift */,
-				14C2903F1BDE544B006F1BB3 /* TaskWaiter.swift */,
+				14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */,
 				148513961B9BD15100FAB0FA /* Errors.swift */,
 				148513991B9BD15100FAB0FA /* TaskCondition.swift */,
 				1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */,
@@ -249,7 +249,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				148513A11B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift in Sources */,
-				14C290401BDE544B006F1BB3 /* TaskWaiter.swift in Sources */,
+				14C290401BDE544B006F1BB3 /* TaskAwaiter.swift in Sources */,
 				148513A01B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift in Sources */,
 				148513A31B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift in Sources */,
 				148513A81B9BD15100FAB0FA /* TaskCondition.swift in Sources */,
@@ -379,7 +379,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 175;
+				CURRENT_PROJECT_VERSION = 177;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -401,7 +401,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 175;
+				CURRENT_PROJECT_VERSION = 177;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
