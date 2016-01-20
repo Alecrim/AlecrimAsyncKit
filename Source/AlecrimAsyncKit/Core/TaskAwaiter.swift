@@ -1,5 +1,5 @@
 //
-//  TaskWaiter.swift
+//  TaskAwaiter.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-10-26.
@@ -8,23 +8,23 @@
 
 import Foundation
 
-private let _defaultTaskWaiterQueue: NSOperationQueue = {
+private let _defaultTaskAwaiterQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
-    queue.name = "com.alecrim.AlecrimAsyncKit.TaskWaiter"
+    queue.name = "com.alecrim.AlecrimAsyncKit.TaskAwaiter"
     queue.qualityOfService = .Default
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
 }()
 
-public final class NonFailableTaskWaiter<V> {
+public final class NonFailableTaskAwaiter<V> {
     
     public let task: NonFailableTask<V>
     
     private var didFinishClosure: ((NonFailableTask<V>) -> Void)?
     private var didFinishWithValueClosure: ((V) -> Void)?
     
-    public init(queue: NSOperationQueue = _defaultTaskWaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), _ task: NonFailableTask<V>) {
+    private init(queue: NSOperationQueue, callbackQueue: NSOperationQueue, task: NonFailableTask<V>) {
         self.task = task
         
         queue.addOperationWithBlock {
@@ -58,7 +58,7 @@ public final class NonFailableTaskWaiter<V> {
     
 }
 
-public final class TaskWaiter<V> {
+public final class TaskAwaiter<V> {
     
     public let task: Task<V>
     
@@ -67,7 +67,7 @@ public final class TaskWaiter<V> {
     private var didFinishWithErrorClosure: ((ErrorType) -> Void)?
     private var didCancelClosure: (() -> Void)?
     
-    public init(queue: NSOperationQueue = _defaultTaskWaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), task: Task<V>) {
+    private init(queue: NSOperationQueue, callbackQueue: NSOperationQueue, task: Task<V>) {
         self.task = task
         
         queue.addOperationWithBlock {
@@ -127,6 +127,39 @@ public final class TaskWaiter<V> {
         self.didCancelClosure = closure
         return self
     }
+    
+}
 
+// MARK: - helper extensions
+
+extension NonFailableTask {
+    
+    public func didFinish(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (NonFailableTask<V>) -> Void) -> NonFailableTaskAwaiter<V> {
+        return NonFailableTaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinish(closure)
+    }
+    
+    public func didFinishWithValue(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> NonFailableTaskAwaiter<V> {
+        return NonFailableTaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithValue(closure)
+    }
+    
+}
+
+extension Task {
+
+    public func didFinish(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (Task<V>) -> Void) -> TaskAwaiter<V> {
+        return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinish(closure)
+    }
+    
+    public func didFinishWithValue(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> TaskAwaiter<V> {
+        return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithValue(closure)
+    }
+
+    public func didFinishWithError(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (ErrorType) -> Void) -> TaskAwaiter<V> {
+        return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithError(closure)
+    }
+    
+    public func didCancel(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: () -> Void) -> TaskAwaiter<V> {
+        return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didCancel(closure)
+    }
     
 }

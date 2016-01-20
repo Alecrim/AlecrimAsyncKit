@@ -38,7 +38,7 @@
 		14BC231D1B8EFC3000EC2AED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		14BC23201B8EFC3000EC2AED /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		14BC23221B8EFC3000EC2AED /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		14BC23281B8EFC5100EC2AED /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AlecrimAsyncKit.framework; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		14BC23281B8EFC5100EC2AED /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -313,6 +313,7 @@
 				14BC23271B8EFC3000EC2AED /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "AlecrimAsyncKit"
-  s.version      = "2.0.2"
+  s.version      = "2.1"
   s.summary      = "Bringing async and await to Swift world with some flavouring."
   s.homepage     = "https://github.com/Alecrim/AlecrimAsyncKit"
 
