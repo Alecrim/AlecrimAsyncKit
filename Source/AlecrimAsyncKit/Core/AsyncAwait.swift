@@ -25,7 +25,7 @@ public typealias TaskPriority = NSOperationQueuePriority
 
 @warn_unused_result
 public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserver]? = nil, closure: () -> V) -> NonFailableTask<V> {
-    return taskWithQueue(queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: true) { task in
+    return taskWithQueue(queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: false) { task in
         let value = closure()
         task.finishWithValue(value)
     }
@@ -38,7 +38,7 @@ public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, qualityOfServi
 
 @warn_unused_result
 public func async<V>(queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
-    return taskWithQueue(queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: true) { task in
+    return taskWithQueue(queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: false) { task in
         do {
             let value = try closure()
             task.finishWithValue(value)
