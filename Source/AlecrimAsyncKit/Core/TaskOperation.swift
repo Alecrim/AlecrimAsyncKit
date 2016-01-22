@@ -17,7 +17,6 @@ private let _conditionEvaluationQueue: NSOperationQueue = {
     return queue
 }()
 
-
 public class TaskOperation: NSOperation, TaskType {
     
     private enum StateKey: String {
@@ -47,6 +46,11 @@ public class TaskOperation: NSOperation, TaskType {
         self.didAccessState()
         self.didChangeValueForKey(stateKey.rawValue)
     }
+    
+    //
+    
+    public override var concurrent: Bool { return true }
+    public override var asynchronous: Bool { return true }
     
     //
     
