@@ -178,7 +178,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     
     // MARK: -
     
-    public required init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Task<V>) -> Void) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Task<V>) -> Void) {
         super.init(conditions: conditions, observers: observers)
         
         self.closure = { [unowned self] in
@@ -190,7 +190,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
 
 public final class NonFailableTask<V>: BaseTask<V>, InitializableTaskType, NonFailableTaskType {
 
-    public required init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
         super.init(conditions: conditions, observers: observers)
         
         self.closure = { [unowned self] in
