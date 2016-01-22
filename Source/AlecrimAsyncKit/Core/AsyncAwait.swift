@@ -103,25 +103,22 @@ private func taskWithQueue<T: InitializableTaskType>(queue: NSOperationQueue, qu
     
     //
     let task = T(conditions: conditions, observers: observers, closure: closure)
+    let operation = task as! TaskOperation
     
     //
-    if let operation = task as? TaskOperation {
-        if let qualityOfService = qualityOfService {
-            operation.qualityOfService = qualityOfService
-        }
-        
-        if let taskPriority = taskPriority {
-            operation.queuePriority = taskPriority
-        }
-        
-        //
-        operation.willEnqueue()
-        queue.addOperation(operation)
+    if let qualityOfService = qualityOfService {
+        operation.qualityOfService = qualityOfService
     }
-    else {
-        fatalError()
+    
+    if let taskPriority = taskPriority {
+        operation.queuePriority = taskPriority
     }
+    
+    //
+    operation.willEnqueue()
+    queue.addOperation(operation)
     
     //
     return task
 }
+
