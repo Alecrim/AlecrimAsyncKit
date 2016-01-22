@@ -48,9 +48,9 @@ public class TaskOperation: NSOperation, TaskType {
     }
     
     //
-    
-    public override var concurrent: Bool { return true }
-    public override var asynchronous: Bool { return true }
+
+    public override var concurrent: Bool { return self.__asynchronous }
+    public override var asynchronous: Bool { return self.__asynchronous }
     
     //
     
@@ -213,10 +213,12 @@ public class TaskOperation: NSOperation, TaskType {
     
     private let conditions: [TaskCondition]?
     private let observers: [TaskObserver]?
-    
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?) {
+    private let __asynchronous: Bool
+
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool) {
         self.conditions = conditions
         self.observers = observers
+        self.__asynchronous = asynchronous
         
         super.init()
     }
