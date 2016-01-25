@@ -48,6 +48,16 @@ public class TaskOperation: NSOperation, TaskType {
     }
     
     //
+    
+    private lazy var mutuallyExclusiveConditions: [MutuallyExclusiveTaskCondition]? = {
+        if let mecs = self.conditions?.flatMap({ $0 as? MutuallyExclusiveTaskCondition }) where !mecs.isEmpty {
+            return mecs
+        }
+        
+        return nil
+    }()
+    
+    //
 
     public override var concurrent: Bool { return self.__asynchronous }
     public override var asynchronous: Bool { return self.__asynchronous }
@@ -63,10 +73,26 @@ public class TaskOperation: NSOperation, TaskType {
             return self.__executing
         }
         set {
-            self.willChangeValueForStateKey(.Executing)
-            defer { self.didChangeValueForStateKey(.Executing) }
+            let oldValue: Bool
             
-            self.__executing = newValue
+            do {
+                self.willChangeValueForStateKey(.Executing)
+                defer { self.didChangeValueForStateKey(.Executing) }
+                
+                oldValue = self.__executing
+                self.__executing = newValue
+            }
+            
+            if newValue != oldValue, let mutuallyExclusiveConditions = self.mutuallyExclusiveConditions {
+                mutuallyExclusiveConditions.forEach {
+                    if newValue {
+                        MutuallyExclusiveTaskCondition.enter($0.categoryName)
+                    }
+                    else {
+                        MutuallyExclusiveTaskCondition.leave($0.categoryName)
+                    }
+                }
+            }
         }
     }
 
@@ -159,26 +185,11 @@ public class TaskOperation: NSOperation, TaskType {
         _conditionEvaluationQueue.addOperation(evaluateConditionsOperation)
     }
     
-    internal let u = NSUUID().UUIDString
-    
-
+    // to be overrided calling super
     internal func execute() {
-        // to be overrided calling super
+        //
         self.ready = false
         self.executing = true
-        
-        //
-        if let mutuallyExclusiveConditions = self.conditions?.flatMap({ $0 as? MutuallyExclusiveTaskCondition }) where !mutuallyExclusiveConditions.isEmpty {
-            mutuallyExclusiveConditions.forEach { MutuallyExclusiveTaskCondition.increment($0.categoryName) }
-            var decremented = false
-            
-            self.completionBlock = {
-                if !decremented {
-                    decremented = true
-                    mutuallyExclusiveConditions.forEach { MutuallyExclusiveTaskCondition.decrement($0.categoryName) }
-                }
-            }
-        }
         
         //
         if let observers = self.observers where !observers.isEmpty {

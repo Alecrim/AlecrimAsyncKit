@@ -35,7 +35,7 @@ public class TaskCondition {
     internal let subconditions: [TaskCondition]?
     internal let dependencyTaskClosure: () -> Task<Void>?
     internal let evaluationClosure: ((TaskConditionResult) -> Void) -> Void
-   
+    
     /// Initializes a condition that will determine if a task can be executed or not.
     ///
     /// - parameter evaluationClosure: The evaluation closure returning a `TaskConditionResult` enumeration member.
