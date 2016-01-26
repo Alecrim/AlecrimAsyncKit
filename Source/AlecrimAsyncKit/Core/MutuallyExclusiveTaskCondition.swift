@@ -9,11 +9,11 @@
 import Foundation
 
 private final class Semaphore {
-    private let group: dispatch_group_t
+    private let dispatch_semaphore: dispatch_semaphore_t
     private var count: Int
     
-    private init(group: dispatch_group_t, count: Int) {
-        self.group = group
+    private init(dispatch_semaphore: dispatch_semaphore_t, count: Int) {
+        self.dispatch_semaphore = dispatch_semaphore
         self.count = count
     }
 }
@@ -58,41 +58,32 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
     }
     
     private static func wait(categoryName: String) {
-        let group: dispatch_group_t?
+        let dispatch_semaphore: dispatch_semaphore_t
         
         do {
             withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
             defer { withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock) }
-
-            group = self.mutuallyExclusiveSemaphores[categoryName]?.group
+            
+            if let semaphore = self.mutuallyExclusiveSemaphores[categoryName] {
+                semaphore.count++
+                dispatch_semaphore = semaphore.dispatch_semaphore
+            }
+            else {
+                let semaphore = Semaphore(dispatch_semaphore: dispatch_semaphore_create(1), count: 1)
+                self.mutuallyExclusiveSemaphores[categoryName] = semaphore
+                dispatch_semaphore = semaphore.dispatch_semaphore
+            }
         }
         
-        if let group = group {
-            dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
-        }
+        dispatch_semaphore_wait(dispatch_semaphore, DISPATCH_TIME_FOREVER)
     }
     
     internal static func enter(categoryName: String) {
-        let group: dispatch_group_t
-        
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-        defer { withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock) }
-
-        if let semaphore = self.mutuallyExclusiveSemaphores[categoryName] {
-            semaphore.count++
-            group = semaphore.group
-        }
-        else {
-            let semaphore = Semaphore(group: dispatch_group_create(), count: 1)
-            self.mutuallyExclusiveSemaphores[categoryName] = semaphore
-            group = semaphore.group
-        }
-        
-        dispatch_group_enter(group)
+        // do nothing
     }
     
     internal static func leave(categoryName: String) {
-        let group: dispatch_group_t
+        let dispatch_semaphore: dispatch_semaphore_t
         
         do {
             withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
@@ -100,14 +91,14 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
             
             let semaphore = self.mutuallyExclusiveSemaphores[categoryName]!
             semaphore.count--
-            group = semaphore.group
+            dispatch_semaphore = semaphore.dispatch_semaphore
             
             if semaphore.count == 0 {
                 self.mutuallyExclusiveSemaphores[categoryName] = nil
             }
         }
         
-        dispatch_group_leave(group)
+        dispatch_semaphore_signal(dispatch_semaphore)
     }
     
 }
