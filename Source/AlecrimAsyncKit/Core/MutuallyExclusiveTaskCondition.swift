@@ -85,17 +85,15 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
     internal static func leave(categoryName: String) {
         let dispatch_semaphore: dispatch_semaphore_t
         
-        do {
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-            defer { withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock) }
-            
-            let semaphore = self.mutuallyExclusiveSemaphores[categoryName]!
-            semaphore.count--
-            dispatch_semaphore = semaphore.dispatch_semaphore
-            
-            if semaphore.count == 0 {
-                self.mutuallyExclusiveSemaphores[categoryName] = nil
-            }
+        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
+        defer { withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock) }
+        
+        let semaphore = self.mutuallyExclusiveSemaphores[categoryName]!
+        semaphore.count--
+        dispatch_semaphore = semaphore.dispatch_semaphore
+        
+        if semaphore.count == 0 {
+            self.mutuallyExclusiveSemaphores[categoryName] = nil
         }
         
         dispatch_semaphore_signal(dispatch_semaphore)
