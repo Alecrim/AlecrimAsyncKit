@@ -39,8 +39,8 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
     /// - parameter defaultCategory: The default category enumeration member that will define the condition exclusivity group.
     ///
     /// - returns: A condition for describing kinds of operations that may not execute concurrently.
-    public convenience init(category defaultCategory: MutuallyExclusiveTaskCondition.DefaultCategory) {
-        self.init(name: defaultCategory.rawValue)
+    public convenience init(_ defaultCategory: MutuallyExclusiveTaskCondition.DefaultCategory) {
+        self.init(defaultCategory.rawValue)
     }
     
     /// Initializes a condition for describing kinds of operations that may not execute concurrently.
@@ -48,7 +48,7 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
     /// - parameter categoryName: The category name that will define the condition exclusivity group.
     ///
     /// - returns: A condition for describing kinds of operations that may not execute concurrently.
-    public init(name categoryName: String) {
+    public init(_ categoryName: String) {
         self.categoryName = categoryName
 
         super.init() { result in
@@ -65,7 +65,7 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
             defer { withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock) }
             
             if let semaphore = self.mutuallyExclusiveSemaphores[categoryName] {
-                semaphore.count += 1
+                semaphore.count++
                 dispatch_semaphore = semaphore.dispatch_semaphore
             }
             else {
@@ -89,7 +89,7 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
         defer { withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock) }
         
         let semaphore = self.mutuallyExclusiveSemaphores[categoryName]!
-        semaphore.count -= 1
+        semaphore.count--
         dispatch_semaphore = semaphore.dispatch_semaphore
         
         if semaphore.count == 0 {

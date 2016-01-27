@@ -16,7 +16,7 @@ public final class NegateTaskCondition: TaskCondition {
     /// - parameter otherCondition: The condition to be negated.
     ///
     /// - returns: A condition that negates the evaluation of another condition.
-    public init(otherCondition: TaskCondition) {
+    public init(_ otherCondition: TaskCondition) {
         super.init(subconditions: otherCondition.subconditions, dependencyTask: otherCondition.dependencyTaskClosure(), evaluationClosure: otherCondition.evaluationClosure)
     }
 
@@ -24,7 +24,7 @@ public final class NegateTaskCondition: TaskCondition {
         return asyncEx { task in
             do {
                 try await(super.asyncEvaluate())
-                task.finish(error: TaskConditionError.NotSatisfied)
+                task.finishWithError(TaskConditionError.NotSatisfied)
             }
             catch {
                 task.finish()

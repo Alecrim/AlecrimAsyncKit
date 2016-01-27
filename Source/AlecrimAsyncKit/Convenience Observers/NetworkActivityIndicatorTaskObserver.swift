@@ -37,7 +37,7 @@ import Foundation
                 withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockLock)
                 defer { withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockUnlock) }
                 
-                self.dynamicType._activity += 1
+                self.dynamicType._activity++
             }
             
             self.showOrHideActivityIndicatorAfterDelay()
@@ -48,7 +48,7 @@ import Foundation
                 withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockLock)
                 defer { withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockUnlock) }
 
-                self.dynamicType._activity -= 1
+                self.dynamicType._activity--
 
                 #if DEBUG
                 if self.dynamicType._activity < 0 {

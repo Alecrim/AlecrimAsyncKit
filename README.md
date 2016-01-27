@@ -121,7 +121,7 @@ extension CKDatabase {
     public func asyncPerformQuery(query: CKQuery, inZoneWithID zoneID: CKRecordZoneID?) -> Task<[CKRecord]> {
         return asyncEx { task in
             self.performQuery(query, inZoneWithID: zoneID) { records, error in
-                task.finish(value: records, error: error)
+                task.finishWithValue(records, error: error)
             }
         }
     }
@@ -140,7 +140,7 @@ If other queue is not specified a task will run in a default (and shared) backgr
 
 ```swift
 func asyncDoSomething() -> Task<Void> {
-    return async(queue: someAlreadyCreatedOperationQueue) {
+    return async(someAlreadyCreatedOperationQueue) {
         // ...
     }
 }

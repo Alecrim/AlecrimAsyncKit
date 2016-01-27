@@ -16,7 +16,7 @@ public final class SilentTaskCondition: TaskCondition {
     /// - parameter otherCondition: The condition that `dependencyTask` will not run.
     ///
     /// - returns: A condition that causes another condition to not run its dependency task.
-    public init(otherCondition: TaskCondition) {
+    public init(_ otherCondition: TaskCondition) {
         super.init(subconditions: otherCondition.subconditions, dependencyTask: nil, evaluationClosure: otherCondition.evaluationClosure)
     }
     

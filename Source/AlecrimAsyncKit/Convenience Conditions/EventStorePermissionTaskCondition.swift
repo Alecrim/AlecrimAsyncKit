@@ -17,8 +17,8 @@ private let _sharedEventStore = EKEventStore()
 /// A condition for verifying access to the user's calendar.
 public final class EventStorePermissionTaskCondition: TaskCondition {
     
-    private static func asyncRequestAuthorization(entityType entityType: EKEntityType) -> Task<Void> {
-        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(category: .Alert)]) { task in
+    private static func asyncRequestAuthorization(entityType: EKEntityType) -> Task<Void> {
+        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
             let status = EKEventStore.authorizationStatusForEntityType(entityType)
 
             switch status {
@@ -26,7 +26,7 @@ public final class EventStorePermissionTaskCondition: TaskCondition {
                 dispatch_async(dispatch_get_main_queue()) {
                     _sharedEventStore.requestAccessToEntityType(entityType) { _, error in
                         if let error = error {
-                            task.finish(error: error)
+                            task.finishWithError(error)
                         }
                         else {
                             task.finish()
@@ -46,7 +46,7 @@ public final class EventStorePermissionTaskCondition: TaskCondition {
     ///
     /// - returns: A condition for verifying access to the user's calendar.
     public init(entityType: EKEntityType) {
-        super.init(dependencyTask: EventStorePermissionTaskCondition.asyncRequestAuthorization(entityType: entityType)) { result in
+        super.init(dependencyTask: EventStorePermissionTaskCondition.asyncRequestAuthorization(entityType)) { result in
             switch EKEventStore.authorizationStatusForEntityType(entityType) {
             case .Authorized:
                 result(.Satisfied)
