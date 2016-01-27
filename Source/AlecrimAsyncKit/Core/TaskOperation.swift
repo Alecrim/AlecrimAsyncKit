@@ -165,7 +165,7 @@ public class TaskOperation: NSOperation, TaskType {
             }
             catch TaskConditionError.Failed(let innerError) {
                 if let task = self as? TaskWithErrorType {
-                    task.finishWithError(innerError)
+                    task.finish(error: innerError)
                 }
                 else {
                     self.cancel()
@@ -173,7 +173,7 @@ public class TaskOperation: NSOperation, TaskType {
             }
             catch let error {
                 if let task = self as? TaskWithErrorType {
-                    task.finishWithError(error)
+                    task.finish(error: error)
                 }
                 else {
                     self.cancel()

@@ -110,17 +110,17 @@ public class TaskCondition {
     }
     
     internal func asyncEvaluate() -> Task<Void> {
-        return asyncEx(_defaultTaskConditionQueue) { [unowned self] task in
+        return asyncEx(queue: _defaultTaskConditionQueue) { [unowned self] task in
             self.evaluationClosure { conditionResult in
                 switch conditionResult {
                 case .Satisfied:
                     task.finish()
                  
                 case .NotSatisfied:
-                    task.finishWithError(TaskConditionError.NotSatisfied)
+                    task.finish(error: TaskConditionError.NotSatisfied)
                     
                 case .Failed(let error):
-                    task.finishWithError(TaskConditionError.Failed(error))
+                    task.finish(error: TaskConditionError.Failed(error))
                 }
             }
         }
@@ -131,7 +131,7 @@ public class TaskCondition {
 extension TaskCondition {
     
     internal static func asyncEvaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
-        return async(_defaultTaskConditionQueue) {
+        return async(queue: _defaultTaskConditionQueue) {
             for condition in conditions {
                 if let subconditions = condition.subconditions where !subconditions.isEmpty {
                     try await(TaskCondition.asyncEvaluateConditions(subconditions))

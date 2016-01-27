@@ -27,7 +27,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
     /// This method has to be called inside the `UIApplicationDelegate` response to the registration success.
     ///
     /// - parameter deviceToken: The received device token.
-    public static func didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: NSData) {
+    public static func didRegisterForRemoteNotifications(deviceToken deviceToken: NSData) {
         self.result = .Token(deviceToken)
         NSNotificationCenter.defaultCenter().postNotificationName(self.remoteNotificationPermissionName, object: nil, userInfo: ["token": deviceToken])
     }
@@ -35,13 +35,13 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
     /// This method has to be called inside the `UIApplicationDelegate` response to the registration error.
     ///
     /// - parameter error: The received error.
-    public static func didFailToRegisterForRemoteNotificationsWithError(error: NSError) {
+    public static func didFailToRegisterForRemoteNotifications(error error: NSError) {
         self.result = .Error(error)
         NSNotificationCenter.defaultCenter().postNotificationName(self.remoteNotificationPermissionName, object: nil, userInfo: ["error": error])
     }
     
-    private static func asyncWaitResponseFromApplication(application: UIApplication) -> Task<Void> {
-        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
+    private static func asyncWaitForResponse(application application: UIApplication) -> Task<Void> {
+        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(category: .Alert)]) { task in
             switch self.result {
             case .Unknown:
                 self.result = .Waiting
@@ -56,7 +56,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
                             task.finish()
                         }
                         else if let error = userInfo["error"] as? NSError {
-                            task.finishWithError(error)
+                            task.finish(error: error)
                         }
                         else {
                             fatalError("Received a notification without a token and without an error.")
@@ -75,7 +75,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
                 task.finish()
                 
             case .Error(let error):
-                task.finishWithError(error)
+                task.finish(error: error)
                 
             default:
                 break
@@ -91,7 +91,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
     ///
     /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
     private init(application: UIApplication) {
-        super.init(dependencyTask: RemoteNotificationPermissionTaskCondition.asyncWaitResponseFromApplication(application)) { result in
+        super.init(dependencyTask: RemoteNotificationPermissionTaskCondition.asyncWaitForResponse(application: application)) { result in
             switch RemoteNotificationPermissionTaskCondition.result {
             case .Token:
                 result(.Satisfied)
