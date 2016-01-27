@@ -25,14 +25,14 @@ import Foundation
             
             self
                 .taskDidStart { _ in
-                    self.incrementActivity()
+                    self.increment()
                 }
                 .taskDidFinish { _ in
-                    self.decrementActivity()
+                    self.decrement()
             }
         }
         
-        private func incrementActivity() {
+        public func increment() {
             do {
                 withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockLock)
                 defer { withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockUnlock) }
@@ -43,7 +43,7 @@ import Foundation
             self.showOrHideActivityIndicatorAfterDelay()
         }
         
-        private func decrementActivity() {
+        public func decrement() {
             do {
                 withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockLock)
                 defer { withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockUnlock) }
@@ -77,16 +77,6 @@ import Foundation
             }
         }
         
-    }
-    
-    // MARK: -
-    
-    postfix public func ++(nai: NetworkActivityIndicatorTaskObserver) {
-        nai.incrementActivity()
-    }
-    
-    postfix public func --(nai: NetworkActivityIndicatorTaskObserver) {
-        nai.decrementActivity()
     }
     
     // MARK: -
