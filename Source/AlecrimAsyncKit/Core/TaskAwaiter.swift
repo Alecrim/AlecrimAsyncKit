@@ -134,11 +134,11 @@ public final class TaskAwaiter<V> {
 
 extension NonFailableTask {
     
-    public func didFinish(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (NonFailableTask<V>) -> Void) -> NonFailableTaskAwaiter<V> {
+    public func didFinish(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (NonFailableTask<V>) -> Void) -> NonFailableTaskAwaiter<V> {
         return NonFailableTaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinish(closure)
     }
     
-    public func didFinishWithValue(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> NonFailableTaskAwaiter<V> {
+    public func didFinishWithValue(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> NonFailableTaskAwaiter<V> {
         return NonFailableTaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithValue(closure)
     }
     
@@ -146,19 +146,19 @@ extension NonFailableTask {
 
 extension Task {
 
-    public func didFinish(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (Task<V>) -> Void) -> TaskAwaiter<V> {
+    public func didFinish(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (Task<V>) -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinish(closure)
     }
     
-    public func didFinishWithValue(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> TaskAwaiter<V> {
+    public func didFinishWithValue(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithValue(closure)
     }
 
-    public func didFinishWithError(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (ErrorType) -> Void) -> TaskAwaiter<V> {
+    public func didFinishWithError(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (ErrorType) -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithError(closure)
     }
     
-    public func didCancel(queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: () -> Void) -> TaskAwaiter<V> {
+    public func didCancel(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: () -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didCancel(closure)
     }
     

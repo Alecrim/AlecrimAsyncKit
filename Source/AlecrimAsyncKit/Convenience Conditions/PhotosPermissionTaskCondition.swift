@@ -15,7 +15,7 @@ import Photos
 public final class PhotosPermissionTaskCondition: TaskCondition {
     
     private static func asyncRequestAuthorizationIfNeeded() -> Task<Void> {
-        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
+        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(category: .Alert)]) { task in
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()
             
             if case .NotDetermined = authorizationStatus {
