@@ -99,11 +99,6 @@ import Foundation
             }
         }
         
-        @available(*, unavailable, renamed="networkActivity")
-        public func networkActivityIndicatorTaskObserver() -> NetworkActivityIndicatorTaskObserver {
-            fatalError()
-        }
-        
     }
     
     
