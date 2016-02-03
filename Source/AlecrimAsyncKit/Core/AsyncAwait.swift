@@ -25,9 +25,9 @@ public typealias TaskPriority = NSOperationQueuePriority
 
 @warn_unused_result
 public func async<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserver]? = nil, closure: () -> V) -> NonFailableTask<V> {
-    return task(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: false) { task in
+    return createdTaskWith(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: false) { task in
         let value = closure()
-        task.finish(value: value)
+        task.finishWith(value: value)
     }
 }
 
@@ -38,13 +38,13 @@ public func async<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityO
 
 @warn_unused_result
 public func async<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
-    return task(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: false) { task in
+    return createdTaskWith(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: false) { task in
         do {
             let value = try closure()
-            task.finish(value: value)
+            task.finishWith(value: value)
         }
         catch let error {
-            task.finish(error: error)
+            task.finishWith(error: error)
         }
     }
 }
@@ -53,7 +53,7 @@ public func async<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityO
 
 @warn_unused_result
 public func asyncEx<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserver]? = nil, closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
-    return task(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: true, closure: closure)
+    return createdTaskWith(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: true, closure: closure)
 }
 
 @warn_unused_result
@@ -64,7 +64,7 @@ public func asyncEx<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualit
 
 @warn_unused_result
 public func asyncEx<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
-    return task(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: true, closure: closure)
+    return createdTaskWith(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: true, closure: closure)
 }
 
 
@@ -98,7 +98,7 @@ public func await<V>(task: Task<V>) throws -> V {
 
 // MARK: - 
 
-private func task<T: InitializableTaskType>(queue queue: NSOperationQueue, qualityOfService: NSQualityOfService?, taskPriority: TaskPriority?, conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (T) -> Void) -> T {
+private func createdTaskWith<T: InitializableTaskType>(queue queue: NSOperationQueue, qualityOfService: NSQualityOfService?, taskPriority: TaskPriority?, conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (T) -> Void) -> T {
     assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
     
     //

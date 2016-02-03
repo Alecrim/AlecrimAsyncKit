@@ -25,18 +25,18 @@ public protocol CancellableTaskType: TaskType {
 
 public protocol TaskWithErrorType: TaskType {
     var error: ErrorType? { get }
-    func finish(error error: ErrorType)
+    func finishWith(error error: ErrorType)
 }
 
 public protocol TaskWithValueType: TaskType {
     typealias ValueType
     
     var value: Self.ValueType! { get }
-    func finish(value value: Self.ValueType)
+    func finishWith(value value: Self.ValueType)
 }
 
 public protocol FailableTaskType: CancellableTaskType, TaskWithValueType, TaskWithErrorType {
-    func finish(value value: Self.ValueType!, error: ErrorType?)
+    func finishWith(value value: Self.ValueType!, error: ErrorType?)
 }
 
 public protocol NonFailableTaskType: TaskWithValueType {
@@ -68,7 +68,7 @@ extension CancellableTaskType {
 extension TaskWithValueType where Self.ValueType == Void {
     
     public func finish() {
-        self.finish(value: ())
+        self.finishWith(value: ())
     }
     
 }
@@ -77,18 +77,18 @@ extension TaskWithValueType where Self.ValueType == Void {
 
 extension FailableTaskType {
     
-    public func finish(value value: Self.ValueType!, error: ErrorType?) {
+    public func finishWith(value value: Self.ValueType!, error: ErrorType?) {
         if let error = error {
-            self.finish(error: error)
+            self.finishWith(error: error)
         }
         else {
-            self.finish(value: value)
+            self.finishWith(value: value)
         }
     }
     
     public func continueWithTask<T: FailableTaskType where T.ValueType == Self.ValueType>(task: T) {
         task.waitUntilFinished()
-        self.finish(value: task.value, error: task.error)
+        self.finishWith(value: task.value, error: task.error)
     }
     
 }
@@ -99,7 +99,7 @@ extension NonFailableTaskType {
     
     public func continueWithTask<T: NonFailableTaskType where T.ValueType == Self.ValueType>(task: T) {
         task.waitUntilFinished()
-        self.finish(value: task.value)
+        self.finishWith(value: task.value)
     }
     
 }

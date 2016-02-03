@@ -101,9 +101,9 @@
 			isa = PBXGroup;
 			children = (
 				148513951B9BD15100FAB0FA /* AsyncAwait.swift */,
-				148513981B9BD15100FAB0FA /* Task.swift */,
 				1413F62D1BDCAE8B001049D5 /* TaskType.swift */,
 				142561B41BE31B9D00A4C974 /* TaskOperation.swift */,
+				148513981B9BD15100FAB0FA /* Task.swift */,
 				14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */,
 				148513961B9BD15100FAB0FA /* Errors.swift */,
 				148513991B9BD15100FAB0FA /* TaskCondition.swift */,
@@ -314,19 +314,19 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-                MACOSX_DEPLOYMENT_TARGET = 10.10;
-                IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-                WATCHOS_DEPLOYMENT_TARGET = 2.0;
-                TVOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VALID_ARCHS = "x86_64 arm64 armv7 armv7s armv7k";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Debug;
 		};
@@ -361,17 +361,17 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-                MACOSX_DEPLOYMENT_TARGET = 10.10;
-                IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-                WATCHOS_DEPLOYMENT_TARGET = 2.0;
-                TVOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VALID_ARCHS = "x86_64 arm64 armv7 armv7s armv7k";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
 		};

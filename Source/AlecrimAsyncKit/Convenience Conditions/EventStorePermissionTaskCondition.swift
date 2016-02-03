@@ -26,7 +26,7 @@ public final class EventStorePermissionTaskCondition: TaskCondition {
                 dispatch_async(dispatch_get_main_queue()) {
                     _sharedEventStore.requestAccessToEntityType(entityType) { _, error in
                         if let error = error {
-                            task.finish(error: error)
+                            task.finishWith(error: error)
                         }
                         else {
                             task.finish()

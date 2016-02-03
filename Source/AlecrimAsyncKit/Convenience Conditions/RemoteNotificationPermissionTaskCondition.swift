@@ -70,7 +70,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
                             task.finish()
                         }
                         else if let error = userInfo["error"] as? NSError {
-                            task.finish(error: error)
+                            task.finishWith(error: error)
                         }
                         else {
                             fatalError("Received a notification without a token and without an error.")
@@ -89,7 +89,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
                 task.finish()
                 
             case .Error(let error):
-                task.finish(error: error)
+                task.finishWith(error: error)
                 
             default:
                 break
