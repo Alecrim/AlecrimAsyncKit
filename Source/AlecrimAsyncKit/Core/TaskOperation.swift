@@ -83,15 +83,8 @@ public class TaskOperation: NSOperation, TaskType {
                 self.__executing = newValue
             }
             
-            if newValue != oldValue, let mutuallyExclusiveConditions = self.mutuallyExclusiveConditions {
-                mutuallyExclusiveConditions.forEach {
-                    if newValue {
-                        MutuallyExclusiveTaskCondition.enter($0.categoryName)
-                    }
-                    else {
-                        MutuallyExclusiveTaskCondition.leave($0.categoryName)
-                    }
-                }
+            if newValue != oldValue && newValue == false {
+                self.signalMutuallyExclusiveConditionsIfNeeded()
             }
         }
     }
@@ -217,6 +210,14 @@ public class TaskOperation: NSOperation, TaskType {
         
         if let observers = self.observers where !observers.isEmpty {
             observers.forEach { $0.taskDidFinishClosure?(self) }
+        }
+    }
+    
+    internal final func signalMutuallyExclusiveConditionsIfNeeded() {
+        if let mutuallyExclusiveConditions = self.mutuallyExclusiveConditions  {
+            mutuallyExclusiveConditions.forEach {
+                MutuallyExclusiveTaskCondition.signal($0.categoryName)
+            }
         }
     }
     
