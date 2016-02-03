@@ -69,8 +69,8 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
     
     private final var closure: (() -> Void)?
     
-    private override init(conditions: [TaskCondition]?, observers: [TaskObserver]?) {
-        super.init(conditions: conditions, observers: observers)
+    private override init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool) {
+        super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
     }
     
     // MARK: -
@@ -141,6 +141,9 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
         if hasStarted {
             self.finishOperation()
         }
+        else {
+            self.signalMutuallyExclusiveConditionsIfNeeded()
+        }
     }
     
     // MARK: -
@@ -178,8 +181,8 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     
     // MARK: -
     
-    public required init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Task<V>) -> Void) {
-        super.init(conditions: conditions, observers: observers)
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Task<V>) -> Void) {
+        super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
         
         self.closure = { [unowned self] in
             closure(self)
@@ -190,8 +193,8 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
 
 public final class NonFailableTask<V>: BaseTask<V>, InitializableTaskType, NonFailableTaskType {
 
-    public required init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (NonFailableTask<V>) -> Void) {
-        super.init(conditions: conditions, observers: observers)
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (NonFailableTask<V>) -> Void) {
+        super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
         
         self.closure = { [unowned self] in
             closure(self)

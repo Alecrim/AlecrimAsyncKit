@@ -12,8 +12,8 @@ public protocol TaskType: class {
     func waitUntilFinished()
 }
 
-public protocol InitializableTaskType: TaskType {
-    init(conditions: [TaskCondition]?, observers: [TaskObserver]?, closure: (Self) -> Void)
+internal protocol InitializableTaskType: TaskType {
+    init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Self) -> Void)
 }
 
 public protocol CancellableTaskType: TaskType {

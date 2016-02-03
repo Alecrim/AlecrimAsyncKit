@@ -35,7 +35,7 @@ public class TaskCondition {
     internal let subconditions: [TaskCondition]?
     internal let dependencyTaskClosure: () -> Task<Void>?
     internal let evaluationClosure: ((TaskConditionResult) -> Void) -> Void
-   
+    
     /// Initializes a condition that will determine if a task can be executed or not.
     ///
     /// - parameter evaluationClosure: The evaluation closure returning a `TaskConditionResult` enumeration member.
@@ -131,24 +131,17 @@ public class TaskCondition {
 extension TaskCondition {
     
     internal static func asyncEvaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
-        return asyncEx(_defaultTaskConditionQueue) { task in
-            do {
-                for condition in conditions {
-                    if let subconditions = condition.subconditions where !subconditions.isEmpty {
-                        try await(TaskCondition.asyncEvaluateConditions(subconditions))
-                    }
-                    
-                    if let dependencyTask = condition.dependencyTaskClosure() {
-                        try await(dependencyTask)
-                    }
-                    
-                    try await(condition.asyncEvaluate())
+        return async(_defaultTaskConditionQueue) {
+            for condition in conditions {
+                if let subconditions = condition.subconditions where !subconditions.isEmpty {
+                    try await(TaskCondition.asyncEvaluateConditions(subconditions))
                 }
                 
-                task.finish()
-            }
-            catch let error {
-                task.finishWithError(error)
+                if let dependencyTask = condition.dependencyTaskClosure() {
+                    try await(dependencyTask)
+                }
+                
+                try await(condition.asyncEvaluate())
             }
         }
     }
