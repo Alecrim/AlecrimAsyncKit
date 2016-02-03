@@ -141,6 +141,9 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
         if hasStarted {
             self.finishOperation()
         }
+        else {
+            self.signalMutuallyExclusiveConditionsIfNeeded()
+        }
     }
     
     // MARK: -

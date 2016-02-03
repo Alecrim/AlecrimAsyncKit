@@ -78,11 +78,7 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
         dispatch_semaphore_wait(dispatch_semaphore, DISPATCH_TIME_FOREVER)
     }
     
-    internal static func enter(categoryName: String) {
-        // do nothing
-    }
-    
-    internal static func leave(categoryName: String) {
+    internal static func signal(categoryName: String) {
         let dispatch_semaphore: dispatch_semaphore_t
         
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
