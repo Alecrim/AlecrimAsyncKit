@@ -58,6 +58,10 @@ public final class NonFailableTaskAwaiter<V> {
     
 }
 
+private let _mainOperationQueue = NSOperationQueue.mainQueue()
+private let _dispatch_main_queue = dispatch_get_main_queue()
+private let _dispatch_serial_queue = dispatch_queue_create(nil, DISPATCH_QUEUE_SERIAL)
+
 public final class TaskAwaiter<V> {
     
     public let task: Task<V>
@@ -70,10 +74,25 @@ public final class TaskAwaiter<V> {
     private init(queue: NSOperationQueue, callbackQueue: NSOperationQueue, task: Task<V>) {
         self.task = task
         
+        // prefer GCD over NSOperationQueue for main thread dispatching
+        let callbackQueueIsMainOperationQueue = callbackQueue === _mainOperationQueue
+        
+        func dispatchToCallbackQueue(closure: () -> Void) {
+            if callbackQueueIsMainOperationQueue {
+                dispatch_async(_dispatch_serial_queue) {
+                    dispatch_sync(_dispatch_main_queue, closure)
+                }
+            }
+            else {
+                callbackQueue.addOperationWithBlock(closure)
+            }
+        }
+        
+        //
         queue.addOperationWithBlock {
             defer {
                 if let didFinishClosure = self.didFinishClosure {
-                    callbackQueue.addOperationWithBlock {
+                    dispatchToCallbackQueue {
                         didFinishClosure(task)
                     }
                 }
@@ -83,7 +102,7 @@ public final class TaskAwaiter<V> {
                 try await(task)
                 
                 if let didFinishWithValueClosure = self.didFinishWithValueClosure {
-                    callbackQueue.addOperationWithBlock {
+                    dispatchToCallbackQueue {
                         didFinishWithValueClosure(task.value)
                     }
                 }
@@ -92,14 +111,14 @@ public final class TaskAwaiter<V> {
             catch let error {
                 if error.userCancelled {
                     if let didCancelClosure = self.didCancelClosure {
-                        callbackQueue.addOperationWithBlock {
+                        dispatchToCallbackQueue {
                             didCancelClosure()
                         }
                     }
                 }
                 else {
                     if let didFinishWithErrorClosure = self.didFinishWithErrorClosure {
-                        callbackQueue.addOperationWithBlock {
+                        dispatchToCallbackQueue {
                             didFinishWithErrorClosure(error)
                         }
                     }
