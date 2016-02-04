@@ -86,7 +86,11 @@ extension FailableTaskType {
         }
     }
     
-    public func continueWithTask<T: FailableTaskType where T.ValueType == Self.ValueType>(task: T) {
+    public func continueWithTask<T: FailableTaskType where T.ValueType == Self.ValueType>(task: T, inheritCancellation: Bool = true) {
+        if inheritCancellation {
+            task.inheritCancellationFromTask(self)
+        }
+        
         task.waitUntilFinished()
         self.finishWith(value: task.value, error: task.error)
     }
