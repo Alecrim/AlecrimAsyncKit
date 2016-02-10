@@ -11,18 +11,19 @@
 import Foundation
 import UIKit
 
-private enum RemoteRegistrationResult {
-    case Unknown
-    case Waiting
-    case Success
-    case Error(ErrorType)
-}
 
 /// A condition for verifying that the app has the ability to receive push notifications.
 public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
+    
+    private enum RemoteRegistrationStatus {
+        case Unknown
+        case Success
+        case Error(ErrorType)
+    }
 
-    private static let remoteNotificationPermissionName = "com.alecrim.AlecrimAsyncKit.RemoteNotificationPermissionNotification"
-    private static var result = RemoteRegistrationResult.Unknown
+
+    private static var statusObserverClosure: ((RemoteNotificationPermissionTaskCondition.RemoteRegistrationStatus) -> Void)? = nil
+    private static var status = RemoteNotificationPermissionTaskCondition.RemoteRegistrationStatus.Unknown
     
     // MARK: -
 
@@ -30,72 +31,48 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
     ///
     /// - parameter deviceToken: The received device token.
     public static func didRegisterForRemoteNotifications(deviceToken deviceToken: NSData) {
-        self.result = .Success
-        NSNotificationCenter.defaultCenter().postNotificationName(self.remoteNotificationPermissionName, object: nil, userInfo: ["token": deviceToken])
+        self.statusObserverClosure?(.Success)
     }
     
     /// This method has to be called inside the `UIApplicationDelegate` response to the registration error.
     ///
     /// - parameter error: The received error.
     public static func didFailToRegisterForRemoteNotifications(error error: NSError) {
-        self.result = .Error(error)
-        NSNotificationCenter.defaultCenter().postNotificationName(self.remoteNotificationPermissionName, object: nil, userInfo: ["error": error])
+        self.statusObserverClosure?(.Error(error))
     }
     
     // MARK: -
     
-    private static var observer: AnyObject? {
-        didSet {
-            if let oldValue = oldValue {
-                NSNotificationCenter.defaultCenter().removeObserver(oldValue)
+    private static func asyncWaitForResponse(application application: UIApplication) -> Task<Void> {
+        return asyncEx { task in
+            if application.isRegisteredForRemoteNotifications() {
+                self.status = .Success
+                task.finish()
+            }
+            else {
+                self.statusObserverClosure = { result in
+                    self.statusObserverClosure = nil
+                    
+                    switch result {
+                    case .Success:
+                        self.status = .Success
+                        task.finish()
+                        
+                    case .Error(let error):
+                        self.status = .Error(error)
+                        task.finishWith(error: error)
+                        
+                    default:
+                        fatalError("Invalid result: \(result).")
+                    }
+                }
+                
+                application.registerForRemoteNotifications()
             }
         }
     }
     
-    private static func asyncWaitForResponse(application application: UIApplication) -> Task<Void> {
-        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(category: .Alert)]) { task in
-            if application.isRegisteredForRemoteNotifications() {
-                self.result = .Success
-            }
-            
-            switch self.result {
-            case .Unknown:
-                self.result = .Waiting
-                
-                self.observer = NSNotificationCenter().addObserverForName(RemoteNotificationPermissionTaskCondition.remoteNotificationPermissionName, object: nil, queue: nil) { notification in
-                    self.observer = nil
-                    
-                    if let userInfo = notification.userInfo {
-                        if let _ = userInfo["token"] as? NSData {
-                            task.finish()
-                        }
-                        else if let error = userInfo["error"] as? NSError {
-                            task.finishWith(error: error)
-                        }
-                        else {
-                            fatalError("Received a notification without a token and without an error.")
-                        }
-                    }
-                    else {
-                        fatalError("userInfo is nil.")
-                    }
-                }
-                
-                dispatch_async(dispatch_get_main_queue()) {
-                    application.registerForRemoteNotifications()
-                }
-                
-            case .Success:
-                task.finish()
-                
-            case .Error(let error):
-                task.finishWith(error: error)
-                
-            default:
-                break
-            }
-        }
-    }
+    private static var dependencyTask: Task<Void>?
     
     // MARK: -
 
@@ -107,8 +84,17 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
     ///
     /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
     private init(application: UIApplication) {
-        super.init(dependencyTask: RemoteNotificationPermissionTaskCondition.asyncWaitForResponse(application: application)) { result in
-            switch RemoteNotificationPermissionTaskCondition.result {
+        let dependencyTask: Task<Void>
+        if let staticDependencyTask = self.dynamicType.dependencyTask {
+            dependencyTask = staticDependencyTask
+        }
+        else {
+            dependencyTask = RemoteNotificationPermissionTaskCondition.asyncWaitForResponse(application: application)
+            self.dynamicType.dependencyTask = dependencyTask
+        }
+        
+        super.init(dependencyTask: dependencyTask) { result in
+            switch RemoteNotificationPermissionTaskCondition.status {
             case .Success:
                 result(.Satisfied)
                 
@@ -138,7 +124,7 @@ extension UIApplication {
         }
         else {
             let value = RemoteNotificationPermissionTaskCondition(application: self)
-            objc_setAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionTaskCondition, value, .OBJC_ASSOCIATION_RETAIN_NONATOMIC )
+            objc_setAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionTaskCondition, value, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             
             return value
         }
