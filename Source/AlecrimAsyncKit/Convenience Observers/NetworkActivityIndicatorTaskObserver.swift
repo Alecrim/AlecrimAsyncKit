@@ -15,7 +15,8 @@ import Foundation
         private static var _activitySpinLock = OS_SPINLOCK_INIT
         private static var _activity: Int = 0
         
-        public static var delay: NSTimeInterval = 0.25
+        public static var showDelay: NSTimeInterval = 2.0
+        public static var dismissDelay: NSTimeInterval = 0.25
         
         private unowned let application: UIApplication
         
@@ -61,18 +62,21 @@ import Foundation
         }
         
         private func showOrHideActivityIndicatorAfterDelay() {
-            let when = dispatch_time(DISPATCH_TIME_NOW, Int64(self.dynamicType.delay * Double(NSEC_PER_SEC)))
-            
-            dispatch_after(when, dispatch_get_main_queue()) {
-                withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockLock)
-                defer { withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockUnlock) }
+            dispatch_async(dispatch_get_main_queue()) {
+                let delay = (self.application.networkActivityIndicatorVisible ? self.dynamicType.dismissDelay : self.dynamicType.showDelay)
+                let when = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
                 
-                let visible = (self.dynamicType._activity > 0)
-                if visible && !self.application.networkActivityIndicatorVisible {
-                    self.application.networkActivityIndicatorVisible = true
-                }
-                else if !visible && self.application.networkActivityIndicatorVisible {
-                    self.application.networkActivityIndicatorVisible = false
+                dispatch_after(when, dispatch_get_main_queue()) {
+                    withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockLock)
+                    defer { withUnsafeMutablePointer(&self.dynamicType._activitySpinLock, OSSpinLockUnlock) }
+                    
+                    let visible = (self.dynamicType._activity > 0)
+                    if visible && !self.application.networkActivityIndicatorVisible {
+                        self.application.networkActivityIndicatorVisible = true
+                    }
+                    else if !visible && self.application.networkActivityIndicatorVisible {
+                        self.application.networkActivityIndicatorVisible = false
+                    }
                 }
             }
         }
