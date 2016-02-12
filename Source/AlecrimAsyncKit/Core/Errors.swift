@@ -31,7 +31,7 @@ extension NSError {
 
 extension ErrorType {
     
-    public var userCancelled: Bool {
+    public var isUserCancelled: Bool {
         return (self as NSError).code == NSUserCancelledError
     }
     

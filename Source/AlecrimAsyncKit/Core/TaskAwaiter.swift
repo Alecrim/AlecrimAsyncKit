@@ -125,7 +125,7 @@ public final class TaskAwaiter<V> {
 
             }
             catch let error {
-                if error.userCancelled {
+                if error.isUserCancelled {
                     if let didCancelClosure = self.didCancelClosure {
                         dispatchToCallbackQueue {
                             didCancelClosure()
