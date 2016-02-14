@@ -33,8 +33,15 @@ public enum TaskConditionResult {
 public class TaskCondition {
     
     internal let subconditions: [TaskCondition]?
-    internal let dependencyTaskClosure: () -> Task<Void>?
-    internal let evaluationClosure: ((TaskConditionResult) -> Void) -> Void
+    internal let dependencyTaskClosure: (() -> Task<Void>?)?
+    internal var evaluationClosure: (((TaskConditionResult) -> Void) -> Void)
+    
+    // for deferred evaluationClosure assignment only (we don't care about the evaluationClosureAssignmentDeferred value)
+    internal init(evaluationClosureAssignmentDeferred: Bool) {
+        self.subconditions = nil
+        self.dependencyTaskClosure = nil
+        self.evaluationClosure = { _ in fatalError() }
+    }
     
     /// Initializes a condition that will determine if a task can be executed or not.
     ///
@@ -43,7 +50,7 @@ public class TaskCondition {
     /// - returns: A condition that will determine if a task can be executed or not.
     public init(evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
         self.subconditions = nil
-        self.dependencyTaskClosure = { return nil }
+        self.dependencyTaskClosure = nil
         self.evaluationClosure = evaluationClosure
     }
 
@@ -137,7 +144,7 @@ extension TaskCondition {
                     try await(TaskCondition.asyncEvaluateConditions(subconditions))
                 }
                 
-                if let dependencyTask = condition.dependencyTaskClosure() {
+                if let dependencyTask = condition.dependencyTaskClosure?() {
                     try await(dependencyTask)
                 }
                 

@@ -216,7 +216,7 @@ public class TaskOperation: NSOperation, TaskType {
     internal final func signalMutuallyExclusiveConditionsIfNeeded() {
         if let mutuallyExclusiveConditions = self.mutuallyExclusiveConditions  {
             mutuallyExclusiveConditions.forEach {
-                MutuallyExclusiveTaskCondition.signal($0.categoryName)
+                MutuallyExclusiveTaskCondition.signal($0.categoryName, condition: $0)
             }
         }
     }

@@ -17,7 +17,7 @@ public final class NegateTaskCondition: TaskCondition {
     ///
     /// - returns: A condition that negates the evaluation of another condition.
     public init(otherCondition: TaskCondition) {
-        super.init(subconditions: otherCondition.subconditions, dependencyTask: otherCondition.dependencyTaskClosure(), evaluationClosure: otherCondition.evaluationClosure)
+        super.init(subconditions: otherCondition.subconditions, dependencyTask: otherCondition.dependencyTaskClosure?(), evaluationClosure: otherCondition.evaluationClosure)
     }
 
     internal override func asyncEvaluate() -> Task<Void> {
