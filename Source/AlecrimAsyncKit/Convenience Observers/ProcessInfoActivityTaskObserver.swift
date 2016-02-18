@@ -8,20 +8,26 @@
 
 import Foundation
 
-public final class ProcessInfoActivityTaskObserver: TaskObserver {
+public final class ProcessInfoActivityTaskObserver: TaskDidStartObserverType, TaskDidFinishObserverType {
+    
+    private let options: NSActivityOptions
+    private let reason: String
+
+    private var activity: NSObjectProtocol?
     
     public init(options: NSActivityOptions, reason: String) {
-        super.init()
-        
-        var activity: NSObjectProtocol!
-        
-        self.taskDidStart { _ in
-            activity = NSProcessInfo.processInfo().beginActivityWithOptions(options, reason: reason)
-        }
-        
-        self.taskDidFinish { _ in
+        self.options = options
+        self.reason = reason
+    }
+    
+    public func didStartTask(task: TaskType) {
+        self.activity = NSProcessInfo.processInfo().beginActivityWithOptions(self.options, reason: self.reason)
+    }
+    
+    public func didFinishTask(task: TaskType) {
+        if let activity = self.activity {
             NSProcessInfo.processInfo().endActivity(activity)
-            activity = nil
+            self.activity = nil
         }
     }
     

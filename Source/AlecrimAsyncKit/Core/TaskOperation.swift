@@ -185,9 +185,7 @@ public class TaskOperation: NSOperation, TaskType {
         self.executing = true
         
         //
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskDidStartClosure?(self) }
-        }
+        self.observers?.flatMap({ $0 as? TaskDidStartObserverType }).forEach({ $0.didStartTask(self) })
     }
     
     private var hasFinishedAlready = false
@@ -200,34 +198,29 @@ public class TaskOperation: NSOperation, TaskType {
         guard !self.hasFinishedAlready else { return }
         self.hasFinishedAlready = true
         
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskWillFinishClosure?(self) }
-        }
+        //
+        self.observers?.flatMap({ $0 as? TaskWillFinishObserverType }).forEach({ $0.willFinishTask(self) })
         
+        //
         self.ready = false
         self.executing = false
         self.finished = true
         
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskDidFinishClosure?(self) }
-        }
+        //
+        self.observers?.flatMap({ $0 as? TaskDidFinishObserverType }).forEach({ $0.didFinishTask(self) })
     }
     
     internal final func signalMutuallyExclusiveConditionsIfNeeded() {
-        if let mutuallyExclusiveConditions = self.mutuallyExclusiveConditions  {
-            mutuallyExclusiveConditions.forEach {
-                MutuallyExclusiveTaskCondition.signal($0.categoryName, condition: $0)
-            }
-        }
+        self.mutuallyExclusiveConditions?.forEach({ MutuallyExclusiveTaskCondition.signal($0.categoryName, condition: $0) })
     }
     
     // MARK: -
     
     private let conditions: [TaskCondition]?
-    private let observers: [TaskObserver]?
+    private let observers: [TaskObserverType]?
     private let __asynchronous: Bool
 
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool) {
         self.conditions = conditions
         self.observers = observers
         self.__asynchronous = asynchronous
@@ -249,10 +242,10 @@ public class TaskOperation: NSOperation, TaskType {
     }
     
     public override func main() {
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskWillStartClosure?(self) }
-        }
+        //
+        self.observers?.flatMap({ $0 as? TaskWillStartObserverType }).forEach({ $0.willStartTask(self) })
 
+        //
         if self.cancelled {
             self.finishOperation()
         }

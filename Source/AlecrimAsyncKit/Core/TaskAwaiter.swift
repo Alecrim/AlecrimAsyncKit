@@ -33,7 +33,7 @@ public final class NonFailableTaskAwaiter<V> {
         self.task = task
         
         // prefer GCD over NSOperationQueue for main thread dispatching
-        let callbackQueueIsMainOperationQueue = callbackQueue === _mainOperationQueue
+        let callbackQueueIsMainOperationQueue = (callbackQueue === _mainOperationQueue)
         
         func dispatchToCallbackQueue(closure: () -> Void) {
             if callbackQueueIsMainOperationQueue {
@@ -91,7 +91,7 @@ public final class TaskAwaiter<V> {
         self.task = task
         
         // prefer GCD over NSOperationQueue for main thread dispatching
-        let callbackQueueIsMainOperationQueue = callbackQueue === _mainOperationQueue
+        let callbackQueueIsMainOperationQueue = (callbackQueue === _mainOperationQueue)
         
         func dispatchToCallbackQueue(closure: () -> Void) {
             if callbackQueueIsMainOperationQueue {

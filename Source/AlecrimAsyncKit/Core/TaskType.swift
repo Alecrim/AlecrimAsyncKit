@@ -13,7 +13,7 @@ public protocol TaskType: class {
 }
 
 internal protocol InitializableTaskType: TaskType {
-    init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Self) -> Void)
+    init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool, closure: (Self) -> Void)
 }
 
 public protocol CancellableTaskType: TaskType {

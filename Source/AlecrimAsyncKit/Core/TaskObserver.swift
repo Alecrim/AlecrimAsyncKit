@@ -8,35 +8,42 @@
 
 import Foundation
 
-public class TaskObserver {
-    
-    internal final var taskWillStartClosure: ((TaskType) -> Void)?
-    internal final var taskDidStartClosure: ((TaskType) -> Void)?
+// MARK: -
 
-    internal final var taskWillFinishClosure: ((TaskType) -> Void)?
-    internal final var taskDidFinishClosure: ((TaskType) -> Void)?
-    
-    public init() {
-    }
-    
-    public final func taskWillStart(closure: (TaskType) -> Void) -> Self {
-        self.taskWillStartClosure = closure
-        return self
-    }
-
-    public final func taskDidStart(closure: (TaskType) -> Void) -> Self {
-        self.taskDidStartClosure = closure
-        return self
-    }
-
-    public final func taskWillFinish(closure: (TaskType) -> Void) -> Self {
-        self.taskWillFinishClosure = closure
-        return self
-    }
-
-    public final func taskDidFinish(closure: (TaskType) -> Void) -> Self {
-        self.taskDidFinishClosure = closure
-        return self
-    }
-
+public protocol TaskObserverType {
 }
+
+public protocol TaskWillStartObserverType: TaskObserverType {
+    func willStartTask(task: TaskType)
+}
+
+public protocol TaskDidStartObserverType: TaskObserverType {
+    func didStartTask(task: TaskType)
+}
+
+public protocol TaskWillFinishObserverType: TaskObserverType {
+    func willFinishTask(task: TaskType)
+}
+
+public protocol TaskDidFinishObserverType: TaskObserverType {
+    func didFinishTask(task: TaskType)
+}
+
+
+// MARK: - experiments
+
+//public struct TaskCancelledObserver: TaskDidFinishObserverType {
+//    
+//    private let closure: TaskType -> Void
+//    
+//    public init(closure: TaskType -> Void) {
+//        self.closure = closure
+//    }
+//    
+//    public func didFinishTask(task: TaskType) {
+//        if let task = task as? CancellableTaskType where task.cancelled {
+//            closure(task)
+//        }
+//    }
+//    
+//}
