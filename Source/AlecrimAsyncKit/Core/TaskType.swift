@@ -29,7 +29,7 @@ public protocol TaskWithErrorType: TaskType {
 }
 
 public protocol TaskWithValueType: TaskType {
-    typealias ValueType
+    associatedtype ValueType
     
     var value: Self.ValueType! { get }
     func finishWith(value value: Self.ValueType)

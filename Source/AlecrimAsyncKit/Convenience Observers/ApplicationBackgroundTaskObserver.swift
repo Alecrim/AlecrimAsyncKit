@@ -30,8 +30,8 @@
             self.application = application
             
             // We need to know when the application moves to/from the background.
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "didEnterBackground:", name: UIApplicationDidEnterBackgroundNotification, object: nil)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "didBecomeActive:", name: UIApplicationDidBecomeActiveNotification, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundTaskObserver.didEnterBackground(_:)), name: UIApplicationDidEnterBackgroundNotification, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundTaskObserver.didBecomeActive(_:)), name: UIApplicationDidBecomeActiveNotification, object: nil)
             
             //
             self.isInBackground = self.application.applicationState == .Background
