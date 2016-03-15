@@ -31,7 +31,7 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
     
     public private(set) final var value: V!
     
-    public func finishWithValue(value: V) {
+    public func finishWith(value value: V) {
         self.willAccessValue()
         defer {
             self.didAccessValue()
@@ -69,7 +69,7 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
     
     private final var closure: (() -> Void)?
     
-    private override init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool) {
+    private override init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
     }
     
@@ -150,7 +150,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     
     public private(set) var error: ErrorType?
     
-    public override func finishWithValue(value: V) {
+    public override func finishWith(value value: V) {
         self.willAccessValue()
         defer {
             self.didAccessValue()
@@ -167,7 +167,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
         self.value = value
     }
     
-    public func finishWithError(error: ErrorType) {
+    public func finishWith(error error: ErrorType) {
         self.willAccessValue()
         defer {
             self.didAccessValue()
@@ -181,7 +181,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     
     // MARK: -
     
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Task<V>) -> Void) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool, closure: (Task<V>) -> Void) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
         
         self.closure = { [unowned self] in
@@ -193,7 +193,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
 
 public final class NonFailableTask<V>: BaseTask<V>, InitializableTaskType, NonFailableTaskType {
 
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (NonFailableTask<V>) -> Void) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool, closure: (NonFailableTask<V>) -> Void) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
         
         self.closure = { [unowned self] in

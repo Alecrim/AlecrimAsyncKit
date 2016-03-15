@@ -11,7 +11,7 @@ import Foundation
 private let _defaultTaskConditionQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.TaskCondition"
-    queue.qualityOfService = .Default
+    queue.qualityOfService = .Utility
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
@@ -33,8 +33,15 @@ public enum TaskConditionResult {
 public class TaskCondition {
     
     internal let subconditions: [TaskCondition]?
-    internal let dependencyTaskClosure: () -> Task<Void>?
-    internal let evaluationClosure: ((TaskConditionResult) -> Void) -> Void
+    internal let dependencyTaskClosure: (() -> Task<Void>?)?
+    internal var evaluationClosure: (((TaskConditionResult) -> Void) -> Void)
+    
+    // for deferred evaluationClosure assignment only (we don't care about the evaluationClosureAssignmentDeferred value)
+    internal init(evaluationClosureAssignmentDeferred: Bool) {
+        self.subconditions = nil
+        self.dependencyTaskClosure = nil
+        self.evaluationClosure = { _ in fatalError() }
+    }
     
     /// Initializes a condition that will determine if a task can be executed or not.
     ///
@@ -43,7 +50,7 @@ public class TaskCondition {
     /// - returns: A condition that will determine if a task can be executed or not.
     public init(evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
         self.subconditions = nil
-        self.dependencyTaskClosure = { return nil }
+        self.dependencyTaskClosure = nil
         self.evaluationClosure = evaluationClosure
     }
 
@@ -110,17 +117,17 @@ public class TaskCondition {
     }
     
     internal func asyncEvaluate() -> Task<Void> {
-        return asyncEx(_defaultTaskConditionQueue) { [unowned self] task in
+        return asyncEx(queue: _defaultTaskConditionQueue) { [unowned self] task in
             self.evaluationClosure { conditionResult in
                 switch conditionResult {
                 case .Satisfied:
                     task.finish()
                  
                 case .NotSatisfied:
-                    task.finishWithError(TaskConditionError.NotSatisfied)
+                    task.finishWith(error: TaskConditionError.NotSatisfied)
                     
                 case .Failed(let error):
-                    task.finishWithError(TaskConditionError.Failed(error))
+                    task.finishWith(error: TaskConditionError.Failed(error))
                 }
             }
         }
@@ -131,13 +138,13 @@ public class TaskCondition {
 extension TaskCondition {
     
     internal static func asyncEvaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
-        return async(_defaultTaskConditionQueue) {
+        return async(queue: _defaultTaskConditionQueue) {
             for condition in conditions {
                 if let subconditions = condition.subconditions where !subconditions.isEmpty {
                     try await(TaskCondition.asyncEvaluateConditions(subconditions))
                 }
                 
-                if let dependencyTask = condition.dependencyTaskClosure() {
+                if let dependencyTask = condition.dependencyTaskClosure?() {
                     try await(dependencyTask)
                 }
                 

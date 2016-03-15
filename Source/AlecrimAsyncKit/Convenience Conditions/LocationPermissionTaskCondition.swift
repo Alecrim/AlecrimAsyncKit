@@ -19,8 +19,8 @@ public final class LocationPermissionTaskCondition: TaskCondition {
         case Always
     }
     
-    private static func asyncRequestAuthorizationIfNeededForUsage(usage: LocationPermissionTaskCondition.Usage) -> Task<Void> {
-        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
+    private static func asyncRequestAuthorizationIfNeeded(usage usage: LocationPermissionTaskCondition.Usage) -> Task<Void> {
+        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(category: .Alert)]) { task in
             /*
             Not only do we need to handle the "Not Determined" case, but we also
             need to handle the "upgrade" (.WhenInUse -> .Always) case.
@@ -64,7 +64,7 @@ public final class LocationPermissionTaskCondition: TaskCondition {
     ///
     /// - returns: A condition for verifying access to the user's location.
     public init(usage: LocationPermissionTaskCondition.Usage) {
-        super.init(dependencyTask: LocationPermissionTaskCondition.asyncRequestAuthorizationIfNeededForUsage(usage)) { result in
+        super.init(dependencyTask: LocationPermissionTaskCondition.asyncRequestAuthorizationIfNeeded(usage: usage)) { result in
             let enabled = CLLocationManager.locationServicesEnabled()
             let actual = CLLocationManager.authorizationStatus()
             

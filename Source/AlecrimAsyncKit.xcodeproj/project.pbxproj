@@ -101,9 +101,9 @@
 			isa = PBXGroup;
 			children = (
 				148513951B9BD15100FAB0FA /* AsyncAwait.swift */,
-				148513981B9BD15100FAB0FA /* Task.swift */,
 				1413F62D1BDCAE8B001049D5 /* TaskType.swift */,
 				142561B41BE31B9D00A4C974 /* TaskOperation.swift */,
+				148513981B9BD15100FAB0FA /* Task.swift */,
 				14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */,
 				148513961B9BD15100FAB0FA /* Errors.swift */,
 				148513991B9BD15100FAB0FA /* TaskCondition.swift */,
@@ -322,6 +322,7 @@
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VALID_ARCHS = "x86_64 arm64 armv7 armv7s armv7k";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -366,6 +367,7 @@
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VALID_ARCHS = "x86_64 arm64 armv7 armv7s armv7k";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";

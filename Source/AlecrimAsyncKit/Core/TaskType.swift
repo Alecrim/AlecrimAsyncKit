@@ -13,7 +13,7 @@ public protocol TaskType: class {
 }
 
 internal protocol InitializableTaskType: TaskType {
-    init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Self) -> Void)
+    init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool, closure: (Self) -> Void)
 }
 
 public protocol CancellableTaskType: TaskType {
@@ -25,18 +25,18 @@ public protocol CancellableTaskType: TaskType {
 
 public protocol TaskWithErrorType: TaskType {
     var error: ErrorType? { get }
-    func finishWithError(error: ErrorType)
+    func finishWith(error error: ErrorType)
 }
 
 public protocol TaskWithValueType: TaskType {
-    typealias ValueType
+    associatedtype ValueType
     
     var value: Self.ValueType! { get }
-    func finishWithValue(value: Self.ValueType)
+    func finishWith(value value: Self.ValueType)
 }
 
 public protocol FailableTaskType: CancellableTaskType, TaskWithValueType, TaskWithErrorType {
-    func finishWithValue(value: Self.ValueType!, error: ErrorType?)
+    func finishWith(value value: Self.ValueType!, error: ErrorType?)
 }
 
 public protocol NonFailableTaskType: TaskWithValueType {
@@ -47,7 +47,7 @@ public protocol NonFailableTaskType: TaskWithValueType {
 
 extension CancellableTaskType {
     
-    public func forwardCancellationTo(task: CancellableTaskType) -> Self {
+    public func forwardCancellationToTask(task: CancellableTaskType) -> Self {
         self.cancellationHandler = { [weak task] in
             task?.cancel()
         }
@@ -55,8 +55,8 @@ extension CancellableTaskType {
         return self
     }
     
-    public func inheritCancellationFrom(task: CancellableTaskType) -> Self {
-        task.forwardCancellationTo(self)
+    public func inheritCancellationFromTask(task: CancellableTaskType) -> Self {
+        task.forwardCancellationToTask(self)
         
         return self
     }
@@ -68,7 +68,7 @@ extension CancellableTaskType {
 extension TaskWithValueType where Self.ValueType == Void {
     
     public func finish() {
-        self.finishWithValue(())
+        self.finishWith(value: ())
     }
     
 }
@@ -77,18 +77,22 @@ extension TaskWithValueType where Self.ValueType == Void {
 
 extension FailableTaskType {
     
-    public func finishWithValue(value: Self.ValueType!, error: ErrorType?) {
+    public func finishWith(value value: Self.ValueType!, error: ErrorType?) {
         if let error = error {
-            self.finishWithError(error)
+            self.finishWith(error: error)
         }
         else {
-            self.finishWithValue(value)
+            self.finishWith(value: value)
         }
     }
     
-    public func continueWithTask<T: FailableTaskType where T.ValueType == Self.ValueType>(task: T) {
+    public func continueWithTask<T: FailableTaskType where T.ValueType == Self.ValueType>(task: T, inheritCancellation: Bool = true) {
+        if inheritCancellation {
+            task.inheritCancellationFromTask(self)
+        }
+        
         task.waitUntilFinished()
-        self.finishWithValue(task.value, error: task.error)
+        self.finishWith(value: task.value, error: task.error)
     }
     
 }
@@ -99,7 +103,7 @@ extension NonFailableTaskType {
     
     public func continueWithTask<T: NonFailableTaskType where T.ValueType == Self.ValueType>(task: T) {
         task.waitUntilFinished()
-        self.finishWithValue(task.value)
+        self.finishWith(value: task.value)
     }
     
 }

@@ -8,23 +8,21 @@
 
 import Foundation
 
-public final class TimeoutTaskObserver: TaskObserver {
+public struct TimeoutTaskObserver: TaskWillStartObserverType {
     
+    private let timeout: NSTimeInterval
+
     public init(timeout: NSTimeInterval) {
-        super.init()
-        
-        self.taskWillStart { task in
-            if let task = task as? CancellableTaskType {
-                weak var weakTask = task
-                
-                let when = dispatch_time(DISPATCH_TIME_NOW, Int64(timeout * Double(NSEC_PER_SEC)))
-                
-                let queue: dispatch_queue_t
-                queue = dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)
-                
-                dispatch_after(when, queue) {
-                    weakTask?.cancel()
-                }
+        self.timeout = timeout
+    }
+
+    public func willStartTask(task: TaskType) {
+        if let task = task as? CancellableTaskType {
+            weak var weakTask = task
+            
+            let when = dispatch_time(DISPATCH_TIME_NOW, Int64(timeout * Double(NSEC_PER_SEC)))
+            dispatch_after(when, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)) {
+                weakTask?.cancel()
             }
         }
     }

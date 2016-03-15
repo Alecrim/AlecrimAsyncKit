@@ -10,11 +10,8 @@
     
     import Foundation
     
-    // MARK: -
-    
-    
     /// A task observer that will automatically begin and end a *background task* if the application transitions to the background.
-    public final class ApplicationBackgroundTaskObserver: TaskObserver {
+    public final class ApplicationBackgroundTaskObserver: TaskDidFinishObserverType {
         
         private let application: UIApplication
         private var isInBackground = false
@@ -32,12 +29,9 @@
             //
             self.application = application
             
-            //
-            super.init()
-            
             // We need to know when the application moves to/from the background.
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "didEnterBackground:", name: UIApplicationDidEnterBackgroundNotification, object: nil)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "didBecomeActive:", name: UIApplicationDidBecomeActiveNotification, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundTaskObserver.didEnterBackground(_:)), name: UIApplicationDidEnterBackgroundNotification, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundTaskObserver.didBecomeActive(_:)), name: UIApplicationDidBecomeActiveNotification, object: nil)
             
             //
             self.isInBackground = self.application.applicationState == .Background
@@ -46,17 +40,20 @@
             if self.isInBackground {
                 self.startBackgroundTask()
             }
-            
-            //
-            self.taskDidFinish { _ in
-                self.endBackgroundTask()
-            }
         }
         
         deinit {
             NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidEnterBackgroundNotification, object: nil)
             NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
         }
+        
+        // MARK: -
+
+        public func didFinishTask(task: TaskType) {
+            self.endBackgroundTask()
+        }
+        
+        // MARK: -
         
         private func startBackgroundTask() {
             if self.identifier == UIBackgroundTaskInvalid {
