@@ -16,7 +16,7 @@ public struct TimeoutTaskObserver: TaskWillStartObserverType {
         self.timeout = timeout
     }
 
-    public func willStartTask(task: TaskType) {
+    public func willStart(task: TaskType) {
         if let task = task as? CancellableTaskType {
             weak var weakTask = task
             

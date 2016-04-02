@@ -54,12 +54,12 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
         super.init(evaluationClosureAssignmentDeferred: true)
         
         self.evaluationClosure = { [unowned self] result in
-            MutuallyExclusiveTaskCondition.wait(categoryName, condition: self)
+            MutuallyExclusiveTaskCondition.wait(condition: self, categoryName: categoryName)
             result(.Satisfied)
         }
     }
     
-    private static func wait(categoryName: String, condition: MutuallyExclusiveTaskCondition) {
+    private static func wait(condition condition: MutuallyExclusiveTaskCondition, categoryName: String) {
         let dispatch_semaphore: dispatch_semaphore_t
         
         do {
@@ -82,7 +82,7 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
         dispatch_semaphore_wait(dispatch_semaphore, DISPATCH_TIME_FOREVER)
     }
     
-    internal static func signal(categoryName: String, condition: MutuallyExclusiveTaskCondition) {
+    internal static func signal(condition condition: MutuallyExclusiveTaskCondition, categoryName: String) {
         let dispatch_semaphore: dispatch_semaphore_t
         
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)

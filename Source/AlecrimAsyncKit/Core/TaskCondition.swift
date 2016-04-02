@@ -124,10 +124,10 @@ public class TaskCondition {
                     task.finish()
                  
                 case .NotSatisfied:
-                    task.finishWith(error: TaskConditionError.NotSatisfied)
+                    task.finish(withError: TaskConditionError.NotSatisfied)
                     
                 case .Failed(let error):
-                    task.finishWith(error: TaskConditionError.Failed(error))
+                    task.finish(withError: TaskConditionError.Failed(error))
                 }
             }
         }

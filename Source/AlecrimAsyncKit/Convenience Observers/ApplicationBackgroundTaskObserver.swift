@@ -49,7 +49,7 @@
         
         // MARK: -
 
-        public func didFinishTask(task: TaskType) {
+        public func didFinish(task: TaskType) {
             self.endBackgroundTask()
         }
         

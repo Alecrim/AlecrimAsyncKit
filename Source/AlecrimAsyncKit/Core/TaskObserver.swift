@@ -14,36 +14,17 @@ public protocol TaskObserverType {
 }
 
 public protocol TaskWillStartObserverType: TaskObserverType {
-    func willStartTask(task: TaskType)
+    func willStart(task: TaskType)
 }
 
 public protocol TaskDidStartObserverType: TaskObserverType {
-    func didStartTask(task: TaskType)
+    func didStart(task: TaskType)
 }
 
 public protocol TaskWillFinishObserverType: TaskObserverType {
-    func willFinishTask(task: TaskType)
+    func willFinish(task: TaskType)
 }
 
 public protocol TaskDidFinishObserverType: TaskObserverType {
-    func didFinishTask(task: TaskType)
+    func didFinish(task: TaskType)
 }
-
-
-// MARK: - experiments
-
-//public struct TaskCancelledObserver: TaskDidFinishObserverType {
-//    
-//    private let closure: TaskType -> Void
-//    
-//    public init(closure: TaskType -> Void) {
-//        self.closure = closure
-//    }
-//    
-//    public func didFinishTask(task: TaskType) {
-//        if let task = task as? CancellableTaskType where task.cancelled {
-//            closure(task)
-//        }
-//    }
-//    
-//}

@@ -43,7 +43,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
     
     // MARK: -
     
-    private static func asyncWaitForResponse(application application: UIApplication) -> Task<Void> {
+    private static func asyncWaitForResponse(from application: UIApplication) -> Task<Void> {
         return asyncEx { task in
             if application.isRegisteredForRemoteNotifications() {
                 self.status = .Success
@@ -60,7 +60,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
                         
                     case .Error(let error):
                         self.status = .Error(error)
-                        task.finishWith(error: error)
+                        task.finish(withError: error)
                         
                     default:
                         fatalError("Invalid result: \(result).")
@@ -89,7 +89,7 @@ public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
             dependencyTask = staticDependencyTask
         }
         else {
-            dependencyTask = RemoteNotificationPermissionTaskCondition.asyncWaitForResponse(application: application)
+            dependencyTask = RemoteNotificationPermissionTaskCondition.asyncWaitForResponse(from: application)
             self.dynamicType.dependencyTask = dependencyTask
         }
         

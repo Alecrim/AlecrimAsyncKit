@@ -158,7 +158,7 @@ public class TaskOperation: NSOperation, TaskType {
             }
             catch TaskConditionError.Failed(let innerError) {
                 if let task = self as? TaskWithErrorType {
-                    task.finishWith(error: innerError)
+                    task.finish(withError: innerError)
                 }
                 else {
                     self.cancel()
@@ -166,7 +166,7 @@ public class TaskOperation: NSOperation, TaskType {
             }
             catch let error {
                 if let task = self as? TaskWithErrorType {
-                    task.finishWith(error: error)
+                    task.finish(withError: error)
                 }
                 else {
                     self.cancel()
@@ -185,7 +185,7 @@ public class TaskOperation: NSOperation, TaskType {
         self.executing = true
         
         //
-        self.observers?.flatMap({ $0 as? TaskDidStartObserverType }).forEach({ $0.didStartTask(self) })
+        self.observers?.flatMap({ $0 as? TaskDidStartObserverType }).forEach({ $0.didStart(self) })
     }
     
     private var hasFinishedAlready = false
@@ -199,7 +199,7 @@ public class TaskOperation: NSOperation, TaskType {
         self.hasFinishedAlready = true
         
         //
-        self.observers?.flatMap({ $0 as? TaskWillFinishObserverType }).forEach({ $0.willFinishTask(self) })
+        self.observers?.flatMap({ $0 as? TaskWillFinishObserverType }).forEach({ $0.willFinish(self) })
         
         //
         self.ready = false
@@ -207,11 +207,11 @@ public class TaskOperation: NSOperation, TaskType {
         self.finished = true
         
         //
-        self.observers?.flatMap({ $0 as? TaskDidFinishObserverType }).forEach({ $0.didFinishTask(self) })
+        self.observers?.flatMap({ $0 as? TaskDidFinishObserverType }).forEach({ $0.didFinish(self) })
     }
     
     internal final func signalMutuallyExclusiveConditionsIfNeeded() {
-        self.mutuallyExclusiveConditions?.forEach({ MutuallyExclusiveTaskCondition.signal($0.categoryName, condition: $0) })
+        self.mutuallyExclusiveConditions?.forEach({ MutuallyExclusiveTaskCondition.signal(condition: $0, categoryName: $0.categoryName) })
     }
     
     // MARK: -
@@ -243,7 +243,7 @@ public class TaskOperation: NSOperation, TaskType {
     
     public override func main() {
         //
-        self.observers?.flatMap({ $0 as? TaskWillStartObserverType }).forEach({ $0.willStartTask(self) })
+        self.observers?.flatMap({ $0 as? TaskWillStartObserverType }).forEach({ $0.willStart(self) })
 
         //
         if self.cancelled {

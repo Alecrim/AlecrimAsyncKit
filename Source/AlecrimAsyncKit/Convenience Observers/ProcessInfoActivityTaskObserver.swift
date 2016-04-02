@@ -20,11 +20,11 @@ public final class ProcessInfoActivityTaskObserver: TaskDidStartObserverType, Ta
         self.reason = reason
     }
     
-    public func didStartTask(task: TaskType) {
+    public func didStart(task: TaskType) {
         self.activity = NSProcessInfo.processInfo().beginActivityWithOptions(self.options, reason: self.reason)
     }
     
-    public func didFinishTask(task: TaskType) {
+    public func didFinish(task: TaskType) {
         if let activity = self.activity {
             NSProcessInfo.processInfo().endActivity(activity)
             self.activity = nil

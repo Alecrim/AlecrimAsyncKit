@@ -36,11 +36,11 @@ public final class NetworkActivityIndicatorTaskObserver: TaskDidStartObserverTyp
     
     // MARK: - Observer Protocols Conformance
     
-    public func didStartTask(task: TaskType) {
+    public func didStart(task: TaskType) {
         self.increment()
     }
     
-    public func didFinishTask(task: TaskType) {
+    public func didFinish(task: TaskType) {
         self.decrement()
     }
     

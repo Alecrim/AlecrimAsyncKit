@@ -19,9 +19,9 @@ public final class ReachabilityTaskCondition: TaskCondition {
     /// - parameter URL: The URL containing the host to test the reachability.
     ///
     /// - returns: A condition that performs network reachability check.
-    public init(URL: NSURL) {
+    public init(url: NSURL) {
         super.init() { result in
-            if requestReachabilityForURL(URL) {
+            if requestReachability(forURL: url) {
                 result(.Satisfied)
             }
             else {
@@ -36,8 +36,8 @@ public final class ReachabilityTaskCondition: TaskCondition {
     
 private var reachabilityRefs = [String : SCNetworkReachability]()
 
-private func requestReachabilityForURL(URL: NSURL) -> Bool {
-    guard let host = URL.host else { return false }
+private func requestReachability(forURL url: NSURL) -> Bool {
+    guard let host = url.host else { return false }
     
     var ref = reachabilityRefs[host]
     
