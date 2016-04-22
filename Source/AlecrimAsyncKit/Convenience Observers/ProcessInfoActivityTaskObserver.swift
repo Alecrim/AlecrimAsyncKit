@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class ProcessInfoActivityTaskObserver: TaskDidStartObserverType, TaskDidFinishObserverType {
+public final class ProcessInfoActivityTaskObserver: TaskDidStartObserver, TaskDidFinishObserver {
     
     private let options: NSActivityOptions
     private let reason: String
@@ -20,11 +20,11 @@ public final class ProcessInfoActivityTaskObserver: TaskDidStartObserverType, Ta
         self.reason = reason
     }
     
-    public func didStart(task: TaskType) {
+    public func didStart(task: TaskProtocol) {
         self.activity = NSProcessInfo.processInfo().beginActivityWithOptions(self.options, reason: self.reason)
     }
     
-    public func didFinish(task: TaskType) {
+    public func didFinish(task: TaskProtocol) {
         if let activity = self.activity {
             NSProcessInfo.processInfo().endActivity(activity)
             self.activity = nil

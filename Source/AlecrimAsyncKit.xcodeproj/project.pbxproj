@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1413F62E1BDCAE8B001049D5 /* TaskType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1413F62D1BDCAE8B001049D5 /* TaskType.swift */; };
+		1413F62E1BDCAE8B001049D5 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1413F62D1BDCAE8B001049D5 /* Protocols.swift */; };
 		1416E08D1BDC931A00F1EA73 /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */; };
 		142561B51BE31B9D00A4C974 /* TaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142561B41BE31B9D00A4C974 /* TaskOperation.swift */; };
 		143045511BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143045501BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift */; };
@@ -34,7 +34,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1413F62D1BDCAE8B001049D5 /* TaskType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskType.swift; sourceTree = "<group>"; };
+		1413F62D1BDCAE8B001049D5 /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
 		142561B41BE31B9D00A4C974 /* TaskOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskOperation.swift; sourceTree = "<group>"; };
 		143045501BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessInfoActivityTaskObserver.swift; sourceTree = "<group>"; };
@@ -100,12 +100,12 @@
 		148513941B9BD15100FAB0FA /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				1413F62D1BDCAE8B001049D5 /* Protocols.swift */,
+				148513961B9BD15100FAB0FA /* Errors.swift */,
 				148513951B9BD15100FAB0FA /* AsyncAwait.swift */,
-				1413F62D1BDCAE8B001049D5 /* TaskType.swift */,
 				142561B41BE31B9D00A4C974 /* TaskOperation.swift */,
 				148513981B9BD15100FAB0FA /* Task.swift */,
 				14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */,
-				148513961B9BD15100FAB0FA /* Errors.swift */,
 				148513991B9BD15100FAB0FA /* TaskCondition.swift */,
 				1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */,
 				148513971B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift */,
@@ -259,7 +259,7 @@
 				148513A61B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift in Sources */,
 				148513B11B9BD9A500FAB0FA /* TimeoutTaskObserver.swift in Sources */,
 				142561B51BE31B9D00A4C974 /* TaskOperation.swift in Sources */,
-				1413F62E1BDCAE8B001049D5 /* TaskType.swift in Sources */,
+				1413F62E1BDCAE8B001049D5 /* Protocols.swift in Sources */,
 				148513A21B9BD15100FAB0FA /* ReachabilityTaskCondition.swift in Sources */,
 				148513A71B9BD15100FAB0FA /* Task.swift in Sources */,
 				148513A51B9BD15100FAB0FA /* Errors.swift in Sources */,

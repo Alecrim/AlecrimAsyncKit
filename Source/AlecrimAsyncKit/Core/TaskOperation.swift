@@ -17,7 +17,7 @@ private let _conditionEvaluationQueue: NSOperationQueue = {
     return queue
 }()
 
-public class TaskOperation: NSOperation, TaskType {
+public class TaskOperation: NSOperation, TaskProtocol {
     
     private enum StateKey: String {
         case executing = "isExecuting"
@@ -157,7 +157,7 @@ public class TaskOperation: NSOperation, TaskType {
                 self.cancel()
             }
             catch TaskConditionError.failed(let innerError) {
-                if let task = self as? TaskWithErrorType {
+                if let task = self as? TaskWithErrorProtocol {
                     task.finish(with: innerError)
                 }
                 else {
@@ -165,7 +165,7 @@ public class TaskOperation: NSOperation, TaskType {
                 }
             }
             catch let error {
-                if let task = self as? TaskWithErrorType {
+                if let task = self as? TaskWithErrorProtocol {
                     task.finish(with: error)
                 }
                 else {
@@ -185,7 +185,7 @@ public class TaskOperation: NSOperation, TaskType {
         self.executing = true
         
         //
-        self.observers?.flatMap({ $0 as? TaskDidStartObserverType }).forEach({ $0.didStart(self) })
+        self.observers?.flatMap({ $0 as? TaskDidStartObserver }).forEach({ $0.didStart(self) })
     }
     
     private var hasFinishedAlready = false
@@ -199,7 +199,7 @@ public class TaskOperation: NSOperation, TaskType {
         self.hasFinishedAlready = true
         
         //
-        self.observers?.flatMap({ $0 as? TaskWillFinishObserverType }).forEach({ $0.willFinish(self) })
+        self.observers?.flatMap({ $0 as? TaskWillFinishObserver }).forEach({ $0.willFinish(self) })
         
         //
         self.ready = false
@@ -207,7 +207,7 @@ public class TaskOperation: NSOperation, TaskType {
         self.finished = true
         
         //
-        self.observers?.flatMap({ $0 as? TaskDidFinishObserverType }).forEach({ $0.didFinish(self) })
+        self.observers?.flatMap({ $0 as? TaskDidFinishObserver }).forEach({ $0.didFinish(self) })
     }
     
     internal final func signalMutuallyExclusiveConditionsIfNeeded() {
@@ -217,10 +217,10 @@ public class TaskOperation: NSOperation, TaskType {
     // MARK: -
     
     private let conditions: [TaskCondition]?
-    private let observers: [TaskObserverType]?
+    private let observers: [TaskObserver]?
     private let __asynchronous: Bool
 
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool) {
         self.conditions = conditions
         self.observers = observers
         self.__asynchronous = asynchronous
@@ -243,7 +243,7 @@ public class TaskOperation: NSOperation, TaskType {
     
     public override func main() {
         //
-        self.observers?.flatMap({ $0 as? TaskWillStartObserverType }).forEach({ $0.willStart(self) })
+        self.observers?.flatMap({ $0 as? TaskWillStartObserver }).forEach({ $0.willStart(self) })
 
         //
         if self.cancelled {

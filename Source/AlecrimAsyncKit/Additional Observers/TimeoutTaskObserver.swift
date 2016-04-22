@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct TimeoutTaskObserver: TaskWillStartObserverType {
+public struct TimeoutTaskObserver: TaskWillStartObserver {
     
     private let timeout: NSTimeInterval
 
@@ -16,8 +16,8 @@ public struct TimeoutTaskObserver: TaskWillStartObserverType {
         self.timeout = timeout
     }
 
-    public func willStart(task: TaskType) {
-        if let task = task as? CancellableTaskType {
+    public func willStart(task: TaskProtocol) {
+        if let task = task as? CancellableTask {
             weak var weakTask = task
             
             let when = dispatch_time(DISPATCH_TIME_NOW, Int64(timeout * Double(NSEC_PER_SEC)))

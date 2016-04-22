@@ -10,21 +10,21 @@ import Foundation
 
 // MARK: -
 
-public protocol TaskObserverType {
+public protocol TaskObserver {
 }
 
-public protocol TaskWillStartObserverType: TaskObserverType {
-    func willStart(task: TaskType)
+public protocol TaskWillStartObserver: TaskObserver {
+    func willStart(task: TaskProtocol)
 }
 
-public protocol TaskDidStartObserverType: TaskObserverType {
-    func didStart(task: TaskType)
+public protocol TaskDidStartObserver: TaskObserver {
+    func didStart(task: TaskProtocol)
 }
 
-public protocol TaskWillFinishObserverType: TaskObserverType {
-    func willFinish(task: TaskType)
+public protocol TaskWillFinishObserver: TaskObserver {
+    func willFinish(task: TaskProtocol)
 }
 
-public protocol TaskDidFinishObserverType: TaskObserverType {
-    func didFinish(task: TaskType)
+public protocol TaskDidFinishObserver: TaskObserver {
+    func didFinish(task: TaskProtocol)
 }

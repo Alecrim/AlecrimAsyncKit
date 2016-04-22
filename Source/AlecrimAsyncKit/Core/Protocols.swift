@@ -1,5 +1,5 @@
 //
-//  TaskType.swift
+//  Protocols.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-10-25.
@@ -8,46 +8,46 @@
 
 import Foundation
 
-public protocol TaskType: class {
+public protocol TaskProtocol: class {
     func waitUntilFinished()
 }
 
-internal protocol InitializableTaskType: TaskType {
-    init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool, closure: (Self) -> Void)
+internal protocol InitializableTask: TaskProtocol {
+    init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Self) -> Void)
 }
 
-public protocol CancellableTaskType: TaskType {
+public protocol CancellableTask: TaskProtocol {
     var cancelled: Bool { get }
     var cancellationHandler: (() -> Void)? { get set }
     
     func cancel()
 }
 
-public protocol TaskWithErrorType: TaskType {
+public protocol TaskWithErrorProtocol: TaskProtocol {
     var error: ErrorType? { get }
     func finish(with error: ErrorType)
 }
 
-public protocol TaskWithValueType: TaskType {
+public protocol TaskWithValueProtocol: TaskProtocol {
     associatedtype ValueType
     
     var value: Self.ValueType! { get }
     func finish(with value: Self.ValueType)
 }
 
-public protocol FailableTaskType: CancellableTaskType, TaskWithValueType, TaskWithErrorType {
+public protocol FailableTaskProtocol: CancellableTask, TaskWithValueProtocol, TaskWithErrorProtocol {
     func finish(with value: Self.ValueType!, or error: ErrorType?)
 }
 
-public protocol NonFailableTaskType: TaskWithValueType {
+public protocol NonFailableTaskProtocol: TaskWithValueProtocol {
 
 }
 
 // MARK: -
 
-extension CancellableTaskType {
+extension CancellableTask {
     
-    public func forwardCancellation(to task: CancellableTaskType) -> Self {
+    public func forwardCancellation(to task: CancellableTask) -> Self {
         self.cancellationHandler = { [weak task] in
             task?.cancel()
         }
@@ -55,7 +55,7 @@ extension CancellableTaskType {
         return self
     }
     
-    public func inheritCancellation(from task: CancellableTaskType) -> Self {
+    public func inheritCancellation(from task: CancellableTask) -> Self {
         task.forwardCancellation(to: self)
         
         return self
@@ -65,7 +65,7 @@ extension CancellableTaskType {
 
 // MARK: -
 
-extension TaskWithValueType where Self.ValueType == Void {
+extension TaskWithValueProtocol where Self.ValueType == Void {
     
     public func finish() {
         self.finish(with: ())
@@ -75,7 +75,7 @@ extension TaskWithValueType where Self.ValueType == Void {
 
 // MARK: -
 
-extension FailableTaskType {
+extension FailableTaskProtocol {
     
     public func finish(with value: Self.ValueType!, or error: ErrorType?) {
         if let error = error {
@@ -86,7 +86,7 @@ extension FailableTaskType {
         }
     }
     
-    public func `continue`<T: FailableTaskType where T.ValueType == Self.ValueType>(withTask task: T, inheritCancellation: Bool = true) {
+    public func `continue`<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(withTask task: T, inheritCancellation: Bool = true) {
         if inheritCancellation {
             task.inheritCancellation(from: self)
         }
@@ -99,9 +99,9 @@ extension FailableTaskType {
 
 // MARK: -
 
-extension NonFailableTaskType {
+extension NonFailableTaskProtocol {
     
-    public func `continue`<T: NonFailableTaskType where T.ValueType == Self.ValueType>(withTask task: T) {
+    public func `continue`<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(withTask task: T) {
         task.waitUntilFinished()
         self.finish(with: task.value)
     }

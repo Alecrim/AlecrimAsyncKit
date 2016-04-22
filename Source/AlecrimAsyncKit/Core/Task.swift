@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class BaseTask<V>: TaskOperation, TaskWithValueType {
+public class BaseTask<V>: TaskOperation, TaskWithValueProtocol {
 
     // MARK: -
     
@@ -69,7 +69,7 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
     
     private final var closure: (() -> Void)?
     
-    private override init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool) {
+    private override init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
     }
     
@@ -88,7 +88,7 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
 
 }
 
-public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType {
+public final class Task<V>: BaseTask<V>, InitializableTask, FailableTaskProtocol {
     
     // MARK: -
 
@@ -181,7 +181,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     
     // MARK: -
     
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool, closure: (Task<V>) -> Void) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Task<V>) -> Void) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
         
         self.closure = { [unowned self] in
@@ -191,9 +191,9 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     
 }
 
-public final class NonFailableTask<V>: BaseTask<V>, InitializableTaskType, NonFailableTaskType {
+public final class NonFailableTask<V>: BaseTask<V>, InitializableTask, NonFailableTaskProtocol {
 
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserverType]?, asynchronous: Bool, closure: (NonFailableTask<V>) -> Void) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (NonFailableTask<V>) -> Void) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
         
         self.closure = { [unowned self] in
@@ -213,20 +213,20 @@ public final class NonFailableTask<V>: BaseTask<V>, InitializableTaskType, NonFa
 
 private final class TaskProgress: NSProgress {
     
-    private unowned let task: TaskType
+    private unowned let task: TaskProtocol
     
-    private init(task: TaskType) {
+    private init(task: TaskProtocol) {
         self.task = task
         super.init(parent: nil, userInfo: nil)
         
         self.totalUnitCount = 1
-        self.cancellable = self.task is CancellableTaskType
+        self.cancellable = self.task is CancellableTask
     }
     
     //
     private override var cancellationHandler: (() -> Void)? {
         get {
-            if let cancellableTask = self.task as? CancellableTaskType {
+            if let cancellableTask = self.task as? CancellableTask {
                 return cancellableTask.cancellationHandler
             }
             else {
@@ -234,7 +234,7 @@ private final class TaskProgress: NSProgress {
             }
         }
         set {
-            if let cancellableTask = self.task as? CancellableTaskType {
+            if let cancellableTask = self.task as? CancellableTask {
                 cancellableTask.cancellationHandler = newValue
             }
             else {
@@ -246,7 +246,7 @@ private final class TaskProgress: NSProgress {
     private override func cancel() {
         super.cancel()
         
-        if let cancellableTask = self.task as? CancellableTaskType {
+        if let cancellableTask = self.task as? CancellableTask {
             cancellableTask.cancel()
         }
     }

@@ -11,7 +11,7 @@
     import Foundation
     
     /// A task observer that will automatically begin and end a *background task* if the application transitions to the background.
-    public final class ApplicationBackgroundTaskObserver: TaskDidFinishObserverType {
+    public final class ApplicationBackgroundTaskObserver: TaskDidFinishObserver {
         
         private let application: UIApplication
         private var isInBackground = false
@@ -49,7 +49,7 @@
         
         // MARK: -
 
-        public func didFinish(task: TaskType) {
+        public func didFinish(task: TaskProtocol) {
             self.endBackgroundTask()
         }
         
