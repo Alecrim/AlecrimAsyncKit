@@ -24,9 +24,9 @@ private let _defaultTaskConditionQueue: NSOperationQueue = {
 /// - NotSatisfied: The condition was not satisfied.
 /// - Failed:       An error was occurred while evaluating the condition.
 public enum TaskConditionResult {
-    case Satisfied
-    case NotSatisfied
-    case Failed(ErrorType)
+    case satisfied
+    case notSatisfied
+    case failed(ErrorType)
 }
 
 /// A condition determines if a task can be executed or not.
@@ -117,17 +117,17 @@ public class TaskCondition {
     }
     
     internal func asyncEvaluate() -> Task<Void> {
-        return asyncEx(queue: _defaultTaskConditionQueue) { [unowned self] task in
+        return asyncEx(in: _defaultTaskConditionQueue) { [unowned self] task in
             self.evaluationClosure { conditionResult in
                 switch conditionResult {
-                case .Satisfied:
+                case .satisfied:
                     task.finish()
                  
-                case .NotSatisfied:
-                    task.finish(withError: TaskConditionError.NotSatisfied)
+                case .notSatisfied:
+                    task.finish(with: TaskConditionError.notSatisfied)
                     
-                case .Failed(let error):
-                    task.finish(withError: TaskConditionError.Failed(error))
+                case .failed(let error):
+                    task.finish(with: TaskConditionError.failed(error))
                 }
             }
         }
@@ -138,7 +138,7 @@ public class TaskCondition {
 extension TaskCondition {
     
     internal static func asyncEvaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
-        return async(queue: _defaultTaskConditionQueue) {
+        return async(in: _defaultTaskConditionQueue) {
             for condition in conditions {
                 if let subconditions = condition.subconditions where !subconditions.isEmpty {
                     try await(TaskCondition.asyncEvaluateConditions(subconditions))

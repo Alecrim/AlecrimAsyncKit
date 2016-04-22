@@ -26,7 +26,7 @@ public final class EventStorePermissionTaskCondition: TaskCondition {
                 dispatch_async(dispatch_get_main_queue()) {
                     _sharedEventStore.requestAccessToEntityType(entityType) { _, error in
                         if let error = error {
-                            task.finish(withError: error)
+                            task.finish(with: error)
                         }
                         else {
                             task.finish()
@@ -49,10 +49,10 @@ public final class EventStorePermissionTaskCondition: TaskCondition {
         super.init(dependencyTask: EventStorePermissionTaskCondition.asyncRequestAuthorization(entityType: entityType)) { result in
             switch EKEventStore.authorizationStatusForEntityType(entityType) {
             case .Authorized:
-                result(.Satisfied)
+                result(.satisfied)
                 
             default:
-                result(.NotSatisfied)
+                result(.notSatisfied)
             }
         }
     }

@@ -31,7 +31,7 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
     
     public private(set) final var value: V!
     
-    public func finish(withValue value: V) {
+    public func finish(with value: V) {
         self.willAccessValue()
         defer {
             self.didAccessValue()
@@ -150,7 +150,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     
     public private(set) var error: ErrorType?
     
-    public override func finish(withValue value: V) {
+    public override func finish(with value: V) {
         self.willAccessValue()
         defer {
             self.didAccessValue()
@@ -167,7 +167,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
         self.value = value
     }
     
-    public func finish(withError error: ErrorType) {
+    public func finish(with error: ErrorType) {
         self.willAccessValue()
         defer {
             self.didAccessValue()

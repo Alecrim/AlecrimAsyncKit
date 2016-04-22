@@ -25,18 +25,18 @@ public protocol CancellableTaskType: TaskType {
 
 public protocol TaskWithErrorType: TaskType {
     var error: ErrorType? { get }
-    func finish(withError error: ErrorType)
+    func finish(with error: ErrorType)
 }
 
 public protocol TaskWithValueType: TaskType {
     associatedtype ValueType
     
     var value: Self.ValueType! { get }
-    func finish(withValue value: Self.ValueType)
+    func finish(with value: Self.ValueType)
 }
 
 public protocol FailableTaskType: CancellableTaskType, TaskWithValueType, TaskWithErrorType {
-    func finish(withValue value: Self.ValueType!, orError error: ErrorType?)
+    func finish(with value: Self.ValueType!, or error: ErrorType?)
 }
 
 public protocol NonFailableTaskType: TaskWithValueType {
@@ -68,7 +68,7 @@ extension CancellableTaskType {
 extension TaskWithValueType where Self.ValueType == Void {
     
     public func finish() {
-        self.finish(withValue: ())
+        self.finish(with: ())
     }
     
 }
@@ -77,12 +77,12 @@ extension TaskWithValueType where Self.ValueType == Void {
 
 extension FailableTaskType {
     
-    public func finish(withValue value: Self.ValueType!, orError error: ErrorType?) {
+    public func finish(with value: Self.ValueType!, or error: ErrorType?) {
         if let error = error {
-            self.finish(withError: error)
+            self.finish(with: error)
         }
         else {
-            self.finish(withValue: value)
+            self.finish(with: value)
         }
     }
     
@@ -92,7 +92,7 @@ extension FailableTaskType {
         }
         
         task.waitUntilFinished()
-        self.finish(withValue: task.value, orError: task.error)
+        self.finish(with: task.value, or: task.error)
     }
     
 }
@@ -103,7 +103,7 @@ extension NonFailableTaskType {
     
     public func `continue`<T: NonFailableTaskType where T.ValueType == Self.ValueType>(withTask task: T) {
         task.waitUntilFinished()
-        self.finish(withValue: task.value)
+        self.finish(with: task.value)
     }
     
 }

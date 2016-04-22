@@ -29,7 +29,7 @@ public final class DelayTaskCondition: TaskCondition {
             
             dispatch_source_set_event_handler(timer) {
                 dispatch_source_cancel(timer)
-                result(.Satisfied)
+                result(.satisfied)
             }
             
             dispatch_resume(timer)

@@ -39,10 +39,10 @@ public final class PhotosPermissionTaskCondition: TaskCondition {
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()
             
             if case .Authorized = authorizationStatus {
-                result(.Satisfied)
+                result(.satisfied)
             }
             else {
-                result(.NotSatisfied)
+                result(.notSatisfied)
             }
         }
     }

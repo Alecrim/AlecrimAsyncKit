@@ -24,27 +24,27 @@ public typealias TaskPriority = NSOperationQueuePriority
 // MARK: - async
 
 @warn_unused_result
-public func async<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserverType]? = nil, closure: () -> V) -> NonFailableTask<V> {
+public func async<V>(in queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserverType]? = nil, closure: () -> V) -> NonFailableTask<V> {
     return createdTask(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: false) { task in
         let value = closure()
-        task.finish(withValue: value)
+        task.finish(with: value)
     }
 }
 
 @warn_unused_result
-public func async<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, condition: TaskCondition, observers: [TaskObserverType]? = nil, closure: () throws -> V) -> Task<V> {
-    return async(queue: queue, qualityOfService: qualityOfService, conditions: [condition], taskPriority: taskPriority, observers: observers, closure: closure)
+public func async<V>(in queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, condition: TaskCondition, observers: [TaskObserverType]? = nil, closure: () throws -> V) -> Task<V> {
+    return async(in: queue, qualityOfService: qualityOfService, conditions: [condition], taskPriority: taskPriority, observers: observers, closure: closure)
 }
 
 @warn_unused_result
-public func async<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserverType]? = nil, closure: () throws -> V) -> Task<V> {
+public func async<V>(in queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserverType]? = nil, closure: () throws -> V) -> Task<V> {
     return createdTask(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: false) { task in
         do {
             let value = try closure()
-            task.finish(withValue: value)
+            task.finish(with: value)
         }
         catch let error {
-            task.finish(withError: error)
+            task.finish(with: error)
         }
     }
 }
@@ -52,18 +52,18 @@ public func async<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityO
 // MARK: - asyncEx
 
 @warn_unused_result
-public func asyncEx<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserverType]? = nil, closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
+public func asyncEx<V>(in queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserverType]? = nil, closure: (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
     return createdTask(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: true, closure: closure)
 }
 
 @warn_unused_result
-public func asyncEx<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, condition: TaskCondition, observers: [TaskObserverType]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
-    return asyncEx(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: [condition], observers: observers, closure: closure)
+public func asyncEx<V>(in queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, condition: TaskCondition, observers: [TaskObserverType]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
+    return asyncEx(in: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: [condition], observers: observers, closure: closure)
 }
 
 
 @warn_unused_result
-public func asyncEx<V>(queue queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserverType]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
+public func asyncEx<V>(in queue: NSOperationQueue = _defaultTaskQueue, qualityOfService: NSQualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserverType]? = nil, closure: (Task<V>) -> Void) -> Task<V> {
     return createdTask(queue: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: true, closure: closure)
 }
 

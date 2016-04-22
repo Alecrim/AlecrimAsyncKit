@@ -19,10 +19,10 @@ public final class BooleanTaskCondition: TaskCondition {
     public init(@autoclosure(escaping) _ valueClosure: () -> Bool) {
         super.init() { result in
             if valueClosure() {
-                result(.Satisfied)
+                result(.satisfied)
             }
             else {
-                result(.NotSatisfied)
+                result(.notSatisfied)
             }
         }
     }

@@ -20,9 +20,9 @@ private let _conditionEvaluationQueue: NSOperationQueue = {
 public class TaskOperation: NSOperation, TaskType {
     
     private enum StateKey: String {
-        case Executing = "isExecuting"
-        case Finished = "isFinished"
-        case Ready = "isReady"
+        case executing = "isExecuting"
+        case finished = "isFinished"
+        case ready = "isReady"
     }
 
     // MARK: -
@@ -76,8 +76,8 @@ public class TaskOperation: NSOperation, TaskType {
             let oldValue: Bool
             
             do {
-                self.willChangeValueForStateKey(.Executing)
-                defer { self.didChangeValueForStateKey(.Executing) }
+                self.willChangeValueForStateKey(.executing)
+                defer { self.didChangeValueForStateKey(.executing) }
                 
                 oldValue = self.__executing
                 self.__executing = newValue
@@ -98,8 +98,8 @@ public class TaskOperation: NSOperation, TaskType {
             return self.__finished
         }
         set {
-            self.willChangeValueForStateKey(.Finished)
-            defer { self.didChangeValueForStateKey(.Finished) }
+            self.willChangeValueForStateKey(.finished)
+            defer { self.didChangeValueForStateKey(.finished) }
             
             self.__finished = newValue
         }
@@ -114,8 +114,8 @@ public class TaskOperation: NSOperation, TaskType {
             return self.__ready
         }
         set {
-            self.willChangeValueForStateKey(.Ready)
-            defer { self.didChangeValueForStateKey(.Ready) }
+            self.willChangeValueForStateKey(.ready)
+            defer { self.didChangeValueForStateKey(.ready) }
             
             self.__ready = newValue
         }
@@ -153,12 +153,12 @@ public class TaskOperation: NSOperation, TaskType {
                     try await(TaskCondition.asyncEvaluateConditions(conditions))
                 }
             }
-            catch TaskConditionError.NotSatisfied {
+            catch TaskConditionError.notSatisfied {
                 self.cancel()
             }
-            catch TaskConditionError.Failed(let innerError) {
+            catch TaskConditionError.failed(let innerError) {
                 if let task = self as? TaskWithErrorType {
-                    task.finish(withError: innerError)
+                    task.finish(with: innerError)
                 }
                 else {
                     self.cancel()
@@ -166,7 +166,7 @@ public class TaskOperation: NSOperation, TaskType {
             }
             catch let error {
                 if let task = self as? TaskWithErrorType {
-                    task.finish(withError: error)
+                    task.finish(with: error)
                 }
                 else {
                     self.cancel()

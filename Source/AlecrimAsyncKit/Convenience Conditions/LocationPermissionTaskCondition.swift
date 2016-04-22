@@ -15,8 +15,8 @@ import CoreLocation
 public final class LocationPermissionTaskCondition: TaskCondition {
     
     public enum Usage {
-        case WhenInUse
-        case Always
+        case whenInUse
+        case always
     }
     
     private static func asyncRequestAuthorizationIfNeeded(usage usage: LocationPermissionTaskCondition.Usage) -> Task<Void> {
@@ -26,7 +26,7 @@ public final class LocationPermissionTaskCondition: TaskCondition {
             need to handle the "upgrade" (.WhenInUse -> .Always) case.
             */
             switch (CLLocationManager.authorizationStatus(), usage) {
-            case (.NotDetermined, _), (.AuthorizedWhenInUse, .Always):
+            case (.NotDetermined, _), (.AuthorizedWhenInUse, .always):
                 let locationManager = LocationManager()
                 locationManager.didChangeAuthorizationStatusClosure = { status in
                     task.finish()
@@ -35,13 +35,13 @@ public final class LocationPermissionTaskCondition: TaskCondition {
                 let key: String
                 
                 switch usage {
-                case .WhenInUse:
+                case .whenInUse:
                     key = "NSLocationWhenInUseUsageDescription"
                     dispatch_async(dispatch_get_main_queue()) {
                         locationManager.requestWhenInUseAuthorization()
                     }
                     
-                case .Always:
+                case .always:
                     key = "NSLocationAlwaysUsageDescription"
                     dispatch_async(dispatch_get_main_queue()) {
                         locationManager.requestAlwaysAuthorization()
@@ -72,11 +72,11 @@ public final class LocationPermissionTaskCondition: TaskCondition {
             switch (enabled, usage, actual) {
             case (true, _, .AuthorizedAlways):
                 // The service is enabled, and we have "Always" permission -> condition satisfied.
-                result(.Satisfied)
+                result(.satisfied)
                 
-            case (true, .WhenInUse, .AuthorizedWhenInUse):
+            case (true, .whenInUse, .AuthorizedWhenInUse):
                 // The service is enabled, and we have and need "WhenInUse" permission -> condition satisfied.
-                result(.Satisfied)
+                result(.satisfied)
                 
             default:
                 /*
@@ -87,7 +87,7 @@ public final class LocationPermissionTaskCondition: TaskCondition {
                 
                 The last case would happen if this condition were wrapped in a `SilentCondition`.
                 */
-                result(.NotSatisfied)
+                result(.notSatisfied)
             }
         }
     }

@@ -55,7 +55,7 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
         
         self.evaluationClosure = { [unowned self] result in
             MutuallyExclusiveTaskCondition.wait(condition: self, categoryName: categoryName)
-            result(.Satisfied)
+            result(.satisfied)
         }
     }
     

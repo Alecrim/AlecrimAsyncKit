@@ -24,7 +24,7 @@ public final class NegateTaskCondition: TaskCondition {
         return asyncEx { task in
             do {
                 try await(super.asyncEvaluate())
-                task.finish(withError: TaskConditionError.NotSatisfied)
+                task.finish(with: TaskConditionError.notSatisfied)
             }
             catch {
                 task.finish()
