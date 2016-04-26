@@ -86,7 +86,7 @@ extension FailableTaskProtocol {
         }
     }
     
-    public func `continue`<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(withTask task: T, inheritCancellation: Bool = true) {
+    public func `continue`<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T, inheritCancellation: Bool = true) {
         if inheritCancellation {
             task.inheritCancellation(from: self)
         }
@@ -101,7 +101,7 @@ extension FailableTaskProtocol {
 
 extension NonFailableTaskProtocol {
     
-    public func `continue`<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(withTask task: T) {
+    public func `continue`<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T) {
         task.waitUntilFinished()
         self.finish(with: task.value)
     }
