@@ -31,6 +31,7 @@
 		148513B11B9BD9A500FAB0FA /* TimeoutTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513B01B9BD9A500FAB0FA /* TimeoutTaskObserver.swift */; };
 		14C290401BDE544B006F1BB3 /* TaskAwaiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */; };
 		14E585BF1B7803EC003EC4DC /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		14FEAD181CEEC0BC007BA09F /* ObjectValueTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FEAD171CEEC0BC007BA09F /* ObjectValueTaskCondition.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,6 +61,7 @@
 		14E585BB1B7803EC003EC4DC /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AlecrimAsyncKit.h; sourceTree = "<group>"; };
 		14E585C01B7803EC003EC4DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		14FEAD171CEEC0BC007BA09F /* ObjectValueTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectValueTaskCondition.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +82,7 @@
 				1485138C1B9BD15100FAB0FA /* DelayTaskCondition.swift */,
 				1485138D1B9BD15100FAB0FA /* NegateTaskCondition.swift */,
 				1485138E1B9BD15100FAB0FA /* SilentTaskCondition.swift */,
+				14FEAD171CEEC0BC007BA09F /* ObjectValueTaskCondition.swift */,
 			);
 			path = "Additional Conditions";
 			sourceTree = "<group>";
@@ -268,6 +271,7 @@
 				1485139D1B9BD15100FAB0FA /* DelayTaskCondition.swift in Sources */,
 				1485139F1B9BD15100FAB0FA /* SilentTaskCondition.swift in Sources */,
 				1416E08D1BDC931A00F1EA73 /* TaskObserver.swift in Sources */,
+				14FEAD181CEEC0BC007BA09F /* ObjectValueTaskCondition.swift in Sources */,
 				14749B861B9C4DA300661E98 /* BooleanTaskCondition.swift in Sources */,
 				148513AC1B9BD19700FAB0FA /* NetworkActivityIndicatorTaskObserver.swift in Sources */,
 				14749B841B9C437700661E98 /* EventStorePermissionTaskCondition.swift in Sources */,
