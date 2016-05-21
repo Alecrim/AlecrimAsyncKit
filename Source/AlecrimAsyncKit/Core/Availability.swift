@@ -1,5 +1,5 @@
 //
-//  Compatibility.swift
+//  Availability.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2016-05-21.
@@ -70,12 +70,12 @@ public final class ProcessInfoActivityTaskObserver {}
     extension UIApplication {
         
         @available(*, unavailable, renamed="applicationBackgroundObserver")
-        public func applicationBackgroundTaskObserver() -> ApplicationBackgroundObserver {
+        public final func applicationBackgroundTaskObserver() -> ApplicationBackgroundObserver {
             fatalError()
         }
         
         @available(*, unavailable, renamed="networkActivity")
-        public func networkActivityIndicatorTaskObserver() -> NetworkActivityIndicatorObserver {
+        public final func networkActivityIndicatorTaskObserver() -> NetworkActivityIndicatorObserver {
             fatalError()
         }
         
@@ -84,5 +84,32 @@ public final class ProcessInfoActivityTaskObserver {}
 #endif
 
 
+// MARK: -
 
+extension Task {
+    
+    @available(*, unavailable, renamed="finish")
+    public final func finishWithValue(value: V) {
+        fatalError()
+    }
 
+    @available(*, unavailable, renamed="finish")
+    public final func finishWithError(error: ErrorType) {
+        fatalError()
+    }
+
+    @available(*, unavailable, renamed="finish")
+    public final func finishWithValue(value: V!, error: ErrorType?) {
+        fatalError()
+    }
+    
+}
+
+extension NonFailableTask {
+
+    @available(*, unavailable, renamed="finish")
+    public final func finishWithValue(value: V) {
+        fatalError()
+    }
+
+}
