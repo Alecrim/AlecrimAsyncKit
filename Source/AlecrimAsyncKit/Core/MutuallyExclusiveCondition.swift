@@ -1,5 +1,5 @@
 //
-//  MutuallyExclusiveTaskCondition.swift
+//  MutuallyExclusiveCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-04.
@@ -18,14 +18,16 @@ private final class Semaphore {
     }
 }
 
+public let MutuallyExclusiveAlertCondition = MutuallyExclusiveCondition(category: .alert)
+
 /// A condition for describing kinds of operations that may not execute concurrently.
-public final class MutuallyExclusiveTaskCondition: TaskCondition {
+public final class MutuallyExclusiveCondition: TaskCondition {
 
     /// An enumeration with the default categories used by the condition.
     ///
     /// - Alert: The category that represents a potential modal alert to the user.
-    public enum DefaultCategory: String {
-        case Alert = "_CAAAK.METC.DC.Alert"
+    private enum Category: String {
+        case alert = "_CAAAK.METC.DC.Alert"
     }
 
     private static var spinlock = OS_SPINLOCK_INIT
@@ -40,8 +42,8 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
     /// - parameter defaultCategory: The default category enumeration member that will define the condition exclusivity group.
     ///
     /// - returns: A condition for describing kinds of operations that may not execute concurrently.
-    public convenience init(category defaultCategory: MutuallyExclusiveTaskCondition.DefaultCategory) {
-        self.init(name: defaultCategory.rawValue)
+    private convenience init(category: MutuallyExclusiveCondition.Category) {
+        self.init(name: category.rawValue)
     }
     
     /// Initializes a condition for describing kinds of operations that may not execute concurrently.
@@ -54,12 +56,12 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
         super.init(evaluationClosureAssignmentDeferred: true)
         
         self.evaluationClosure = { [unowned self] result in
-            MutuallyExclusiveTaskCondition.wait(condition: self, categoryName: categoryName)
+            MutuallyExclusiveCondition.wait(for: self, categoryName: categoryName)
             result(.satisfied)
         }
     }
     
-    private static func wait(condition condition: MutuallyExclusiveTaskCondition, categoryName: String) {
+    private static func wait(for condition: MutuallyExclusiveCondition, categoryName: String) {
         let dispatch_semaphore: dispatch_semaphore_t
         
         do {
@@ -82,7 +84,7 @@ public final class MutuallyExclusiveTaskCondition: TaskCondition {
         dispatch_semaphore_wait(dispatch_semaphore, DISPATCH_TIME_FOREVER)
     }
     
-    internal static func signal(condition condition: MutuallyExclusiveTaskCondition, categoryName: String) {
+    internal static func signal(condition condition: MutuallyExclusiveCondition, categoryName: String) {
         let dispatch_semaphore: dispatch_semaphore_t
         
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)

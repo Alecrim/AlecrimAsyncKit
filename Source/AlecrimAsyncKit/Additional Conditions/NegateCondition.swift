@@ -1,5 +1,5 @@
 //
-//  NegateTaskCondition.swift
+//  NegateCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-04.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// A simple condition that negates the evaluation of another condition.
-public final class NegateTaskCondition: TaskCondition {
+public final class NegateCondition: TaskCondition {
     
     /// Initializes a condition that negates the evaluation of another condition.
     ///

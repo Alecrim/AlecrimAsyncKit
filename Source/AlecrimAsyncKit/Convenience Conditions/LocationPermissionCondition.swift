@@ -1,5 +1,5 @@
 //
-//  LocationPermissionTaskCondition.swift
+//  LocationPermissionCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-09-05.
@@ -12,15 +12,16 @@ import Foundation
 import CoreLocation
 
 /// A condition for verifying access to the user's location.
-public final class LocationPermissionTaskCondition: TaskCondition {
+public final class LocationPermissionCondition: TaskCondition {
     
     public enum Usage {
         case whenInUse
         case always
     }
     
-    private static func asyncRequestAuthorizationIfNeeded(usage usage: LocationPermissionTaskCondition.Usage) -> Task<Void> {
-        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(category: .Alert)]) { task in
+    @warn_unused_result
+    private static func requestAuthorizationIfNeeded(usage usage: LocationPermissionCondition.Usage) -> Task<Void> {
+        return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
             /*
             Not only do we need to handle the "Not Determined" case, but we also
             need to handle the "upgrade" (.WhenInUse -> .Always) case.
@@ -63,8 +64,8 @@ public final class LocationPermissionTaskCondition: TaskCondition {
     /// - parameter usage: The needed usage (when app is in use only or always).
     ///
     /// - returns: A condition for verifying access to the user's location.
-    public init(usage: LocationPermissionTaskCondition.Usage) {
-        super.init(dependencyTask: LocationPermissionTaskCondition.asyncRequestAuthorizationIfNeeded(usage: usage)) { result in
+    public init(usage: LocationPermissionCondition.Usage) {
+        super.init(dependencyTask: LocationPermissionCondition.requestAuthorizationIfNeeded(usage: usage)) { result in
             let enabled = CLLocationManager.locationServicesEnabled()
             let actual = CLLocationManager.authorizationStatus()
             

@@ -1,5 +1,5 @@
 //
-//  NetworkActivityIndicatorTaskObserver.swift
+//  NetworkActivityIndicatorObserver.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-15.
@@ -14,13 +14,13 @@ import Foundation
 
 // MARK: - Handler Protocol
 
-public protocol NetworkActivityIndicatorHandlerType: class {
+public protocol NetworkActivityIndicatorHandler: class {
     var networkActivityIndicatorVisible: Bool { get set }
 }
 
 // MARK: - Observer
 
-public final class NetworkActivityIndicatorTaskObserver: TaskDidStartObserver, TaskDidFinishObserver {
+public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskDidFinishObserver {
 
     // MARK: - Public Properties
     
@@ -32,7 +32,7 @@ public final class NetworkActivityIndicatorTaskObserver: TaskDidStartObserver, T
     private var activityCountSpinLock = OS_SPINLOCK_INIT
     private var activityCount: Int = 0
     
-    private unowned let networkActivityIndicatorHandler: NetworkActivityIndicatorHandlerType
+    private unowned let networkActivityIndicatorHandler: NetworkActivityIndicatorHandler
     
     // MARK: - Observer Protocols Conformance
     
@@ -46,7 +46,7 @@ public final class NetworkActivityIndicatorTaskObserver: TaskDidStartObserver, T
     
     // MARK: - Initializer
     
-    public init(handler networkActivityIndicatorHandler: NetworkActivityIndicatorHandlerType) {
+    public init(handler networkActivityIndicatorHandler: NetworkActivityIndicatorHandler) {
         assert(!networkActivityIndicatorHandler.networkActivityIsAssigned, "There can be only one NetworkActivityIndicatorTaskObserver associated to a NetworkActivityIndicatorHandlerType instance.")
 
         self.networkActivityIndicatorHandler = networkActivityIndicatorHandler
@@ -109,12 +109,12 @@ public final class NetworkActivityIndicatorTaskObserver: TaskDidStartObserver, T
 
 // MARK: - Convenience Operators
 
-public postfix func ++(networkActivityIndicatorTaskObserver: NetworkActivityIndicatorTaskObserver) {
-    networkActivityIndicatorTaskObserver.increment()
+public postfix func ++(networkActivityObserver: NetworkActivityIndicatorObserver) {
+    networkActivityObserver.increment()
 }
 
-public postfix func --(networkActivityIndicatorTaskObserver: NetworkActivityIndicatorTaskObserver) {
-    networkActivityIndicatorTaskObserver.decrement()
+public postfix func --(networkActivityObserver: NetworkActivityIndicatorObserver) {
+    networkActivityObserver.decrement()
 }
 
 // MARK: - Associated Properties
@@ -123,15 +123,15 @@ private struct AssociatedKeys {
     private static var networkActivity = "networkActivity"
 }
 
-extension NetworkActivityIndicatorHandlerType {
+extension NetworkActivityIndicatorHandler {
     
-    public private(set) var networkActivity: NetworkActivityIndicatorTaskObserver {
+    public private(set) var networkActivity: NetworkActivityIndicatorObserver {
         get {
-            if let value = objc_getAssociatedObject(self, &AssociatedKeys.networkActivity) as? NetworkActivityIndicatorTaskObserver {
+            if let value = objc_getAssociatedObject(self, &AssociatedKeys.networkActivity) as? NetworkActivityIndicatorObserver {
                 return value
             }
             else {
-                return NetworkActivityIndicatorTaskObserver(handler: self) // associated object will be assigned inside the initializer
+                return NetworkActivityIndicatorObserver(handler: self) // associated object will be assigned inside the initializer
             }
         }
         set {
@@ -140,7 +140,7 @@ extension NetworkActivityIndicatorHandlerType {
     }
     
     private var networkActivityIsAssigned: Bool {
-        if let _ = objc_getAssociatedObject(self, &AssociatedKeys.networkActivity) as? NetworkActivityIndicatorTaskObserver {
+        if let _ = objc_getAssociatedObject(self, &AssociatedKeys.networkActivity) as? NetworkActivityIndicatorObserver {
             return true
         }
         else {
@@ -155,7 +155,7 @@ extension NetworkActivityIndicatorHandlerType {
 
 #if os(iOS)
     
-    extension UIApplication: NetworkActivityIndicatorHandlerType {
+    extension UIApplication: NetworkActivityIndicatorHandler {
     
     }
     

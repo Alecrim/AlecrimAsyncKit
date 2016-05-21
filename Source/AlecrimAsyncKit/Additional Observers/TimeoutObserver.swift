@@ -1,5 +1,5 @@
 //
-//  TimeoutTaskObserver.swift
+//  TimeoutObserver.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-15.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct TimeoutTaskObserver: TaskWillStartObserver {
+public struct TimeoutObserver: TaskWillStartObserver {
     
     private let timeout: NSTimeInterval
 

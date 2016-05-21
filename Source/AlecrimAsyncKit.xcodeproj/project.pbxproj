@@ -10,58 +10,60 @@
 		1413F62E1BDCAE8B001049D5 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1413F62D1BDCAE8B001049D5 /* Protocols.swift */; };
 		1416E08D1BDC931A00F1EA73 /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */; };
 		142561B51BE31B9D00A4C974 /* TaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142561B41BE31B9D00A4C974 /* TaskOperation.swift */; };
-		143045511BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143045501BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift */; };
-		14749B841B9C437700661E98 /* EventStorePermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */; };
-		14749B861B9C4DA300661E98 /* BooleanTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */; };
-		147B5F371B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift */; };
-		1485139D1B9BD15100FAB0FA /* DelayTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138C1B9BD15100FAB0FA /* DelayTaskCondition.swift */; };
-		1485139E1B9BD15100FAB0FA /* NegateTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138D1B9BD15100FAB0FA /* NegateTaskCondition.swift */; };
-		1485139F1B9BD15100FAB0FA /* SilentTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138E1B9BD15100FAB0FA /* SilentTaskCondition.swift */; };
+		143045511BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143045501BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift */; };
+		14749B841B9C437700661E98 /* EventStorePermissionCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B831B9C437700661E98 /* EventStorePermissionCondition.swift */; };
+		14749B861B9C4DA300661E98 /* BooleanCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B851B9C4DA300661E98 /* BooleanCondition.swift */; };
+		147B5F371B9CFB0700F9F2CE /* ApplicationBackgroundObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundObserver.swift */; };
+		1485139D1B9BD15100FAB0FA /* DelayCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138C1B9BD15100FAB0FA /* DelayCondition.swift */; };
+		1485139E1B9BD15100FAB0FA /* NegateCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138D1B9BD15100FAB0FA /* NegateCondition.swift */; };
+		1485139F1B9BD15100FAB0FA /* SilentCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1485138E1B9BD15100FAB0FA /* SilentCondition.swift */; };
 		148513A01B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513901B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift */; };
-		148513A11B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513911B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift */; };
-		148513A21B9BD15100FAB0FA /* ReachabilityTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513921B9BD15100FAB0FA /* ReachabilityTaskCondition.swift */; };
-		148513A31B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513931B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift */; };
+		148513A11B9BD15100FAB0FA /* PhotosPermissionCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513911B9BD15100FAB0FA /* PhotosPermissionCondition.swift */; };
+		148513A21B9BD15100FAB0FA /* ReachabilityCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513921B9BD15100FAB0FA /* ReachabilityCondition.swift */; };
+		148513A31B9BD15100FAB0FA /* RemoteNotificationPermissionCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513931B9BD15100FAB0FA /* RemoteNotificationPermissionCondition.swift */; };
 		148513A41B9BD15100FAB0FA /* AsyncAwait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513951B9BD15100FAB0FA /* AsyncAwait.swift */; };
 		148513A51B9BD15100FAB0FA /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513961B9BD15100FAB0FA /* Errors.swift */; };
-		148513A61B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513971B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift */; };
+		148513A61B9BD15100FAB0FA /* MutuallyExclusiveCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513971B9BD15100FAB0FA /* MutuallyExclusiveCondition.swift */; };
 		148513A71B9BD15100FAB0FA /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513981B9BD15100FAB0FA /* Task.swift */; };
 		148513A81B9BD15100FAB0FA /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513991B9BD15100FAB0FA /* TaskCondition.swift */; };
-		148513AC1B9BD19700FAB0FA /* NetworkActivityIndicatorTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorTaskObserver.swift */; };
-		148513AE1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AD1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift */; };
-		148513B11B9BD9A500FAB0FA /* TimeoutTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513B01B9BD9A500FAB0FA /* TimeoutTaskObserver.swift */; };
+		148513AC1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift */; };
+		148513AE1B9BD38100FAB0FA /* LocationPermissionCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AD1B9BD38100FAB0FA /* LocationPermissionCondition.swift */; };
+		148513B11B9BD9A500FAB0FA /* TimeoutObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513B01B9BD9A500FAB0FA /* TimeoutObserver.swift */; };
 		14C290401BDE544B006F1BB3 /* TaskAwaiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */; };
+		14CD62BF1CF0D6AE007442FB /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CD62BE1CF0D6AE007442FB /* Compatibility.swift */; };
 		14E585BF1B7803EC003EC4DC /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		14FEAD181CEEC0BC007BA09F /* ObjectValueTaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FEAD171CEEC0BC007BA09F /* ObjectValueTaskCondition.swift */; };
+		14FEAD181CEEC0BC007BA09F /* ObjectValueCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FEAD171CEEC0BC007BA09F /* ObjectValueCondition.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1413F62D1BDCAE8B001049D5 /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
 		142561B41BE31B9D00A4C974 /* TaskOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskOperation.swift; sourceTree = "<group>"; };
-		143045501BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessInfoActivityTaskObserver.swift; sourceTree = "<group>"; };
-		14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStorePermissionTaskCondition.swift; sourceTree = "<group>"; };
-		14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BooleanTaskCondition.swift; sourceTree = "<group>"; };
-		147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationBackgroundTaskObserver.swift; sourceTree = "<group>"; };
-		1485138C1B9BD15100FAB0FA /* DelayTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelayTaskCondition.swift; sourceTree = "<group>"; };
-		1485138D1B9BD15100FAB0FA /* NegateTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NegateTaskCondition.swift; sourceTree = "<group>"; };
-		1485138E1B9BD15100FAB0FA /* SilentTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SilentTaskCondition.swift; sourceTree = "<group>"; };
+		143045501BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessInfoActivityObserver.swift; sourceTree = "<group>"; };
+		14749B831B9C437700661E98 /* EventStorePermissionCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStorePermissionCondition.swift; sourceTree = "<group>"; };
+		14749B851B9C4DA300661E98 /* BooleanCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BooleanCondition.swift; sourceTree = "<group>"; };
+		147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationBackgroundObserver.swift; sourceTree = "<group>"; };
+		1485138C1B9BD15100FAB0FA /* DelayCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelayCondition.swift; sourceTree = "<group>"; };
+		1485138D1B9BD15100FAB0FA /* NegateCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NegateCondition.swift; sourceTree = "<group>"; };
+		1485138E1B9BD15100FAB0FA /* SilentCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SilentCondition.swift; sourceTree = "<group>"; };
 		148513901B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PassLibraryAvailableCondition.swift; sourceTree = "<group>"; };
-		148513911B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotosPermissionTaskCondition.swift; sourceTree = "<group>"; };
-		148513921B9BD15100FAB0FA /* ReachabilityTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityTaskCondition.swift; sourceTree = "<group>"; };
-		148513931B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteNotificationPermissionTaskCondition.swift; sourceTree = "<group>"; };
+		148513911B9BD15100FAB0FA /* PhotosPermissionCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotosPermissionCondition.swift; sourceTree = "<group>"; };
+		148513921B9BD15100FAB0FA /* ReachabilityCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityCondition.swift; sourceTree = "<group>"; };
+		148513931B9BD15100FAB0FA /* RemoteNotificationPermissionCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteNotificationPermissionCondition.swift; sourceTree = "<group>"; };
 		148513951B9BD15100FAB0FA /* AsyncAwait.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncAwait.swift; sourceTree = "<group>"; };
 		148513961B9BD15100FAB0FA /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
-		148513971B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MutuallyExclusiveTaskCondition.swift; sourceTree = "<group>"; };
+		148513971B9BD15100FAB0FA /* MutuallyExclusiveCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MutuallyExclusiveCondition.swift; sourceTree = "<group>"; };
 		148513981B9BD15100FAB0FA /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		148513991B9BD15100FAB0FA /* TaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
-		148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorTaskObserver.swift; sourceTree = "<group>"; };
-		148513AD1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationPermissionTaskCondition.swift; sourceTree = "<group>"; };
-		148513B01B9BD9A500FAB0FA /* TimeoutTaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeoutTaskObserver.swift; sourceTree = "<group>"; };
+		148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorObserver.swift; sourceTree = "<group>"; };
+		148513AD1B9BD38100FAB0FA /* LocationPermissionCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationPermissionCondition.swift; sourceTree = "<group>"; };
+		148513B01B9BD9A500FAB0FA /* TimeoutObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeoutObserver.swift; sourceTree = "<group>"; };
 		14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskAwaiter.swift; sourceTree = "<group>"; };
+		14CD62BE1CF0D6AE007442FB /* Compatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compatibility.swift; sourceTree = "<group>"; };
 		14E585BB1B7803EC003EC4DC /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AlecrimAsyncKit.h; sourceTree = "<group>"; };
 		14E585C01B7803EC003EC4DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		14FEAD171CEEC0BC007BA09F /* ObjectValueTaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectValueTaskCondition.swift; sourceTree = "<group>"; };
+		14FEAD171CEEC0BC007BA09F /* ObjectValueCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectValueCondition.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,11 +80,11 @@
 		1485138B1B9BD15100FAB0FA /* Additional Conditions */ = {
 			isa = PBXGroup;
 			children = (
-				14749B851B9C4DA300661E98 /* BooleanTaskCondition.swift */,
-				1485138C1B9BD15100FAB0FA /* DelayTaskCondition.swift */,
-				1485138D1B9BD15100FAB0FA /* NegateTaskCondition.swift */,
-				1485138E1B9BD15100FAB0FA /* SilentTaskCondition.swift */,
-				14FEAD171CEEC0BC007BA09F /* ObjectValueTaskCondition.swift */,
+				14749B851B9C4DA300661E98 /* BooleanCondition.swift */,
+				1485138C1B9BD15100FAB0FA /* DelayCondition.swift */,
+				1485138D1B9BD15100FAB0FA /* NegateCondition.swift */,
+				14FEAD171CEEC0BC007BA09F /* ObjectValueCondition.swift */,
+				1485138E1B9BD15100FAB0FA /* SilentCondition.swift */,
 			);
 			path = "Additional Conditions";
 			sourceTree = "<group>";
@@ -90,12 +92,12 @@
 		1485138F1B9BD15100FAB0FA /* Convenience Conditions */ = {
 			isa = PBXGroup;
 			children = (
-				14749B831B9C437700661E98 /* EventStorePermissionTaskCondition.swift */,
-				148513AD1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift */,
+				14749B831B9C437700661E98 /* EventStorePermissionCondition.swift */,
+				148513AD1B9BD38100FAB0FA /* LocationPermissionCondition.swift */,
 				148513901B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift */,
-				148513911B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift */,
-				148513921B9BD15100FAB0FA /* ReachabilityTaskCondition.swift */,
-				148513931B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift */,
+				148513911B9BD15100FAB0FA /* PhotosPermissionCondition.swift */,
+				148513921B9BD15100FAB0FA /* ReachabilityCondition.swift */,
+				148513931B9BD15100FAB0FA /* RemoteNotificationPermissionCondition.swift */,
 			);
 			path = "Convenience Conditions";
 			sourceTree = "<group>";
@@ -103,6 +105,7 @@
 		148513941B9BD15100FAB0FA /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				14CD62BE1CF0D6AE007442FB /* Compatibility.swift */,
 				1413F62D1BDCAE8B001049D5 /* Protocols.swift */,
 				148513961B9BD15100FAB0FA /* Errors.swift */,
 				148513951B9BD15100FAB0FA /* AsyncAwait.swift */,
@@ -111,7 +114,7 @@
 				14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */,
 				148513991B9BD15100FAB0FA /* TaskCondition.swift */,
 				1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */,
-				148513971B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift */,
+				148513971B9BD15100FAB0FA /* MutuallyExclusiveCondition.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -119,9 +122,9 @@
 		148513AA1B9BD19700FAB0FA /* Convenience Observers */ = {
 			isa = PBXGroup;
 			children = (
-				143045501BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift */,
-				147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift */,
-				148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorTaskObserver.swift */,
+				147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundObserver.swift */,
+				143045501BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift */,
+				148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift */,
 			);
 			path = "Convenience Observers";
 			sourceTree = "<group>";
@@ -129,7 +132,7 @@
 		148513AF1B9BD9A500FAB0FA /* Additional Observers */ = {
 			isa = PBXGroup;
 			children = (
-				148513B01B9BD9A500FAB0FA /* TimeoutTaskObserver.swift */,
+				148513B01B9BD9A500FAB0FA /* TimeoutObserver.swift */,
 			);
 			path = "Additional Observers";
 			sourceTree = "<group>";
@@ -251,30 +254,31 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				148513A11B9BD15100FAB0FA /* PhotosPermissionTaskCondition.swift in Sources */,
+				148513A11B9BD15100FAB0FA /* PhotosPermissionCondition.swift in Sources */,
 				14C290401BDE544B006F1BB3 /* TaskAwaiter.swift in Sources */,
 				148513A01B9BD15100FAB0FA /* PassLibraryAvailableCondition.swift in Sources */,
-				148513A31B9BD15100FAB0FA /* RemoteNotificationPermissionTaskCondition.swift in Sources */,
+				148513A31B9BD15100FAB0FA /* RemoteNotificationPermissionCondition.swift in Sources */,
 				148513A81B9BD15100FAB0FA /* TaskCondition.swift in Sources */,
-				147B5F371B9CFB0700F9F2CE /* ApplicationBackgroundTaskObserver.swift in Sources */,
-				143045511BB7AB5900CD0AED /* ProcessInfoActivityTaskObserver.swift in Sources */,
-				1485139E1B9BD15100FAB0FA /* NegateTaskCondition.swift in Sources */,
-				148513A61B9BD15100FAB0FA /* MutuallyExclusiveTaskCondition.swift in Sources */,
-				148513B11B9BD9A500FAB0FA /* TimeoutTaskObserver.swift in Sources */,
+				147B5F371B9CFB0700F9F2CE /* ApplicationBackgroundObserver.swift in Sources */,
+				143045511BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift in Sources */,
+				1485139E1B9BD15100FAB0FA /* NegateCondition.swift in Sources */,
+				148513A61B9BD15100FAB0FA /* MutuallyExclusiveCondition.swift in Sources */,
+				14CD62BF1CF0D6AE007442FB /* Compatibility.swift in Sources */,
+				148513B11B9BD9A500FAB0FA /* TimeoutObserver.swift in Sources */,
 				142561B51BE31B9D00A4C974 /* TaskOperation.swift in Sources */,
 				1413F62E1BDCAE8B001049D5 /* Protocols.swift in Sources */,
-				148513A21B9BD15100FAB0FA /* ReachabilityTaskCondition.swift in Sources */,
+				148513A21B9BD15100FAB0FA /* ReachabilityCondition.swift in Sources */,
 				148513A71B9BD15100FAB0FA /* Task.swift in Sources */,
 				148513A51B9BD15100FAB0FA /* Errors.swift in Sources */,
 				148513A41B9BD15100FAB0FA /* AsyncAwait.swift in Sources */,
-				148513AE1B9BD38100FAB0FA /* LocationPermissionTaskCondition.swift in Sources */,
-				1485139D1B9BD15100FAB0FA /* DelayTaskCondition.swift in Sources */,
-				1485139F1B9BD15100FAB0FA /* SilentTaskCondition.swift in Sources */,
+				148513AE1B9BD38100FAB0FA /* LocationPermissionCondition.swift in Sources */,
+				1485139D1B9BD15100FAB0FA /* DelayCondition.swift in Sources */,
+				1485139F1B9BD15100FAB0FA /* SilentCondition.swift in Sources */,
 				1416E08D1BDC931A00F1EA73 /* TaskObserver.swift in Sources */,
-				14FEAD181CEEC0BC007BA09F /* ObjectValueTaskCondition.swift in Sources */,
-				14749B861B9C4DA300661E98 /* BooleanTaskCondition.swift in Sources */,
-				148513AC1B9BD19700FAB0FA /* NetworkActivityIndicatorTaskObserver.swift in Sources */,
-				14749B841B9C437700661E98 /* EventStorePermissionTaskCondition.swift in Sources */,
+				14FEAD181CEEC0BC007BA09F /* ObjectValueCondition.swift in Sources */,
+				14749B861B9C4DA300661E98 /* BooleanCondition.swift in Sources */,
+				148513AC1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift in Sources */,
+				14749B841B9C437700661E98 /* EventStorePermissionCondition.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

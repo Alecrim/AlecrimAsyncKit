@@ -1,5 +1,5 @@
 //
-//  ProcessInfoActivityTaskObserver.swift
+//  ProcessInfoActivityObserver.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-09-27.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class ProcessInfoActivityTaskObserver: TaskDidStartObserver, TaskDidFinishObserver {
+public final class ProcessInfoActivityObserver: TaskDidStartObserver, TaskDidFinishObserver {
     
     private let options: NSActivityOptions
     private let reason: String

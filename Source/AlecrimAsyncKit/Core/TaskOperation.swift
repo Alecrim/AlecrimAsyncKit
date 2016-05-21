@@ -49,8 +49,8 @@ public class TaskOperation: NSOperation, TaskProtocol {
     
     //
     
-    private lazy var mutuallyExclusiveConditions: [MutuallyExclusiveTaskCondition]? = {
-        if let mecs = self.conditions?.flatMap({ $0 as? MutuallyExclusiveTaskCondition }) where !mecs.isEmpty {
+    private lazy var mutuallyExclusiveConditions: [MutuallyExclusiveCondition]? = {
+        if let mecs = self.conditions?.flatMap({ $0 as? MutuallyExclusiveCondition }) where !mecs.isEmpty {
             return mecs
         }
         
@@ -211,7 +211,7 @@ public class TaskOperation: NSOperation, TaskProtocol {
     }
     
     internal final func signalMutuallyExclusiveConditionsIfNeeded() {
-        self.mutuallyExclusiveConditions?.forEach({ MutuallyExclusiveTaskCondition.signal(condition: $0, categoryName: $0.categoryName) })
+        self.mutuallyExclusiveConditions?.forEach({ MutuallyExclusiveCondition.signal(condition: $0, categoryName: $0.categoryName) })
     }
     
     // MARK: -

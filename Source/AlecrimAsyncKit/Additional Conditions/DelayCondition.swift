@@ -1,5 +1,5 @@
 //
-//  DelayTaskCondition.swift
+//  DelayCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-04.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// A condition that will simply wait for a given time interval to be satisfied.
-public final class DelayTaskCondition: TaskCondition {
+public final class DelayCondition: TaskCondition {
     
     /// Initializes a condition that will wait for a given time interval to be satisfied.
     ///

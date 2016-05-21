@@ -1,5 +1,5 @@
 //
-//  ObjectValueTaskCondition.swift
+//  ObjectValueCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2016-05-20.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class ObjectValueTaskCondition: TaskCondition {
+public final class ObjectValueCondition: TaskCondition {
     
     public init(object: NSObject, keyPath: String, evaluationClosure: (AnyObject?) -> Bool) {
         super.init() { result in

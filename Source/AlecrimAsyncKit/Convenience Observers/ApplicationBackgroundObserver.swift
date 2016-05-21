@@ -1,5 +1,5 @@
 //
-//  ApplicationBackgroundTaskObserver.swift
+//  ApplicationBackgroundObserver.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-09-06.
@@ -10,8 +10,8 @@
     
     import Foundation
     
-    /// A task observer that will automatically begin and end a *background task* if the application transitions to the background.
-    public final class ApplicationBackgroundTaskObserver: TaskDidFinishObserver {
+    /// A task observer that will ApplicationBackgroundObserver begin and end a *background task* if the application transitions to the background.
+    public final class ApplicationBackgroundObserver: TaskDidFinishObserver {
         
         private let application: UIApplication
         private var isInBackground = false
@@ -30,8 +30,8 @@
             self.application = application
             
             // We need to know when the application moves to/from the background.
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundTaskObserver.didEnterBackground(_:)), name: UIApplicationDidEnterBackgroundNotification, object: nil)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundTaskObserver.didBecomeActive(_:)), name: UIApplicationDidBecomeActiveNotification, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundObserver.didEnterBackground(_:)), name: UIApplicationDidEnterBackgroundNotification, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundObserver.didBecomeActive(_:)), name: UIApplicationDidBecomeActiveNotification, object: nil)
             
             //
             self.isInBackground = self.application.applicationState == .Background
@@ -90,8 +90,8 @@
     
     extension UIApplication {
         
-        public func applicationBackgroundTaskObserver() -> ApplicationBackgroundTaskObserver {
-            return ApplicationBackgroundTaskObserver(application: self)
+        public func applicationBackgroundObserver() -> ApplicationBackgroundObserver {
+            return ApplicationBackgroundObserver(application: self)
         }
         
     }

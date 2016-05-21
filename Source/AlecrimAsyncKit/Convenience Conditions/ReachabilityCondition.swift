@@ -1,5 +1,5 @@
 //
-//  ReachabilityTaskCondition.swift
+//  ReachabilityCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-09-05.
@@ -12,7 +12,7 @@ import Foundation
 import SystemConfiguration
 
 /// A condition that performs network reachability check.
-public final class ReachabilityTaskCondition: TaskCondition {
+public final class ReachabilityCondition: TaskCondition {
     
     /// Initializes a condition that performs network reachability check.
     ///

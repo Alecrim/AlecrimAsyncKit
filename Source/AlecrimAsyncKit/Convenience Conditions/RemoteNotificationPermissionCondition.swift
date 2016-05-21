@@ -1,5 +1,5 @@
 //
-//  RemoteNotificationPermissionTaskCondition.swift
+//  RemoteNotificationPermissionCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-05.
@@ -14,7 +14,7 @@
     
     import AppKit
     
-    public typealias RemoteNotificationPermissionTaskConditionApplication = NSApplication
+    public typealias RemoteNotificationPermissionConditionApplication = NSApplication
     
 #endif
     
@@ -22,13 +22,13 @@
     
     import UIKit
     
-    public typealias RemoteNotificationPermissionTaskConditionApplication = UIApplication
+    public typealias RemoteNotificationPermissionConditionApplication = UIApplication
     
 #endif
     
     
     /// A condition for verifying that the app has the ability to receive push notifications.
-    public final class RemoteNotificationPermissionTaskCondition: TaskCondition {
+    public final class RemoteNotificationPermissionCondition: TaskCondition {
         
         private enum RemoteRegistrationStatus {
             case unknown
@@ -37,8 +37,8 @@
         }
         
         
-        private static var statusObserverClosure: ((RemoteNotificationPermissionTaskCondition.RemoteRegistrationStatus) -> Void)? = nil
-        private static var status = RemoteNotificationPermissionTaskCondition.RemoteRegistrationStatus.unknown
+        private static var statusObserverClosure: ((RemoteNotificationPermissionCondition.RemoteRegistrationStatus) -> Void)? = nil
+        private static var status = RemoteNotificationPermissionCondition.RemoteRegistrationStatus.unknown
         
         #if os(OSX)
         public static var remoteNotificationTypes: NSRemoteNotificationType = [.None]
@@ -62,7 +62,8 @@
         
         // MARK: -
         
-        private static func asyncWaitForResponse(from application: RemoteNotificationPermissionTaskConditionApplication) -> Task<Void> {
+        @warn_unused_result
+        private static func waitForResponse(from application: RemoteNotificationPermissionConditionApplication) -> Task<Void> {
             return asyncEx { task in
                 if application.isRegisteredForRemoteNotifications() {
                     self.status = .success
@@ -102,18 +103,18 @@
         /// - returns: A condition for verifying that the app has the ability to receive push notifications.
         ///
         /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
-        private init(application: RemoteNotificationPermissionTaskConditionApplication) {
+        private init(application: RemoteNotificationPermissionConditionApplication) {
             let dependencyTask: Task<Void>
             if let staticDependencyTask = self.dynamicType.dependencyTask {
                 dependencyTask = staticDependencyTask
             }
             else {
-                dependencyTask = RemoteNotificationPermissionTaskCondition.asyncWaitForResponse(from: application)
+                dependencyTask = RemoteNotificationPermissionCondition.waitForResponse(from: application)
                 self.dynamicType.dependencyTask = dependencyTask
             }
             
             super.init(dependencyTask: dependencyTask) { result in
-                switch RemoteNotificationPermissionTaskCondition.status {
+                switch RemoteNotificationPermissionCondition.status {
                 case .success:
                     result(.satisfied)
                     
@@ -131,10 +132,10 @@
     // MARK: - UIApplication extension
     
     
-    extension RemoteNotificationPermissionTaskConditionApplication {
+    extension RemoteNotificationPermissionConditionApplication {
         
         private struct AssociatedKeys {
-            private static var remoteNotificationPermissionTaskCondition = "remoteNotificationPermissionTaskCondition"
+            private static var remoteNotificationPermissionCondition = "remoteNotificationPermissionCondition"
             
             #if os(OSX)
             private static var registeredForRemoteNotifications = "registeredForRemoteNotifications"
@@ -142,13 +143,13 @@
             
         }
         
-        public var remoteNotificationPermissionTaskCondition: RemoteNotificationPermissionTaskCondition {
-            if let value = objc_getAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionTaskCondition) as? RemoteNotificationPermissionTaskCondition {
+        public var remoteNotificationPermissionCondition: RemoteNotificationPermissionCondition {
+            if let value = objc_getAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionCondition) as? RemoteNotificationPermissionCondition {
                 return value
             }
             else {
-                let value = RemoteNotificationPermissionTaskCondition(application: self)
-                objc_setAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionTaskCondition, value, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                let value = RemoteNotificationPermissionCondition(application: self)
+                objc_setAssociatedObject(self, &AssociatedKeys.remoteNotificationPermissionCondition, value, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
                 
                 return value
             }
@@ -171,7 +172,7 @@
         }
         
         private func registerForRemoteNotifications() {
-            self.registerForRemoteNotificationTypes(RemoteNotificationPermissionTaskCondition.remoteNotificationTypes)
+            self.registerForRemoteNotificationTypes(RemoteNotificationPermissionCondition.remoteNotificationTypes)
             self.__registeredForRemoteNotifications = true
         }
         
