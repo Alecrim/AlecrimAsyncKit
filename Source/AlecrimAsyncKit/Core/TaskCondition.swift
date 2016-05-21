@@ -20,9 +20,9 @@ private let _defaultTaskConditionQueue: NSOperationQueue = {
 
 /// An enumeration with the possible condition results.
 ///
-/// - Satisfied:    The condition was satisfied.
-/// - NotSatisfied: The condition was not satisfied.
-/// - Failed:       An error was occurred while evaluating the condition.
+/// - satisfied:    The condition was satisfied.
+/// - notSatisfied: The condition was not satisfied.
+/// - failed:       An error was occurred while evaluating the condition.
 public enum TaskConditionResult {
     case satisfied
     case notSatisfied
