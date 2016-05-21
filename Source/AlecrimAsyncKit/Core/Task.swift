@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class BaseTask<V>: TaskOperation, TaskWithValueProtocol {
+public class AbstractTask<V>: TaskOperation, TaskWithValueProtocol {
 
     // MARK: -
     
@@ -88,7 +88,7 @@ public class BaseTask<V>: TaskOperation, TaskWithValueProtocol {
 
 }
 
-public final class Task<V>: BaseTask<V>, InitializableTask, FailableTaskProtocol {
+public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProtocol {
     
     // MARK: -
 
@@ -191,7 +191,7 @@ public final class Task<V>: BaseTask<V>, InitializableTask, FailableTaskProtocol
     
 }
 
-public final class NonFailableTask<V>: BaseTask<V>, InitializableTask, NonFailableTaskProtocol {
+public final class NonFailableTask<V>: AbstractTask<V>, InitializableTask, NonFailableTaskProtocol {
 
     internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (NonFailableTask<V>) -> Void) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
