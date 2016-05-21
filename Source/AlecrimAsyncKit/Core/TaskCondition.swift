@@ -116,7 +116,8 @@ public class TaskCondition {
         self.evaluationClosure = evaluationClosure
     }
     
-    internal func asyncEvaluate() -> Task<Void> {
+    @warn_unused_result
+    internal func evaluate() -> Task<Void> {
         return asyncEx(in: _defaultTaskConditionQueue) { [unowned self] task in
             self.evaluationClosure { conditionResult in
                 switch conditionResult {
@@ -137,18 +138,19 @@ public class TaskCondition {
 
 extension TaskCondition {
     
-    internal static func asyncEvaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
+    @warn_unused_result
+    internal static func evaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
         return async(in: _defaultTaskConditionQueue) {
             for condition in conditions {
                 if let subconditions = condition.subconditions where !subconditions.isEmpty {
-                    try await(TaskCondition.asyncEvaluateConditions(subconditions))
+                    try await(TaskCondition.evaluateConditions(subconditions))
                 }
                 
                 if let dependencyTask = condition.dependencyTaskClosure?() {
                     try await(dependencyTask)
                 }
                 
-                try await(condition.asyncEvaluate())
+                try await(condition.evaluate())
             }
         }
     }

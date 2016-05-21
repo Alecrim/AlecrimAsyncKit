@@ -20,10 +20,11 @@ public final class NegateCondition: TaskCondition {
         super.init(subconditions: otherCondition.subconditions, dependencyTask: otherCondition.dependencyTaskClosure?(), evaluationClosure: otherCondition.evaluationClosure)
     }
 
-    internal override func asyncEvaluate() -> Task<Void> {
+    @warn_unused_result
+    internal override func evaluate() -> Task<Void> {
         return asyncEx { task in
             do {
-                try await(super.asyncEvaluate())
+                try await(super.evaluate())
                 task.finish(with: TaskConditionError.notSatisfied)
             }
             catch {

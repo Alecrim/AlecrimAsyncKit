@@ -150,7 +150,7 @@ public class TaskOperation: NSOperation, TaskProtocol {
                 }
                 
                 if !self.cancelled {
-                    try await(TaskCondition.asyncEvaluateConditions(conditions))
+                    try await(TaskCondition.evaluateConditions(conditions))
                 }
             }
             catch TaskConditionError.notSatisfied {
