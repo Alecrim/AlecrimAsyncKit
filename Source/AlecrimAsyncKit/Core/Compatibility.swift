@@ -74,6 +74,11 @@ public final class ProcessInfoActivityTaskObserver {}
             fatalError()
         }
         
+        @available(*, unavailable, renamed="networkActivity")
+        public func networkActivityIndicatorTaskObserver() -> NetworkActivityIndicatorObserver {
+            fatalError()
+        }
+        
     }
     
 #endif

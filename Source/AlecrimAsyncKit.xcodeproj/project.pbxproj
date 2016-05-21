@@ -123,8 +123,8 @@
 			isa = PBXGroup;
 			children = (
 				147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundObserver.swift */,
-				143045501BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift */,
 				148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift */,
+				143045501BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift */,
 			);
 			path = "Convenience Observers";
 			sourceTree = "<group>";
