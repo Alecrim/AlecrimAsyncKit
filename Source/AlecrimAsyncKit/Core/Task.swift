@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class AbstractTask<V>: TaskOperation, TaskWithValueProtocol {
+public class AbstractTask<V>: TaskOperation, ValueReportingTask {
 
     // MARK: -
     

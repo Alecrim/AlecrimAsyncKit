@@ -23,23 +23,23 @@ public protocol CancellableTask: TaskProtocol {
     func cancel()
 }
 
-public protocol TaskWithErrorProtocol: TaskProtocol {
-    var error: ErrorType? { get }
-    func finish(with error: ErrorType)
-}
-
-public protocol TaskWithValueProtocol: TaskProtocol {
+public protocol ValueReportingTask: TaskProtocol {
     associatedtype ValueType
     
     var value: Self.ValueType! { get }
     func finish(with value: Self.ValueType)
 }
 
-public protocol FailableTaskProtocol: CancellableTask, TaskWithValueProtocol, TaskWithErrorProtocol {
+public protocol ErrorReportingTask: TaskProtocol {
+    var error: ErrorType? { get }
+    func finish(with error: ErrorType)
+}
+
+public protocol FailableTaskProtocol: CancellableTask, ValueReportingTask, ErrorReportingTask {
     func finish(with value: Self.ValueType!, or error: ErrorType?)
 }
 
-public protocol NonFailableTaskProtocol: TaskWithValueProtocol {
+public protocol NonFailableTaskProtocol: ValueReportingTask {
 
 }
 
@@ -65,7 +65,7 @@ extension CancellableTask {
 
 // MARK: -
 
-extension TaskWithValueProtocol where Self.ValueType == Void {
+extension ValueReportingTask where Self.ValueType == Void {
     
     public func finish() {
         self.finish(with: ())
