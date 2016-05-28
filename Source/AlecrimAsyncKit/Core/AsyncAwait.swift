@@ -97,21 +97,6 @@ public func await<V>(task: Task<V>) throws -> V {
 
 // MARK: - Helper methods
 
-private final class ThreadWithClosure: NSThread {
-    
-    private let closure: () -> Void
-    
-    private init(closure: () -> Void) {
-        self.closure = closure
-        super.init()
-    }
-    
-    private override func main() {
-        self.closure()
-    }
-    
-}
-
 @warn_unused_result
 public func delay(timeInterval: NSTimeInterval) -> NonFailableTask<Void> {
     return sleep(forTimeInterval: timeInterval)
@@ -120,24 +105,22 @@ public func delay(timeInterval: NSTimeInterval) -> NonFailableTask<Void> {
 @warn_unused_result
 public func sleep(forTimeInterval ti: NSTimeInterval) -> NonFailableTask<Void> {
     return asyncEx { t in
-        let thread = ThreadWithClosure {
-            NSThread.sleepForTimeInterval(ti)
+        let when = dispatch_time(DISPATCH_TIME_NOW, Int64(ti * Double(NSEC_PER_SEC)))
+        dispatch_after(when, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)) {
             t.finish()
         }
-        
-        thread.start()
     }
 }
 
 @warn_unused_result
 public func sleep(until date: NSDate) -> NonFailableTask<Void> {
-    return asyncEx { t in
-        let thread = ThreadWithClosure {
-            NSThread.sleepUntilDate(date)
-            t.finish()
-        }
-        
-        thread.start()
+    let now = NSDate()
+    if now.compare(date) == .OrderedAscending {
+        let ti = date.timeIntervalSinceDate(now)
+        return sleep(forTimeInterval: ti)
+    }
+    else {
+        return async {}
     }
 }
 
