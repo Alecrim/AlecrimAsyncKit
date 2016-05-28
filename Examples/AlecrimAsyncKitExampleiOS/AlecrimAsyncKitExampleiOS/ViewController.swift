@@ -144,7 +144,8 @@ extension ViewController {
     @warn_unused_result
     func waitUntilDone() -> NonFailableTask<Void> {
         return asyncEx { task in
-            await(self.t4)
+            // OK, we know we'll not fail
+            try! await(whenAll([self.t1, self.t2, self.t3, self.t4]))
             
             mainThread {
                 self.doneLabel.text = "Done!"
@@ -176,7 +177,7 @@ extension ViewController {
                 throw NSError(domain: "com.alecrim.AlecrimAsyncKitExampleiOS", code: 1000, userInfo: nil)
             }
             
-            NSThread.sleepForTimeInterval(3) // I think we can let them waiting a little more...
+            await(delay(3)) // I think we can let them waiting a little more...
             
             // thank you for the image, Minions and wallhaven.cc :-) 
             // (All rights reserved to its owners. Gru?)
