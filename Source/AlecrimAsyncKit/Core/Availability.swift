@@ -113,3 +113,34 @@ extension NonFailableTask {
     }
 
 }
+
+// MARK: -
+
+extension FailableTaskProtocol {
+
+    @available(*, unavailable, renamed="forward")
+    public func `continue`<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T, inheritCancellation: Bool = true) {
+        fatalError()
+    }
+    
+    @available(*, unavailable, renamed="forward")
+    public func continueWith<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(task: T, inheritCancellation: Bool = true) {
+        fatalError()
+    }
+
+}
+
+extension NonFailableTaskProtocol {
+    
+    @available(*, unavailable, renamed="forward")
+    public func `continue`<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T) {
+        fatalError()
+    }
+
+    @available(*, unavailable, renamed="forward")
+    public func continueWith<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(task: T) {
+        fatalError()
+    }
+
+}
+

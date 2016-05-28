@@ -58,6 +58,7 @@ public protocol ValueReportingTask: TaskProtocol {
 
 extension ValueReportingTask where Self.ValueType == Void {
     
+    /// Causes the receiver to treat the task as finished.
     public func finish() {
         self.finish(with: ())
     }
@@ -79,6 +80,7 @@ public protocol FailableTaskProtocol: CancellableTask, ValueReportingTask, Error
 
 extension FailableTaskProtocol {
     
+    
     public func finish(with value: Self.ValueType!, or error: ErrorType?) {
         if let error = error {
             self.finish(with: error)
@@ -88,7 +90,10 @@ extension FailableTaskProtocol {
         }
     }
     
-    public func `continue`<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T, inheritCancellation: Bool = true) {
+    /// Forwards the execution to other task and finishes the receiver when that task is finished.
+    ///
+    /// - parameter task: The task the execution is forward to.
+    public func forward<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(to task: T, inheritCancellation: Bool = true) {
         if inheritCancellation {
             task.inheritCancellation(from: self)
         }
@@ -107,7 +112,10 @@ public protocol NonFailableTaskProtocol: ValueReportingTask {
 
 extension NonFailableTaskProtocol {
     
-    public func `continue`<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T) {
+    /// Forwards the execution to other non failable task and finishes the receiver when that task is finished.
+    ///
+    /// - parameter task: The non failable task the execution is forward to.
+    public func forward<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(to task: T) {
         task.waitUntilFinished()
         self.finish(with: task.value)
     }

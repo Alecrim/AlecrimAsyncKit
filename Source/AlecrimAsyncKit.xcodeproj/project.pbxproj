@@ -108,8 +108,8 @@
 			isa = PBXGroup;
 			children = (
 				14CD62BE1CF0D6AE007442FB /* Availability.swift */,
-				1413F62D1BDCAE8B001049D5 /* Protocols.swift */,
 				148513961B9BD15100FAB0FA /* Errors.swift */,
+				1413F62D1BDCAE8B001049D5 /* Protocols.swift */,
 				148513951B9BD15100FAB0FA /* AsyncAwait.swift */,
 				142561B41BE31B9D00A4C974 /* TaskOperation.swift */,
 				148513981B9BD15100FAB0FA /* Task.swift */,
