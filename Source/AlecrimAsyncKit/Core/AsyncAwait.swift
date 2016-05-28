@@ -124,48 +124,54 @@ public func sleep(until date: NSDate) -> NonFailableTask<Void> {
     }
 }
 
-@warn_unused_result
-public func whenAll(tasks: [TaskProtocol]) -> Task<Void> {
-    return async {
-        for task in tasks {
-            task.waitUntilFinished()
-            
-            if let errorReportingTask = task as? ErrorReportingTask, let error = errorReportingTask.error {
-                throw error
-            }
-        }
-    }
-}
 
-@warn_unused_result
-public func whenAny(tasks: [TaskProtocol]) -> Task<TaskProtocol> {
-    return asyncEx { t in
-        func observeTask(task: TaskProtocol) throws -> Task<Void> {
-            return async {
+extension SequenceType where Self.Generator.Element == TaskProtocol {
+    
+    @warn_unused_result
+    public func whenAll() -> Task<Void> {
+        return async {
+            for task in self {
                 task.waitUntilFinished()
                 
                 if let errorReportingTask = task as? ErrorReportingTask, let error = errorReportingTask.error {
                     throw error
                 }
-                
-                t.finish(with: task)
             }
-        }
-        
-        do {
-            for task in tasks {
-                if t.finished {
-                    break
-                }
-                
-                try observeTask(task)
-            }
-        }
-        catch let error {
-            t.finish(with: error)
         }
     }
+
+    @warn_unused_result
+    public func whenAny() -> Task<Self.Generator.Element> {
+        return asyncEx { t in
+            func observeTask(task: Self.Generator.Element) throws -> Task<Void> {
+                return async {
+                    task.waitUntilFinished()
+                    
+                    if let errorReportingTask = task as? ErrorReportingTask, let error = errorReportingTask.error {
+                        throw error
+                    }
+                    
+                    t.finish(with: task)
+                }
+            }
+            
+            do {
+                for task in self {
+                    if t.finished {
+                        break
+                    }
+                    
+                    try observeTask(task)
+                }
+            }
+            catch let error {
+                t.finish(with: error)
+            }
+        }
+    }
+
 }
+
 
 // MARK: -
 
