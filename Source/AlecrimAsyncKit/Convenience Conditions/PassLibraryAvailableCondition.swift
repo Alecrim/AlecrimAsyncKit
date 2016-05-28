@@ -20,10 +20,10 @@ public final class PassLibraryAvailableCondition: TaskCondition {
     public init() {
         super.init() { result in
             if PKPassLibrary.isPassLibraryAvailable() {
-                result(.Satisfied)
+                result(.satisfied)
             }
             else {
-                result(.NotSatisfied)
+                result(.notSatisfied)
             }
         }
     }

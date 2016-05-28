@@ -1,5 +1,5 @@
 //
-//  ReachabilityTaskCondition.swift
+//  ReachabilityCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-09-05.
@@ -12,20 +12,20 @@ import Foundation
 import SystemConfiguration
 
 /// A condition that performs network reachability check.
-public final class ReachabilityTaskCondition: TaskCondition {
+public final class ReachabilityCondition: TaskCondition {
     
     /// Initializes a condition that performs network reachability check.
     ///
     /// - parameter URL: The URL containing the host to test the reachability.
     ///
     /// - returns: A condition that performs network reachability check.
-    public init(URL: NSURL) {
+    public init(url: NSURL) {
         super.init() { result in
-            if requestReachabilityForURL(URL) {
-                result(.Satisfied)
+            if requestReachability(for: url) {
+                result(.satisfied)
             }
             else {
-                result(.NotSatisfied)
+                result(.notSatisfied)
             }
         }
     }
@@ -36,8 +36,8 @@ public final class ReachabilityTaskCondition: TaskCondition {
     
 private var reachabilityRefs = [String : SCNetworkReachability]()
 
-private func requestReachabilityForURL(URL: NSURL) -> Bool {
-    guard let host = URL.host else { return false }
+private func requestReachability(for url: NSURL) -> Bool {
+    guard let host = url.host else { return false }
     
     var ref = reachabilityRefs[host]
     

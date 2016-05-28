@@ -26,21 +26,22 @@ A failable task is created passing a closure to the `async` global function (tha
 // this code is running in background
 do {
     // the task is started immediately
-    let task = asyncCalculate()
+    let task = calculate()
 
     // we can do other things while the calculation is made...
     // ...
 
     // now we need the value
     let value = try await(task)
+    
     print("The result is \(value)")
 }
 catch let error {
     print(error)
 }
 
-// it is better to have "async" as a prefix to maintain consistency
-func asyncCalculate() -> Task<Int> {
+@warn_unused_result
+func calculate() -> Task<Int> {
     return async {
         var value = 0
 
@@ -50,7 +51,7 @@ func asyncCalculate() -> Task<Int> {
 
         if i >= 1_000_000 {
             // when using async with a failable task, we can throw errors
-            throw NSError(...)
+            throw ...
         }
 
         // when using async, we return the task value
@@ -68,11 +69,11 @@ You mark a task as non-failable using `NonFailableTask<T>` class instead of `Tas
 
 ```swift
 // this code is running in background
-let value = await { asyncCalculate() }
+let value = await { calculate() }
 print("The result is \(value)")
 
-// it is better to have "async" as a prefix to maintain consistency
-func asyncCalculate() -> NonFailableTask<Int> {
+@warn_unused_result
+func calculate() -> NonFailableTask<Int> {
     return async {
         var value = 0
 
@@ -118,10 +119,11 @@ catch let error {
 
 extension CKDatabase {
 
+    @warn_unused_result
     public func asyncPerformQuery(query: CKQuery, inZoneWithID zoneID: CKRecordZoneID?) -> Task<[CKRecord]> {
         return asyncEx { task in
             self.performQuery(query, inZoneWithID: zoneID) { records, error in
-                task.finishWithValue(records, error: error)
+                task.finish(with: records, or: error)
             }
         }
     }
@@ -139,8 +141,9 @@ A task completion can also be reported outside the task closure body. Examples o
 If other queue is not specified a task will run in a default (and shared) background queue. You can specify which queue the task will run using the optional parameter `queue` from `async` global function.
 
 ```swift
-func asyncDoSomething() -> Task<Void> {
-    return async(someAlreadyCreatedOperationQueue) {
+@warn_unused_result
+func doSomething() -> Task<Void> {
+    return async(queue: someAlreadyCreatedOperationQueue) {
         // ...
     }
 }
@@ -154,10 +157,11 @@ A condition is an instance from the `TaskCondition` class that can be passed as 
 
 One task may have one or more conditions. Different tasks can have the same conditions if applicable to your logic. Also: static conditions and newly created ones are treated the same way, they are always evaluated each time a task that have them is to start.
 
-The **AlecrimAsyncKit** framework provides some predefined conditions, but you can create others. The `MutuallyExclusiveTaskCondition` is one special kind of condition that prevents tasks that share the same behavior from running at the same time.
+The **AlecrimAsyncKit** framework provides some predefined conditions, but you can create others. The `MutuallyExclusiveCondition` is one special kind of condition that prevents tasks that share the same behavior from running at the same time.
 
 ```swift
-func asyncDoSomething() -> Task<Void> {
+@warn_unused_result
+func doSomething() -> Task<Void> {
     let condition = TaskCondition { result in
         if ... {
             result(.Satisfied)
@@ -183,7 +187,8 @@ A task can have its beginning and its ending observed using the `TaskObserver` c
 The **AlecrimAsyncKit** framework provides some predefined observers, but you can create others.
 
 ```swift
-func asyncDoSomething() -> Task<Void> {
+@warn_unused_result
+func doSomething() -> Task<Void> {
     let observer = TaskObserver()
         .didStart { _ in
             print("The task was started...")
@@ -218,7 +223,8 @@ If you want to handle its completion you may use methods from `TaskAwaiter` help
 
 ```swift
 // this code is running on the main thread
-asyncCalculate()
+
+let _ = calculate()
     .didFinishWithValue { value in
         print("The result is \(value)")
     }
@@ -239,8 +245,8 @@ asyncCalculate()
         }
     }
 
-// it is better to have "async" as a prefix to maintain consistency
-func asyncCalculate() -> Task<Int> {
+@warn_unused_result
+func calculate() -> Task<Int> {
     return async {
         var value = 0
 
@@ -250,7 +256,7 @@ func asyncCalculate() -> Task<Int> {
 
         if i >= 1_000_000 {
             // when using async with a failable task, we can throw errors
-            throw NSError(...)
+            throw ...
         }
 
         // when using async, we return the task value

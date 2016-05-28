@@ -1,5 +1,5 @@
 //
-//  SilentTaskCondition.swift
+//  SilentCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-04.
@@ -9,14 +9,14 @@
 import Foundation
 
 /// A simple condition that causes another condition to not run its dependency task.
-public final class SilentTaskCondition: TaskCondition {
+public final class SilentCondition: TaskCondition {
     
     /// Initializes a condition that causes another condition to not run its dependency task.
     ///
     /// - parameter otherCondition: The condition that `dependencyTask` will not run.
     ///
     /// - returns: A condition that causes another condition to not run its dependency task.
-    public init(_ otherCondition: TaskCondition) {
+    public init(otherCondition: TaskCondition) {
         super.init(subconditions: otherCondition.subconditions, dependencyTask: nil, evaluationClosure: otherCondition.evaluationClosure)
     }
     

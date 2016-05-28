@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class BaseTask<V>: TaskOperation, TaskWithValueType {
+public class AbstractTask<V>: TaskOperation, ValueReportingTask {
 
     // MARK: -
     
@@ -31,7 +31,7 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
     
     public private(set) final var value: V!
     
-    public func finishWithValue(value: V) {
+    public func finish(with value: V) {
         self.willAccessValue()
         defer {
             self.didAccessValue()
@@ -88,7 +88,7 @@ public class BaseTask<V>: TaskOperation, TaskWithValueType {
 
 }
 
-public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType {
+public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProtocol {
     
     // MARK: -
 
@@ -150,7 +150,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     
     public private(set) var error: ErrorType?
     
-    public override func finishWithValue(value: V) {
+    public override func finish(with value: V) {
         self.willAccessValue()
         defer {
             self.didAccessValue()
@@ -167,7 +167,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
         self.value = value
     }
     
-    public func finishWithError(error: ErrorType) {
+    public func finish(with error: ErrorType) {
         self.willAccessValue()
         defer {
             self.didAccessValue()
@@ -191,7 +191,7 @@ public final class Task<V>: BaseTask<V>, InitializableTaskType, FailableTaskType
     
 }
 
-public final class NonFailableTask<V>: BaseTask<V>, InitializableTaskType, NonFailableTaskType {
+public final class NonFailableTask<V>: AbstractTask<V>, InitializableTask, NonFailableTaskProtocol {
 
     internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (NonFailableTask<V>) -> Void) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
@@ -213,20 +213,20 @@ public final class NonFailableTask<V>: BaseTask<V>, InitializableTaskType, NonFa
 
 private final class TaskProgress: NSProgress {
     
-    private unowned let task: TaskType
+    private unowned let task: TaskProtocol
     
-    private init(task: TaskType) {
+    private init(task: TaskProtocol) {
         self.task = task
         super.init(parent: nil, userInfo: nil)
         
         self.totalUnitCount = 1
-        self.cancellable = self.task is CancellableTaskType
+        self.cancellable = self.task is CancellableTask
     }
     
     //
     private override var cancellationHandler: (() -> Void)? {
         get {
-            if let cancellableTask = self.task as? CancellableTaskType {
+            if let cancellableTask = self.task as? CancellableTask {
                 return cancellableTask.cancellationHandler
             }
             else {
@@ -234,7 +234,7 @@ private final class TaskProgress: NSProgress {
             }
         }
         set {
-            if let cancellableTask = self.task as? CancellableTaskType {
+            if let cancellableTask = self.task as? CancellableTask {
                 cancellableTask.cancellationHandler = newValue
             }
             else {
@@ -246,7 +246,7 @@ private final class TaskProgress: NSProgress {
     private override func cancel() {
         super.cancel()
         
-        if let cancellableTask = self.task as? CancellableTaskType {
+        if let cancellableTask = self.task as? CancellableTask {
             cancellableTask.cancel()
         }
     }

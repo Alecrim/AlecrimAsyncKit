@@ -8,35 +8,23 @@
 
 import Foundation
 
-public class TaskObserver {
-    
-    internal final var taskWillStartClosure: ((TaskType) -> Void)?
-    internal final var taskDidStartClosure: ((TaskType) -> Void)?
+// MARK: -
 
-    internal final var taskWillFinishClosure: ((TaskType) -> Void)?
-    internal final var taskDidFinishClosure: ((TaskType) -> Void)?
-    
-    public init() {
-    }
-    
-    public final func taskWillStart(closure: (TaskType) -> Void) -> Self {
-        self.taskWillStartClosure = closure
-        return self
-    }
+public protocol TaskObserver {
+}
 
-    public final func taskDidStart(closure: (TaskType) -> Void) -> Self {
-        self.taskDidStartClosure = closure
-        return self
-    }
+public protocol TaskWillStartObserver: TaskObserver {
+    func willStart(task: TaskProtocol)
+}
 
-    public final func taskWillFinish(closure: (TaskType) -> Void) -> Self {
-        self.taskWillFinishClosure = closure
-        return self
-    }
+public protocol TaskDidStartObserver: TaskObserver {
+    func didStart(task: TaskProtocol)
+}
 
-    public final func taskDidFinish(closure: (TaskType) -> Void) -> Self {
-        self.taskDidFinishClosure = closure
-        return self
-    }
+public protocol TaskWillFinishObserver: TaskObserver {
+    func willFinish(task: TaskProtocol)
+}
 
+public protocol TaskDidFinishObserver: TaskObserver {
+    func didFinish(task: TaskProtocol)
 }

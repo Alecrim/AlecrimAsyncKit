@@ -11,18 +11,18 @@ import Foundation
 private let _conditionEvaluationQueue: NSOperationQueue = {
     let queue = NSOperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.ConditionEvaluation"
-    queue.qualityOfService = .Default
+    queue.qualityOfService = .Utility
     queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
     
     return queue
 }()
 
-public class TaskOperation: NSOperation, TaskType {
+public class TaskOperation: NSOperation, TaskProtocol {
     
     private enum StateKey: String {
-        case Executing = "isExecuting"
-        case Finished = "isFinished"
-        case Ready = "isReady"
+        case executing = "isExecuting"
+        case finished = "isFinished"
+        case ready = "isReady"
     }
 
     // MARK: -
@@ -49,8 +49,8 @@ public class TaskOperation: NSOperation, TaskType {
     
     //
     
-    private lazy var mutuallyExclusiveConditions: [MutuallyExclusiveTaskCondition]? = {
-        if let mecs = self.conditions?.flatMap({ $0 as? MutuallyExclusiveTaskCondition }) where !mecs.isEmpty {
+    private lazy var mutuallyExclusiveConditions: [MutuallyExclusiveCondition]? = {
+        if let mecs = self.conditions?.flatMap({ $0 as? MutuallyExclusiveCondition }) where !mecs.isEmpty {
             return mecs
         }
         
@@ -76,8 +76,8 @@ public class TaskOperation: NSOperation, TaskType {
             let oldValue: Bool
             
             do {
-                self.willChangeValueForStateKey(.Executing)
-                defer { self.didChangeValueForStateKey(.Executing) }
+                self.willChangeValueForStateKey(.executing)
+                defer { self.didChangeValueForStateKey(.executing) }
                 
                 oldValue = self.__executing
                 self.__executing = newValue
@@ -98,8 +98,8 @@ public class TaskOperation: NSOperation, TaskType {
             return self.__finished
         }
         set {
-            self.willChangeValueForStateKey(.Finished)
-            defer { self.didChangeValueForStateKey(.Finished) }
+            self.willChangeValueForStateKey(.finished)
+            defer { self.didChangeValueForStateKey(.finished) }
             
             self.__finished = newValue
         }
@@ -114,8 +114,8 @@ public class TaskOperation: NSOperation, TaskType {
             return self.__ready
         }
         set {
-            self.willChangeValueForStateKey(.Ready)
-            defer { self.didChangeValueForStateKey(.Ready) }
+            self.willChangeValueForStateKey(.ready)
+            defer { self.didChangeValueForStateKey(.ready) }
             
             self.__ready = newValue
         }
@@ -150,23 +150,23 @@ public class TaskOperation: NSOperation, TaskType {
                 }
                 
                 if !self.cancelled {
-                    try await(TaskCondition.asyncEvaluateConditions(conditions))
+                    try await(TaskCondition.evaluateConditions(conditions))
                 }
             }
-            catch TaskConditionError.NotSatisfied {
+            catch TaskConditionError.notSatisfied {
                 self.cancel()
             }
-            catch TaskConditionError.Failed(let innerError) {
-                if let task = self as? TaskWithErrorType {
-                    task.finishWithError(innerError)
+            catch TaskConditionError.failed(let innerError) {
+                if let task = self as? ErrorReportingTask {
+                    task.finish(with: innerError)
                 }
                 else {
                     self.cancel()
                 }
             }
             catch let error {
-                if let task = self as? TaskWithErrorType {
-                    task.finishWithError(error)
+                if let task = self as? ErrorReportingTask {
+                    task.finish(with: error)
                 }
                 else {
                     self.cancel()
@@ -185,9 +185,7 @@ public class TaskOperation: NSOperation, TaskType {
         self.executing = true
         
         //
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskDidStartClosure?(self) }
-        }
+        self.observers?.flatMap({ $0 as? TaskDidStartObserver }).forEach({ $0.didStart(self) })
     }
     
     private var hasFinishedAlready = false
@@ -200,25 +198,20 @@ public class TaskOperation: NSOperation, TaskType {
         guard !self.hasFinishedAlready else { return }
         self.hasFinishedAlready = true
         
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskWillFinishClosure?(self) }
-        }
+        //
+        self.observers?.flatMap({ $0 as? TaskWillFinishObserver }).forEach({ $0.willFinish(self) })
         
+        //
         self.ready = false
         self.executing = false
         self.finished = true
         
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskDidFinishClosure?(self) }
-        }
+        //
+        self.observers?.flatMap({ $0 as? TaskDidFinishObserver }).forEach({ $0.didFinish(self) })
     }
     
     internal final func signalMutuallyExclusiveConditionsIfNeeded() {
-        if let mutuallyExclusiveConditions = self.mutuallyExclusiveConditions  {
-            mutuallyExclusiveConditions.forEach {
-                MutuallyExclusiveTaskCondition.signal($0.categoryName)
-            }
-        }
+        self.mutuallyExclusiveConditions?.forEach({ MutuallyExclusiveCondition.signal(condition: $0, categoryName: $0.categoryName) })
     }
     
     // MARK: -
@@ -249,10 +242,10 @@ public class TaskOperation: NSOperation, TaskType {
     }
     
     public override func main() {
-        if let observers = self.observers where !observers.isEmpty {
-            observers.forEach { $0.taskWillStartClosure?(self) }
-        }
+        //
+        self.observers?.flatMap({ $0 as? TaskWillStartObserver }).forEach({ $0.willStart(self) })
 
+        //
         if self.cancelled {
             self.finishOperation()
         }

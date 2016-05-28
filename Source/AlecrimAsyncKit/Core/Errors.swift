@@ -15,8 +15,8 @@ import Foundation
 /// - NotSatisfied: The condition was not satisfied.
 /// - Failed:       The condition evaluation was failed with an error.
 public enum TaskConditionError: ErrorType {
-    case NotSatisfied
-    case Failed(ErrorType)
+    case notSatisfied
+    case failed(ErrorType)
 }
 
 // MARK: -
@@ -31,7 +31,7 @@ extension NSError {
 
 extension ErrorType {
     
-    public var userCancelled: Bool {
+    public var isUserCancelled: Bool {
         return (self as NSError).code == NSUserCancelledError
     }
     

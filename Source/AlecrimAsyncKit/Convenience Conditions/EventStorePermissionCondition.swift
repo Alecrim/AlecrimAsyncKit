@@ -1,5 +1,5 @@
 //
-//  EventStorePermissionTaskCondition.swift
+//  EventStorePermissionCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-09-06.
@@ -15,10 +15,11 @@ import EventKit
 private let _sharedEventStore = EKEventStore()
 
 /// A condition for verifying access to the user's calendar.
-public final class EventStorePermissionTaskCondition: TaskCondition {
+public final class EventStorePermissionCondition: TaskCondition {
     
-    private static func asyncRequestAuthorization(entityType: EKEntityType) -> Task<Void> {
-        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
+    @warn_unused_result
+    private static func requestAuthorization(entityType entityType: EKEntityType) -> Task<Void> {
+        return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
             let status = EKEventStore.authorizationStatusForEntityType(entityType)
 
             switch status {
@@ -26,7 +27,7 @@ public final class EventStorePermissionTaskCondition: TaskCondition {
                 dispatch_async(dispatch_get_main_queue()) {
                     _sharedEventStore.requestAccessToEntityType(entityType) { _, error in
                         if let error = error {
-                            task.finishWithError(error)
+                            task.finish(with: error)
                         }
                         else {
                             task.finish()
@@ -46,13 +47,13 @@ public final class EventStorePermissionTaskCondition: TaskCondition {
     ///
     /// - returns: A condition for verifying access to the user's calendar.
     public init(entityType: EKEntityType) {
-        super.init(dependencyTask: EventStorePermissionTaskCondition.asyncRequestAuthorization(entityType)) { result in
+        super.init(dependencyTask: EventStorePermissionCondition.requestAuthorization(entityType: entityType)) { result in
             switch EKEventStore.authorizationStatusForEntityType(entityType) {
             case .Authorized:
-                result(.Satisfied)
+                result(.satisfied)
                 
             default:
-                result(.NotSatisfied)
+                result(.notSatisfied)
             }
         }
     }

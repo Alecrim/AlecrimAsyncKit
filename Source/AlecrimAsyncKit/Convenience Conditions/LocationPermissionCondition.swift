@@ -1,5 +1,5 @@
 //
-//  LocationPermissionTaskCondition.swift
+//  LocationPermissionCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-09-05.
@@ -12,21 +12,22 @@ import Foundation
 import CoreLocation
 
 /// A condition for verifying access to the user's location.
-public final class LocationPermissionTaskCondition: TaskCondition {
+public final class LocationPermissionCondition: TaskCondition {
     
     public enum Usage {
-        case WhenInUse
-        case Always
+        case whenInUse
+        case always
     }
     
-    private static func asyncRequestAuthorizationIfNeededForUsage(usage: LocationPermissionTaskCondition.Usage) -> Task<Void> {
-        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
+    @warn_unused_result
+    private static func requestAuthorizationIfNeeded(usage usage: LocationPermissionCondition.Usage) -> Task<Void> {
+        return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
             /*
             Not only do we need to handle the "Not Determined" case, but we also
             need to handle the "upgrade" (.WhenInUse -> .Always) case.
             */
             switch (CLLocationManager.authorizationStatus(), usage) {
-            case (.NotDetermined, _), (.AuthorizedWhenInUse, .Always):
+            case (.NotDetermined, _), (.AuthorizedWhenInUse, .always):
                 let locationManager = LocationManager()
                 locationManager.didChangeAuthorizationStatusClosure = { status in
                     task.finish()
@@ -35,13 +36,13 @@ public final class LocationPermissionTaskCondition: TaskCondition {
                 let key: String
                 
                 switch usage {
-                case .WhenInUse:
+                case .whenInUse:
                     key = "NSLocationWhenInUseUsageDescription"
                     dispatch_async(dispatch_get_main_queue()) {
                         locationManager.requestWhenInUseAuthorization()
                     }
                     
-                case .Always:
+                case .always:
                     key = "NSLocationAlwaysUsageDescription"
                     dispatch_async(dispatch_get_main_queue()) {
                         locationManager.requestAlwaysAuthorization()
@@ -63,8 +64,8 @@ public final class LocationPermissionTaskCondition: TaskCondition {
     /// - parameter usage: The needed usage (when app is in use only or always).
     ///
     /// - returns: A condition for verifying access to the user's location.
-    public init(usage: LocationPermissionTaskCondition.Usage) {
-        super.init(dependencyTask: LocationPermissionTaskCondition.asyncRequestAuthorizationIfNeededForUsage(usage)) { result in
+    public init(usage: LocationPermissionCondition.Usage) {
+        super.init(dependencyTask: LocationPermissionCondition.requestAuthorizationIfNeeded(usage: usage)) { result in
             let enabled = CLLocationManager.locationServicesEnabled()
             let actual = CLLocationManager.authorizationStatus()
             
@@ -72,11 +73,11 @@ public final class LocationPermissionTaskCondition: TaskCondition {
             switch (enabled, usage, actual) {
             case (true, _, .AuthorizedAlways):
                 // The service is enabled, and we have "Always" permission -> condition satisfied.
-                result(.Satisfied)
+                result(.satisfied)
                 
-            case (true, .WhenInUse, .AuthorizedWhenInUse):
+            case (true, .whenInUse, .AuthorizedWhenInUse):
                 // The service is enabled, and we have and need "WhenInUse" permission -> condition satisfied.
-                result(.Satisfied)
+                result(.satisfied)
                 
             default:
                 /*
@@ -87,7 +88,7 @@ public final class LocationPermissionTaskCondition: TaskCondition {
                 
                 The last case would happen if this condition were wrapped in a `SilentCondition`.
                 */
-                result(.NotSatisfied)
+                result(.notSatisfied)
             }
         }
     }

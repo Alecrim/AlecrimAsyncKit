@@ -75,11 +75,11 @@ class ViewController: UIViewController {
             // we always wait for a task finishing on background
             // (if we do it on main thread, it will block the app
             // [AlecrimAsyncKit has an assertion to prevent that, anyway])
-            await(self.asyncDone())
+            await(self.waitUntilDone())
 
             // to demonstrate delay condition...
             // (even if we do not wait for this task, it will be started after two seconds anyway)
-            let _: Task<Void> = asyncEx(conditions: [DelayTaskCondition(timeInterval: 2)]) { task in
+            let _: Task<Void> = asyncEx(condition: DelayCondition(timeInterval: 2)) { task in
                 mainThread {
                     self.doneLabel.text = "And now for something\ncompletely different..."
                     task.finish() // we have always to tell when the task is finished
@@ -88,7 +88,7 @@ class ViewController: UIViewController {
 
             // try to load a cool Minion image...
             do {
-                let image = try await { self.asyncLoadImage() }
+                let image = try await { self.loadImage() }
                 
                 mainThread {
                     self.doneLabel.hidden = true
@@ -120,37 +120,32 @@ extension ViewController {
     @IBAction func oneButtonPressed(sender: UIButton) {
         sender.hidden = true
         self.t1.finish() // yes, we can finish the task outside its inner block
-        self.t1 = nil // we do not it anymore
     }
     
     @IBAction func twoButtonPressed(sender: UIButton) {
         sender.hidden = true
         self.t2.finish()
-        self.t2 = nil // we do not it anymore
     }
     
     @IBAction func threeButtonPressed(sender: UIButton) {
         sender.hidden = true
         self.t3.finish()
-        self.t3 = nil // we do not it anymore
     }
     
     @IBAction func fourButtonPressed(sender: UIButton) {
         sender.hidden = true
         self.t4.finish()
-        self.t4 = nil // we do not it anymore
     }
     
 }
 
 extension ViewController {
 
-    func asyncDone() -> NonFailableTask<Void> {
+    @warn_unused_result
+    func waitUntilDone() -> NonFailableTask<Void> {
         return asyncEx { task in
-            await(self.t1)
-            await(self.t2)
-            await(self.t3)
-            await(self.t4) // OK, we could wait for this task only, but... this is an example
+            // OK, we know we'll not fail
+            try! await(whenAll([self.t1, self.t2, self.t3, self.t4]))
             
             mainThread {
                 self.doneLabel.text = "Done!"
@@ -162,12 +157,13 @@ extension ViewController {
         }
     }
 
-    func asyncLoadImage() -> Task<UIImage> {
+    @warn_unused_result
+    func loadImage() -> Task<UIImage> {
         // an observer is not needed to the task finish its job, but to have a network activity indicator at the top would be nice...
-        let networkActivityObserver = UIApplication.sharedApplication().networkActivityIndicatorTaskObserver()
+        let networkActivityObserver = UIApplication.sharedApplication().networkActivity
 
         // if you replace 10 for 2, for example, the task will be cancelled before it is finished
-        let timeoutObserver = TimeoutTaskObserver(timeout: 10)
+        let timeoutObserver = TimeoutObserver(timeout: 10)
         
         // here we have the common case where a func returns a task
         // and the task is finished inside its inner block
@@ -181,7 +177,7 @@ extension ViewController {
                 throw NSError(domain: "com.alecrim.AlecrimAsyncKitExampleiOS", code: 1000, userInfo: nil)
             }
             
-            NSThread.sleepForTimeInterval(3) // I think we can let them waiting a little more...
+            await(delay(3)) // I think we can let them waiting a little more...
             
             // thank you for the image, Minions and wallhaven.cc :-) 
             // (All rights reserved to its owners. Gru?)

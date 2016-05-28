@@ -1,5 +1,5 @@
 //
-//  PhotosPermissionTaskCondition.swift
+//  PhotosPermissionCondition.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-09-05.
@@ -12,10 +12,11 @@ import Foundation
 import Photos
 
 /// A condition for verifying access to the user's Photos library.
-public final class PhotosPermissionTaskCondition: TaskCondition {
+public final class PhotosPermissionCondition: TaskCondition {
     
-    private static func asyncRequestAuthorizationIfNeeded() -> Task<Void> {
-        return asyncEx(conditions: [MutuallyExclusiveTaskCondition(.Alert)]) { task in
+    @warn_unused_result
+    private static func requestAuthorizationIfNeeded() -> Task<Void> {
+        return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()
             
             if case .NotDetermined = authorizationStatus {
@@ -35,14 +36,14 @@ public final class PhotosPermissionTaskCondition: TaskCondition {
     ///
     /// - returns: A condition for verifying access to the user's Photos library.
     public init() {
-        super.init(dependencyTask: PhotosPermissionTaskCondition.asyncRequestAuthorizationIfNeeded()) { result in
+        super.init(dependencyTask: PhotosPermissionCondition.requestAuthorizationIfNeeded()) { result in
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()
             
             if case .Authorized = authorizationStatus {
-                result(.Satisfied)
+                result(.satisfied)
             }
             else {
-                result(.NotSatisfied)
+                result(.notSatisfied)
             }
         }
     }
