@@ -8,13 +8,19 @@
 
 import Foundation
 
+// MARK: - TaskProtocol
+
 public protocol TaskProtocol: class {
     func waitUntilFinished()
 }
 
+// MARK: - InitializableTask
+
 internal protocol InitializableTask: TaskProtocol {
     init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Self) -> Void)
 }
+
+// MARK: - CancellableTask
 
 public protocol CancellableTask: TaskProtocol {
     var cancelled: Bool { get }
@@ -22,28 +28,6 @@ public protocol CancellableTask: TaskProtocol {
     
     func cancel()
 }
-
-public protocol ValueReportingTask: TaskProtocol {
-    associatedtype ValueType
-    
-    var value: Self.ValueType! { get }
-    func finish(with value: Self.ValueType)
-}
-
-public protocol ErrorReportingTask: TaskProtocol {
-    var error: ErrorType? { get }
-    func finish(with error: ErrorType)
-}
-
-public protocol FailableTaskProtocol: CancellableTask, ValueReportingTask, ErrorReportingTask {
-    func finish(with value: Self.ValueType!, or error: ErrorType?)
-}
-
-public protocol NonFailableTaskProtocol: ValueReportingTask {
-
-}
-
-// MARK: -
 
 extension CancellableTask {
     
@@ -60,10 +44,17 @@ extension CancellableTask {
         
         return self
     }
-
+    
 }
 
-// MARK: -
+// MARK: - ValueReportingTask
+
+public protocol ValueReportingTask: TaskProtocol {
+    associatedtype ValueType
+    
+    var value: Self.ValueType! { get }
+    func finish(with value: Self.ValueType)
+}
 
 extension ValueReportingTask where Self.ValueType == Void {
     
@@ -73,7 +64,18 @@ extension ValueReportingTask where Self.ValueType == Void {
     
 }
 
-// MARK: -
+// MARK: - ErrorReportingTask
+
+public protocol ErrorReportingTask: TaskProtocol {
+    var error: ErrorType? { get }
+    func finish(with error: ErrorType)
+}
+
+// MARK: - FailableTaskProtocol
+
+public protocol FailableTaskProtocol: CancellableTask, ValueReportingTask, ErrorReportingTask {
+    func finish(with value: Self.ValueType!, or error: ErrorType?)
+}
 
 extension FailableTaskProtocol {
     
@@ -97,7 +99,11 @@ extension FailableTaskProtocol {
     
 }
 
-// MARK: -
+// MARK: - NonFailableTaskProtocol
+
+public protocol NonFailableTaskProtocol: ValueReportingTask {
+
+}
 
 extension NonFailableTaskProtocol {
     
