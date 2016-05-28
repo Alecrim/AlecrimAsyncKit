@@ -29,6 +29,7 @@
 		148513AC1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift */; };
 		148513AE1B9BD38100FAB0FA /* LocationPermissionCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AD1B9BD38100FAB0FA /* LocationPermissionCondition.swift */; };
 		148513B11B9BD9A500FAB0FA /* TimeoutObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513B01B9BD9A500FAB0FA /* TimeoutObserver.swift */; };
+		14A701721CF96E5E00566C11 /* SequenceType+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A701711CF96E5E00566C11 /* SequenceType+Extensions.swift */; };
 		14C290401BDE544B006F1BB3 /* TaskAwaiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */; };
 		14CD62BF1CF0D6AE007442FB /* Availability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CD62BE1CF0D6AE007442FB /* Availability.swift */; };
 		14E585BF1B7803EC003EC4DC /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -58,6 +59,7 @@
 		148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorObserver.swift; sourceTree = "<group>"; };
 		148513AD1B9BD38100FAB0FA /* LocationPermissionCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationPermissionCondition.swift; sourceTree = "<group>"; };
 		148513B01B9BD9A500FAB0FA /* TimeoutObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeoutObserver.swift; sourceTree = "<group>"; };
+		14A701711CF96E5E00566C11 /* SequenceType+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SequenceType+Extensions.swift"; sourceTree = "<group>"; };
 		14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskAwaiter.swift; sourceTree = "<group>"; };
 		14CD62BE1CF0D6AE007442FB /* Availability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Availability.swift; sourceTree = "<group>"; };
 		14E585BB1B7803EC003EC4DC /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -137,6 +139,14 @@
 			path = "Additional Observers";
 			sourceTree = "<group>";
 		};
+		14A701701CF96E3400566C11 /* Convenience Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				14A701711CF96E5E00566C11 /* SequenceType+Extensions.swift */,
+			);
+			path = "Convenience Extensions";
+			sourceTree = "<group>";
+		};
 		14E585B11B7803EC003EC4DC = {
 			isa = PBXGroup;
 			children = (
@@ -162,6 +172,7 @@
 				148513AF1B9BD9A500FAB0FA /* Additional Observers */,
 				1485138F1B9BD15100FAB0FA /* Convenience Conditions */,
 				148513AA1B9BD19700FAB0FA /* Convenience Observers */,
+				14A701701CF96E3400566C11 /* Convenience Extensions */,
 				14E585C61B7803F5003EC4DC /* Supporting Files */,
 			);
 			path = AlecrimAsyncKit;
@@ -274,6 +285,7 @@
 				148513AE1B9BD38100FAB0FA /* LocationPermissionCondition.swift in Sources */,
 				1485139D1B9BD15100FAB0FA /* DelayCondition.swift in Sources */,
 				1485139F1B9BD15100FAB0FA /* SilentCondition.swift in Sources */,
+				14A701721CF96E5E00566C11 /* SequenceType+Extensions.swift in Sources */,
 				1416E08D1BDC931A00F1EA73 /* TaskObserver.swift in Sources */,
 				14FEAD181CEEC0BC007BA09F /* ObjectValueCondition.swift in Sources */,
 				14749B861B9C4DA300661E98 /* BooleanCondition.swift in Sources */,
