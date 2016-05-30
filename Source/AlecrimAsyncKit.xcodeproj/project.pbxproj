@@ -29,6 +29,7 @@
 		148513AC1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift */; };
 		148513AE1B9BD38100FAB0FA /* LocationPermissionCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513AD1B9BD38100FAB0FA /* LocationPermissionCondition.swift */; };
 		148513B11B9BD9A500FAB0FA /* TimeoutObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148513B01B9BD9A500FAB0FA /* TimeoutObserver.swift */; };
+		14A701771CF9738300566C11 /* SequenceType+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A701761CF9738300566C11 /* SequenceType+Extensions.swift */; };
 		14C290401BDE544B006F1BB3 /* TaskAwaiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */; };
 		14CD62BF1CF0D6AE007442FB /* Availability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CD62BE1CF0D6AE007442FB /* Availability.swift */; };
 		14E585BF1B7803EC003EC4DC /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -58,6 +59,7 @@
 		148513AB1B9BD19700FAB0FA /* NetworkActivityIndicatorObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorObserver.swift; sourceTree = "<group>"; };
 		148513AD1B9BD38100FAB0FA /* LocationPermissionCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationPermissionCondition.swift; sourceTree = "<group>"; };
 		148513B01B9BD9A500FAB0FA /* TimeoutObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeoutObserver.swift; sourceTree = "<group>"; };
+		14A701761CF9738300566C11 /* SequenceType+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SequenceType+Extensions.swift"; sourceTree = "<group>"; };
 		14C2903F1BDE544B006F1BB3 /* TaskAwaiter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskAwaiter.swift; sourceTree = "<group>"; };
 		14CD62BE1CF0D6AE007442FB /* Availability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Availability.swift; sourceTree = "<group>"; };
 		14E585BB1B7803EC003EC4DC /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,8 +108,8 @@
 			isa = PBXGroup;
 			children = (
 				14CD62BE1CF0D6AE007442FB /* Availability.swift */,
-				1413F62D1BDCAE8B001049D5 /* Protocols.swift */,
 				148513961B9BD15100FAB0FA /* Errors.swift */,
+				1413F62D1BDCAE8B001049D5 /* Protocols.swift */,
 				148513951B9BD15100FAB0FA /* AsyncAwait.swift */,
 				142561B41BE31B9D00A4C974 /* TaskOperation.swift */,
 				148513981B9BD15100FAB0FA /* Task.swift */,
@@ -137,6 +139,14 @@
 			path = "Additional Observers";
 			sourceTree = "<group>";
 		};
+		14A701751CF9738300566C11 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				14A701761CF9738300566C11 /* SequenceType+Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		14E585B11B7803EC003EC4DC = {
 			isa = PBXGroup;
 			children = (
@@ -158,6 +168,7 @@
 			children = (
 				14E585BE1B7803EC003EC4DC /* AlecrimAsyncKit.h */,
 				148513941B9BD15100FAB0FA /* Core */,
+				14A701751CF9738300566C11 /* Extensions */,
 				1485138B1B9BD15100FAB0FA /* Additional Conditions */,
 				148513AF1B9BD9A500FAB0FA /* Additional Observers */,
 				1485138F1B9BD15100FAB0FA /* Convenience Conditions */,
@@ -274,6 +285,7 @@
 				148513AE1B9BD38100FAB0FA /* LocationPermissionCondition.swift in Sources */,
 				1485139D1B9BD15100FAB0FA /* DelayCondition.swift in Sources */,
 				1485139F1B9BD15100FAB0FA /* SilentCondition.swift in Sources */,
+				14A701771CF9738300566C11 /* SequenceType+Extensions.swift in Sources */,
 				1416E08D1BDC931A00F1EA73 /* TaskObserver.swift in Sources */,
 				14FEAD181CEEC0BC007BA09F /* ObjectValueCondition.swift in Sources */,
 				14749B861B9C4DA300661E98 /* BooleanCondition.swift in Sources */,
@@ -389,7 +401,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 235;
+				CURRENT_PROJECT_VERSION = 243;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -411,7 +423,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 235;
+				CURRENT_PROJECT_VERSION = 243;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;

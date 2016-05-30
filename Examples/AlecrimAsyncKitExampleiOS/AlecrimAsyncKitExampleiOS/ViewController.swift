@@ -145,7 +145,7 @@ extension ViewController {
     func waitUntilDone() -> NonFailableTask<Void> {
         return asyncEx { task in
             // OK, we know we'll not fail
-            try! await(whenAll([self.t1, self.t2, self.t3, self.t4]))
+            try! await([self.t1, self.t2, self.t3, self.t4].whenAll())
             
             mainThread {
                 self.doneLabel.text = "Done!"
