@@ -76,6 +76,14 @@ public func await<V>(@noescape closure: () -> NonFailableTask<V>) -> V {
 }
 
 public func await<V>(task: NonFailableTask<V>) -> V {
+    // this should never be called, but just in case...
+    if let parentTask = NSThread.currentThread().task as? CancellableTask, let currentTask = task as? CancellableTask where currentTask !== parentTask {
+        parentTask.cancellationHandler = { [weak currentTask] in
+            currentTask?.cancel()
+        }
+    }
+    
+    //
     task.waitUntilFinished()
     return task.value
 }
@@ -86,6 +94,14 @@ public func await<V>(@noescape closure: () -> Task<V>) throws -> V {
 }
 
 public func await<V>(task: Task<V>) throws -> V {
+    //
+    if let parentTask = NSThread.currentThread().task as? CancellableTask, let currentTask = task as? CancellableTask where currentTask !== parentTask {
+        parentTask.cancellationHandler = { [weak currentTask] in
+            currentTask?.cancel()
+        }
+    }
+
+    //
     task.waitUntilFinished()
     
     if let error = task.error {
@@ -130,7 +146,15 @@ private func createdTask<T: InitializableTask>(queue queue: NSOperationQueue, qu
     assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
     
     //
-    let task = T(conditions: conditions, observers: observers, asynchronous: asynchronous, closure: closure)
+    let effectiveClosure: (T) -> Void = {
+        NSThread.currentThread().task = $0
+        defer { NSThread.currentThread().task = nil }
+        
+        closure($0)
+    }
+    
+    //
+    let task = T(conditions: conditions, observers: observers, asynchronous: asynchronous, closure: effectiveClosure)
     let operation = task as! TaskOperation
     
     //
@@ -148,5 +172,20 @@ private func createdTask<T: InitializableTask>(queue queue: NSOperationQueue, qu
     
     //
     return task
+}
+
+// MARK: -
+
+extension NSThread {
+    
+    private var task: TaskProtocol? {
+        get {
+            return self.threadDictionary["___AAK_TASK"] as? TaskProtocol
+        }
+        set {
+            self.threadDictionary["___AAK_TASK"] = newValue
+        }
+    }
+
 }
 

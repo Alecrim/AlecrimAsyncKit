@@ -31,6 +31,7 @@ public protocol CancellableTask: TaskProtocol {
 
 extension CancellableTask {
     
+    @available(*, deprecated, message="A cancellable task now forward cancellation to their cancellable child tasks when they are awaited.")
     public func forwardCancellation(to task: CancellableTask) -> Self {
         self.cancellationHandler = { [weak task] in
             task?.cancel()
@@ -39,6 +40,7 @@ extension CancellableTask {
         return self
     }
     
+    @available(*, deprecated, message="Cancellable child tasks when awaited now inherit cancellation from the parent cancellable task.")
     public func inheritCancellation(from task: CancellableTask) -> Self {
         task.forwardCancellation(to: self)
         
