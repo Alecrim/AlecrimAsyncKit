@@ -146,18 +146,11 @@ private func createdTask<T: InitializableTask>(queue queue: NSOperationQueue, qu
     assert(queue.maxConcurrentOperationCount == NSOperationQueueDefaultMaxConcurrentOperationCount || queue.maxConcurrentOperationCount > 1, "Task `queue` cannot be the main queue nor a serial queue.")
     
     //
-    func push(task: T) {
-        NSThread.currentThread().task = task
-    }
-    
-    func pop() {
-        NSThread.currentThread().task = nil
-    }
-    
     let effectiveClosure: (T) -> Void = {
-        push($0)
+        NSThread.currentThread().task = $0
+        defer { NSThread.currentThread().task = nil }
+        
         closure($0)
-        pop()
     }
     
     //
