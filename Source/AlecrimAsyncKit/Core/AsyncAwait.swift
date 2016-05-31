@@ -187,10 +187,10 @@ extension NSThread {
     
     private var task: TaskProtocol? {
         get {
-            return self.threadDictionary["___AAK_TASK_ARRAY"] as? TaskProtocol
+            return self.threadDictionary["___AAK_TASK"] as? TaskProtocol
         }
         set {
-            self.threadDictionary["___AAK_TASK_ARRAY"] = newValue
+            self.threadDictionary["___AAK_TASK"] = newValue
         }
     }
 
