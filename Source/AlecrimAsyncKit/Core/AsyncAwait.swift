@@ -77,10 +77,8 @@ public func await<V>(@noescape closure: () -> NonFailableTask<V>) -> V {
 
 public func await<V>(task: NonFailableTask<V>) -> V {
     // this should never be called, but just in case...
-    if let parentTask = NSThread.currentThread().task as? CancellableTask, let currentTask = task as? CancellableTask where currentTask !== parentTask {
-        parentTask.cancellationHandler = { [weak currentTask] in
-            currentTask?.cancel()
-        }
+    if let parentTask = NSThread.currentThread().task as? CancellableTask, let currentTask = task as? CancellableTask where parentTask !== currentTask {
+        currentTask.inheritCancellation(from: parentTask)
     }
     
     //
@@ -95,10 +93,8 @@ public func await<V>(@noescape closure: () -> Task<V>) throws -> V {
 
 public func await<V>(task: Task<V>) throws -> V {
     //
-    if let parentTask = NSThread.currentThread().task as? CancellableTask, let currentTask = task as? CancellableTask where currentTask !== parentTask {
-        parentTask.cancellationHandler = { [weak currentTask] in
-            currentTask?.cancel()
-        }
+    if let parentTask = NSThread.currentThread().task as? CancellableTask where parentTask !== task {
+        task.inheritCancellation(from: parentTask)
     }
 
     //
