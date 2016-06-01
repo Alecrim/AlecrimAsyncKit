@@ -136,6 +136,16 @@ public func sleep(until date: NSDate) -> NonFailableTask<Void> {
     }
 }
 
+@warn_unused_result
+public func asyncValue<V>(value: V) -> Task<V> {
+    return async { return value }
+}
+
+@warn_unused_result
+public func asyncError<V>(error: ErrorType) -> Task<V> {
+    return async { throw error }
+}
+
 // MARK: -
 
 private func createdTask<T: InitializableTask>(queue queue: NSOperationQueue, qualityOfService: NSQualityOfService?, taskPriority: TaskPriority?, conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (T) -> Void) -> T {
