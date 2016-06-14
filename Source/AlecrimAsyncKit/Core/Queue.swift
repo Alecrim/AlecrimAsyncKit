@@ -23,7 +23,7 @@ internal struct Queue {
     
     // MARK: - Task Condition Queues
     
-    internal static let taskConditionDefaultQueue: OperationQueue = {
+    internal static let taskConditionOperationQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "com.alecrim.AlecrimAsyncKit.TaskCondition"
         queue.qualityOfService = .utility
