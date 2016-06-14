@@ -23,18 +23,18 @@ internal struct Queue {
     
     // MARK: - Task Condition Queues
     
-    internal static let taskConditionEvaluationOperationQueue: OperationQueue = {
+    internal static let taskConditionDefaultQueue: OperationQueue = {
         let queue = OperationQueue()
-        queue.name = "com.alecrim.AlecrimAsyncKit.ConditionEvaluation"
+        queue.name = "com.alecrim.AlecrimAsyncKit.TaskCondition"
         queue.qualityOfService = .utility
         queue.maxConcurrentOperationCount = OperationQueue.defaultMaxConcurrentOperationCount
         
         return queue
     }()
-    
-    internal static let taskConditionDefaultQueue: OperationQueue = {
+
+    internal static let taskConditionEvaluationOperationQueue: OperationQueue = {
         let queue = OperationQueue()
-        queue.name = "com.alecrim.AlecrimAsyncKit.TaskCondition"
+        queue.name = "com.alecrim.AlecrimAsyncKit.TaskCondition.Evaluation"
         queue.qualityOfService = .utility
         queue.maxConcurrentOperationCount = OperationQueue.defaultMaxConcurrentOperationCount
         
@@ -54,13 +54,9 @@ internal struct Queue {
     
     internal static let taskAwaiterCallbackSerialQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.TaskAwaiter.Callback", attributes: [.qosUtility, .serial])
     
-    // MARK: - Delay Queues
-    
-    internal static let delayQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Delay", attributes: [.qosUtility, .concurrent])
-
-    
-    // MARK: - Convenience GCD Queues
+    // MARK: - Convenience Queues
     
     internal static let mainQueue = DispatchQueue.main
+    internal static let delayQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Delay", attributes: [.qosUtility, .concurrent])
     
 }
