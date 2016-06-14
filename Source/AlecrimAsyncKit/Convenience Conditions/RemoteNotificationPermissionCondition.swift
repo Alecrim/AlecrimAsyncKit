@@ -25,23 +25,21 @@
     public typealias RemoteNotificationPermissionConditionApplication = UIApplication
     
 #endif
-    
+
+    private enum RemoteRegistrationStatus {
+        case unknown
+        case success
+        case error(ErrorProtocol)
+    }
     
     /// A condition for verifying that the app has the ability to receive push notifications.
     public final class RemoteNotificationPermissionCondition: TaskCondition {
         
-        private enum RemoteRegistrationStatus {
-            case unknown
-            case success
-            case error(ErrorType)
-        }
-        
-        
-        private static var statusObserverClosure: ((RemoteNotificationPermissionCondition.RemoteRegistrationStatus) -> Void)? = nil
-        private static var status = RemoteNotificationPermissionCondition.RemoteRegistrationStatus.unknown
+        private static var statusObserverClosure: ((RemoteRegistrationStatus) -> Void)? = nil
+        private static var status = RemoteRegistrationStatus.unknown
         
         #if os(OSX)
-        public static var remoteNotificationTypes: NSRemoteNotificationType = [.None]
+        public static var remoteNotificationTypes: NSRemoteNotificationType = [.none]
         #endif
         
         // MARK: -
@@ -62,7 +60,6 @@
         
         // MARK: -
         
-        @warn_unused_result
         private static func waitForResponse(from application: RemoteNotificationPermissionConditionApplication) -> Task<Void> {
             return asyncEx { task in
                 if application.isRegisteredForRemoteNotifications() {
@@ -166,13 +163,13 @@
                 return false
             }
             set {
-                let number = NSNumber(bool: newValue)
+                let number = NSNumber(value: newValue)
                 objc_setAssociatedObject(self, &AssociatedKeys.registeredForRemoteNotifications, number, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             }
         }
         
         private func registerForRemoteNotifications() {
-            self.registerForRemoteNotificationTypes(RemoteNotificationPermissionCondition.remoteNotificationTypes)
+            self.registerForRemoteNotifications(matching: RemoteNotificationPermissionCondition.remoteNotificationTypes)
             self.__registeredForRemoteNotifications = true
         }
         

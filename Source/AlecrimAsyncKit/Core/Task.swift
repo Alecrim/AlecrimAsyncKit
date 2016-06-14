@@ -51,13 +51,13 @@ public class AbstractTask<V>: TaskOperation, ValueReportingTask {
     // MARK: -
     
     public override final func waitUntilFinished() {
-        assert(!NSThread.isMainThread(), "Cannot wait task on main thread.")
+        assert(!Thread.isMainThread(), "Cannot wait task on main thread.")
         super.waitUntilFinished()
     }
     
     // MARK: -
-    private var _progress: NSProgress?
-    public final var progress: NSProgress {
+    private var _progress: Progress?
+    public final var progress: Progress {
         if self._progress == nil {
             self._progress = TaskProgress(task: self)
         }
@@ -78,7 +78,7 @@ public class AbstractTask<V>: TaskOperation, ValueReportingTask {
     internal override final func execute() {
         super.execute()
         
-        if !self.cancelled, let closure = self.closure {
+        if !self.isCancelled, let closure = self.closure {
             closure()
         }
         else {
@@ -148,7 +148,7 @@ public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProt
     
     // MARK: -
     
-    public private(set) var error: ErrorType?
+    public private(set) var error: ErrorProtocol?
     
     public override func finish(with value: V) {
         self.willAccessValue()
@@ -167,7 +167,7 @@ public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProt
         self.value = value
     }
     
-    public func finish(with error: ErrorType) {
+    public func finish(with error: ErrorProtocol) {
         self.willAccessValue()
         defer {
             self.didAccessValue()
@@ -188,7 +188,7 @@ public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProt
             closure(self)
         }
     }
-    
+
 }
 
 public final class NonFailableTask<V>: AbstractTask<V>, InitializableTask, NonFailableTaskProtocol {
@@ -211,7 +211,7 @@ public final class NonFailableTask<V>: AbstractTask<V>, InitializableTask, NonFa
 
 // MARK: -
 
-private final class TaskProgress: NSProgress {
+private final class TaskProgress: Progress {
     
     private unowned let task: TaskProtocol
     
@@ -220,7 +220,7 @@ private final class TaskProgress: NSProgress {
         super.init(parent: nil, userInfo: nil)
         
         self.totalUnitCount = 1
-        self.cancellable = self.task is CancellableTask
+        self.isCancellable = self.task is CancellableTask
     }
     
     //

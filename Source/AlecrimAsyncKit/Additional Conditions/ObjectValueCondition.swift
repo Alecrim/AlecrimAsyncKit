@@ -49,9 +49,9 @@ private final class ValueObserver: NSObject {
         self.stopObserving()
     }
     
-    private override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    private override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
         if context == &self.context {
-            if let newValue = change?[NSKeyValueChangeNewKey] {
+            if let newValue = change?[NSKeyValueChangeKey.newKey] {
                 let satisfied = self.evaluationClosure(newValue)
                 self.callbackClosure(satisfied)
                 
@@ -63,7 +63,7 @@ private final class ValueObserver: NSObject {
     }
     
     private func startObserving() {
-        self.object.addObserver(self, forKeyPath: self.keyPath, options: [.Initial, .New], context: &self.context)
+        self.object.addObserver(self, forKeyPath: self.keyPath, options: [.initial, .new], context: &self.context)
         self.observing = true
     }
     

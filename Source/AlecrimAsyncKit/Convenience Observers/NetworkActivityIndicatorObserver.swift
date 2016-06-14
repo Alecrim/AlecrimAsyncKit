@@ -24,8 +24,8 @@ public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskD
 
     // MARK: - Public Properties
     
-    public var showDelay: NSTimeInterval = 2.0
-    public var dismissDelay: NSTimeInterval = 0.25
+    public var showDelay: TimeInterval = 2.0
+    public var dismissDelay: TimeInterval = 0.25
     
     // MARK: - Private Properties
 
@@ -36,11 +36,11 @@ public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskD
     
     // MARK: - Observer Protocols Conformance
     
-    public func didStart(task: TaskProtocol) {
+    public func didStartTask(_ task: TaskProtocol) {
         self.increment()
     }
     
-    public func didFinish(task: TaskProtocol) {
+    public func didFinishTask(_ task: TaskProtocol) {
         self.decrement()
     }
     
@@ -86,11 +86,10 @@ public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskD
     // MARK: - Private Methods
     
     private func showOrHideActivityIndicatorAfterDelay() {
-        dispatch_async(dispatch_get_main_queue()) {
-            let delay = (self.networkActivityIndicatorHandler.networkActivityIndicatorVisible ? self.dismissDelay : self.showDelay)
-            let when = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
+        Queue.mainQueue.async() {
+            let delay = self.networkActivityIndicatorHandler.networkActivityIndicatorVisible ? self.dismissDelay : self.showDelay
             
-            dispatch_after(when, dispatch_get_main_queue()) {
+            Queue.mainQueue.after(when: DispatchTime.now() + delay) {
                 withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockLock)
                 defer { withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockUnlock) }
                 
@@ -109,11 +108,11 @@ public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskD
 
 // MARK: - Convenience Operators
 
-public postfix func ++(networkActivityObserver: NetworkActivityIndicatorObserver) {
+public postfix func ++ (networkActivityObserver: NetworkActivityIndicatorObserver) {
     networkActivityObserver.increment()
 }
 
-public postfix func --(networkActivityObserver: NetworkActivityIndicatorObserver) {
+public postfix func -- (networkActivityObserver: NetworkActivityIndicatorObserver) {
     networkActivityObserver.decrement()
 }
 

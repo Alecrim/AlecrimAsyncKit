@@ -9,11 +9,11 @@
 import Foundation
 
 private final class Semaphore {
-    private let dispatch_semaphore: dispatch_semaphore_t
+    private let dispatchSemaphore: DispatchSemaphore
     private var count: Int
     
-    private init(dispatch_semaphore: dispatch_semaphore_t, count: Int) {
-        self.dispatch_semaphore = dispatch_semaphore
+    private init(dispatchSemaphore: DispatchSemaphore, count: Int) {
+        self.dispatchSemaphore = dispatchSemaphore
         self.count = count
     }
 }
@@ -62,7 +62,7 @@ public final class MutuallyExclusiveCondition: TaskCondition {
     }
     
     private static func wait(for condition: MutuallyExclusiveCondition, categoryName: String) {
-        let dispatch_semaphore: dispatch_semaphore_t
+        let dispatchSemaphore: DispatchSemaphore
         
         do {
             withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
@@ -70,22 +70,22 @@ public final class MutuallyExclusiveCondition: TaskCondition {
             
             if let semaphore = self.mutuallyExclusiveSemaphores[categoryName] {
                 semaphore.count += 1
-                dispatch_semaphore = semaphore.dispatch_semaphore
+                dispatchSemaphore = semaphore.dispatchSemaphore
             }
             else {
-                let semaphore = Semaphore(dispatch_semaphore: dispatch_semaphore_create(1), count: 1)
+                let semaphore = Semaphore(dispatchSemaphore: DispatchSemaphore(value: 1), count: 1)
                 self.mutuallyExclusiveSemaphores[categoryName] = semaphore
-                dispatch_semaphore = semaphore.dispatch_semaphore
+                dispatchSemaphore = semaphore.dispatchSemaphore
             }
             
             condition.waiting = true
         }
         
-        dispatch_semaphore_wait(dispatch_semaphore, DISPATCH_TIME_FOREVER)
+        dispatchSemaphore.wait()
     }
     
-    internal static func signal(condition condition: MutuallyExclusiveCondition, categoryName: String) {
-        let dispatch_semaphore: dispatch_semaphore_t
+    internal static func signal(condition: MutuallyExclusiveCondition, categoryName: String) {
+        let dispatchSemaphore: DispatchSemaphore
         
         withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
         defer { withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock) }
@@ -95,13 +95,13 @@ public final class MutuallyExclusiveCondition: TaskCondition {
 
             let semaphore = self.mutuallyExclusiveSemaphores[categoryName]!
             semaphore.count -= 1
-            dispatch_semaphore = semaphore.dispatch_semaphore
+            dispatchSemaphore = semaphore.dispatchSemaphore
             
             if semaphore.count == 0 {
                 self.mutuallyExclusiveSemaphores[categoryName] = nil
             }
             
-            dispatch_semaphore_signal(dispatch_semaphore)
+            dispatchSemaphore.signal()
         }
     }
     

@@ -8,20 +8,6 @@
 
 import Foundation
 
-private let _mainOperationQueue = NSOperationQueue.mainQueue()
-private let _dispatch_main_queue = dispatch_get_main_queue()
-private let _dispatch_serial_queue = dispatch_queue_create(nil, DISPATCH_QUEUE_SERIAL)
-
-private let _defaultTaskAwaiterQueue: NSOperationQueue = {
-    let queue = NSOperationQueue()
-    queue.name = "com.alecrim.AlecrimAsyncKit.TaskAwaiter"
-    queue.qualityOfService = .Utility
-    queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
-    
-    return queue
-}()
-
-
 public final class NonFailableTaskAwaiter<V> {
     
     public let task: NonFailableTask<V>
@@ -29,25 +15,25 @@ public final class NonFailableTaskAwaiter<V> {
     private var didFinishClosure: ((NonFailableTask<V>) -> Void)?
     private var didFinishWithValueClosure: ((V) -> Void)?
     
-    private init(queue: NSOperationQueue, callbackQueue: NSOperationQueue, task: NonFailableTask<V>) {
+    private init(queue: OperationQueue, callbackQueue: OperationQueue, task: NonFailableTask<V>) {
         self.task = task
         
-        // prefer GCD over NSOperationQueue for main thread dispatching
-        let callbackQueueIsMainOperationQueue = (callbackQueue === _mainOperationQueue)
+        // prefer GCD over OperationQueue for main thread dispatching
+        let callbackQueueIsMainOperationQueue = (callbackQueue === OperationQueue.main())
         
         func dispatchToCallbackQueue(closure: () -> Void) {
             if callbackQueueIsMainOperationQueue {
-                dispatch_async(_dispatch_serial_queue) {
-                    dispatch_sync(_dispatch_main_queue, closure)
+                Queue.taskAwaiterCallbackSerialQueue.async {
+                    Queue.mainQueue.sync(execute: closure)
                 }
             }
             else {
-                callbackQueue.addOperationWithBlock(closure)
+                callbackQueue.addOperation(closure)
             }
         }
 
         //
-        queue.addOperationWithBlock {
+        queue.addOperation {
             defer {
                 if let didFinishClosure = self.didFinishClosure {
                     dispatchToCallbackQueue {
@@ -66,12 +52,12 @@ public final class NonFailableTaskAwaiter<V> {
         }
     }
     
-    public func didFinish(closure: (NonFailableTask<V>) -> Void) -> Self {
+    public func didFinish(_ closure: (NonFailableTask<V>) -> Void) -> Self {
         self.didFinishClosure = closure
         return self
     }
 
-    public func didFinishWithValue(closure: (V) -> Void) -> Self {
+    public func didFinishWithValue(_ closure: (V) -> Void) -> Self {
         self.didFinishWithValueClosure = closure
         return self
     }
@@ -84,28 +70,28 @@ public final class TaskAwaiter<V> {
     
     private var didFinishClosure: ((Task<V>) -> Void)?
     private var didFinishWithValueClosure: ((V) -> Void)?
-    private var didFinishWithErrorClosure: ((ErrorType) -> Void)?
+    private var didFinishWithErrorClosure: ((ErrorProtocol) -> Void)?
     private var didCancelClosure: (() -> Void)?
     
-    private init(queue: NSOperationQueue, callbackQueue: NSOperationQueue, task: Task<V>) {
+    private init(queue: OperationQueue, callbackQueue: OperationQueue, task: Task<V>) {
         self.task = task
         
-        // prefer GCD over NSOperationQueue for main thread dispatching
-        let callbackQueueIsMainOperationQueue = (callbackQueue === _mainOperationQueue)
+        // prefer GCD over OperationQueue for main thread dispatching
+        let callbackQueueIsMainOperationQueue = (callbackQueue === OperationQueue.main())
         
         func dispatchToCallbackQueue(closure: () -> Void) {
             if callbackQueueIsMainOperationQueue {
-                dispatch_async(_dispatch_serial_queue) {
-                    dispatch_sync(_dispatch_main_queue, closure)
+                Queue.taskAwaiterCallbackSerialQueue.async {
+                    Queue.mainQueue.sync(execute: closure)
                 }
             }
             else {
-                callbackQueue.addOperationWithBlock(closure)
+                callbackQueue.addOperation(closure)
             }
         }
         
         //
-        queue.addOperationWithBlock {
+        queue.addOperation {
             defer {
                 if let didFinishClosure = self.didFinishClosure {
                     dispatchToCallbackQueue {
@@ -143,22 +129,22 @@ public final class TaskAwaiter<V> {
         }
     }
     
-    public func didFinish(closure: (Task<V>) -> Void) -> Self {
+    public func didFinish(_ closure: (Task<V>) -> Void) -> Self {
         self.didFinishClosure = closure
         return self
     }
     
-    public func didFinishWithValue(closure: (V) -> Void) -> Self {
+    public func didFinishWithValue(_ closure: (V) -> Void) -> Self {
         self.didFinishWithValueClosure = closure
         return self
     }
 
-    public func didFinishWithError(closure: (ErrorType) -> Void) -> Self {
+    public func didFinishWithError(_ closure: (ErrorProtocol) -> Void) -> Self {
         self.didFinishWithErrorClosure = closure
         return self
     }
 
-    public func didCancel(closure: () -> Void) -> Self {
+    public func didCancel(_ closure: () -> Void) -> Self {
         self.didCancelClosure = closure
         return self
     }
@@ -169,11 +155,11 @@ public final class TaskAwaiter<V> {
 
 extension NonFailableTask {
     
-    public func didFinish(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (NonFailableTask<V>) -> Void) -> NonFailableTaskAwaiter<V> {
+    public func didFinish(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main(), closure: (NonFailableTask<V>) -> Void) -> NonFailableTaskAwaiter<V> {
         return NonFailableTaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinish(closure)
     }
     
-    public func didFinishWithValue(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> NonFailableTaskAwaiter<V> {
+    public func didFinishWithValue(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main(), closure: (V) -> Void) -> NonFailableTaskAwaiter<V> {
         return NonFailableTaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithValue(closure)
     }
     
@@ -181,19 +167,19 @@ extension NonFailableTask {
 
 extension Task {
 
-    public func didFinish(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (Task<V>) -> Void) -> TaskAwaiter<V> {
+    public func didFinish(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main(), closure: (Task<V>) -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinish(closure)
     }
     
-    public func didFinishWithValue(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (V) -> Void) -> TaskAwaiter<V> {
+    public func didFinishWithValue(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main(), closure: (V) -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithValue(closure)
     }
 
-    public func didFinishWithError(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: (ErrorType) -> Void) -> TaskAwaiter<V> {
+    public func didFinishWithError(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main(), closure: (ErrorProtocol) -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithError(closure)
     }
     
-    public func didCancel(queue queue: NSOperationQueue = _defaultTaskAwaiterQueue, callbackQueue: NSOperationQueue = NSOperationQueue.mainQueue(), closure: () -> Void) -> TaskAwaiter<V> {
+    public func didCancel(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main(), closure: () -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didCancel(closure)
     }
     

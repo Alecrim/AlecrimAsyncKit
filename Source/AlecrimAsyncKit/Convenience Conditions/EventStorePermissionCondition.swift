@@ -18,14 +18,14 @@ private let _sharedEventStore = EKEventStore()
 public final class EventStorePermissionCondition: TaskCondition {
     
     @warn_unused_result
-    private static func requestAuthorization(entityType entityType: EKEntityType) -> Task<Void> {
+    private static func requestAuthorization(entityType: EKEntityType) -> Task<Void> {
         return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
-            let status = EKEventStore.authorizationStatusForEntityType(entityType)
+            let status = EKEventStore.authorizationStatus(for: entityType)
 
             switch status {
-            case .NotDetermined:
-                dispatch_async(dispatch_get_main_queue()) {
-                    _sharedEventStore.requestAccessToEntityType(entityType) { _, error in
+            case .notDetermined:
+                Queue.mainQueue.async() {
+                    _sharedEventStore.requestAccess(to: entityType) { _, error in
                         if let error = error {
                             task.finish(with: error)
                         }
@@ -48,8 +48,8 @@ public final class EventStorePermissionCondition: TaskCondition {
     /// - returns: A condition for verifying access to the user's calendar.
     public init(entityType: EKEntityType) {
         super.init(dependencyTask: EventStorePermissionCondition.requestAuthorization(entityType: entityType)) { result in
-            switch EKEventStore.authorizationStatusForEntityType(entityType) {
-            case .Authorized:
+            switch EKEventStore.authorizationStatus(for: entityType) {
+            case .authorized:
                 result(.satisfied)
                 
             default:
