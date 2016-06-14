@@ -51,7 +51,7 @@ public class AbstractTask<V>: TaskOperation, ValueReportingTask {
     // MARK: -
     
     public override final func waitUntilFinished() {
-        assert(!Thread.isMainThread(), "Cannot wait task on main thread.")
+        precondition(!Thread.isMainThread(), "Cannot wait task on main thread.")
         super.waitUntilFinished()
     }
     
