@@ -45,7 +45,7 @@ class ViewController: UIViewController {
             
             mainThread {
                 // interface elements have to be updated on the main thread
-                self.twoButton.enabled = true
+                self.twoButton.isEnabled = true
             }
         }
 
@@ -54,7 +54,7 @@ class ViewController: UIViewController {
             await(self.t2)
             
             mainThread {
-                self.threeButton.enabled = true
+                self.threeButton.isEnabled = true
             }
         }
 
@@ -64,7 +64,7 @@ class ViewController: UIViewController {
             await(self.t3)
             
             mainThread {
-                self.fourButton.enabled = true
+                self.fourButton.isEnabled = true
             }
         }
         
@@ -75,7 +75,7 @@ class ViewController: UIViewController {
             // we always wait for a task finishing on background
             // (if we do it on main thread, it will block the app
             // [AlecrimAsyncKit has an assertion to prevent that, anyway])
-            await(self.waitUntilDone())
+            await(self.asyncWaitUntilDone())
 
             // to demonstrate delay condition...
             // (even if we do not wait for this task, it will be started after two seconds anyway)
@@ -88,14 +88,14 @@ class ViewController: UIViewController {
 
             // try to load a cool Minion image...
             do {
-                let image = try await { self.loadImage() }
+                let image = try await { self.asyncLoadImage() }
                 
                 mainThread {
-                    self.doneLabel.hidden = true
+                    self.doneLabel.isHidden = true
 
                     // OK, we can now eat some bananas... finally!
                     self.imageView.image = image
-                    self.imageView.hidden = false
+                    self.imageView.isHidden = false
                 }
             }
             catch {
@@ -117,23 +117,23 @@ class ViewController: UIViewController {
 
 extension ViewController {
     
-    @IBAction func oneButtonPressed(sender: UIButton) {
-        sender.hidden = true
+    @IBAction func oneButtonPressed(_ sender: UIButton) {
+        sender.isHidden = true
         self.t1.finish() // yes, we can finish the task outside its inner block
     }
     
-    @IBAction func twoButtonPressed(sender: UIButton) {
-        sender.hidden = true
+    @IBAction func twoButtonPressed(_ sender: UIButton) {
+        sender.isHidden = true
         self.t2.finish()
     }
     
-    @IBAction func threeButtonPressed(sender: UIButton) {
-        sender.hidden = true
+    @IBAction func threeButtonPressed(_ sender: UIButton) {
+        sender.isHidden = true
         self.t3.finish()
     }
     
-    @IBAction func fourButtonPressed(sender: UIButton) {
-        sender.hidden = true
+    @IBAction func fourButtonPressed(_ sender: UIButton) {
+        sender.isHidden = true
         self.t4.finish()
     }
     
@@ -141,15 +141,14 @@ extension ViewController {
 
 extension ViewController {
 
-    @warn_unused_result
-    func waitUntilDone() -> NonFailableTask<Void> {
+    func asyncWaitUntilDone() -> NonFailableTask<Void> {
         return asyncEx { task in
             // OK, we know we'll not fail
             try! await([self.t1, self.t2, self.t3, self.t4].whenAll())
             
             mainThread {
                 self.doneLabel.text = "Done!"
-                self.doneLabel.hidden = false
+                self.doneLabel.isHidden = false
                 
                 // we can finish the task on any thread, even the main thread
                 task.finish()
@@ -157,10 +156,9 @@ extension ViewController {
         }
     }
 
-    @warn_unused_result
-    func loadImage() -> Task<UIImage> {
+    func asyncLoadImage() -> Task<UIImage> {
         // an observer is not needed to the task finish its job, but to have a network activity indicator at the top would be nice...
-        let networkActivityObserver = UIApplication.sharedApplication().networkActivity
+        let networkActivityObserver = UIApplication.shared().networkActivity
 
         // if you replace 10 for 2, for example, the task will be cancelled before it is finished
         let timeoutObserver = TimeoutObserver(timeout: 10)
@@ -168,16 +166,16 @@ extension ViewController {
         // here we have the common case where a func returns a task
         // and the task is finished inside its inner block
         return async(observers: [networkActivityObserver, timeoutObserver]) {
-            // remember that on iOS 9 (and OS X 10.11 El Capitan, My Capitan!) we cannot use "http" anymore because...
+            // remember that since iOS 9 (and OS X 10.11 El Capitan, My Capitan!) we cannot use "http" anymore because...
             // wibbly wobbly... time-y wimey... stuff!
-            guard let imageURL = NSURL(string: "https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-90081.jpg"),
-                  let imageData = NSData(contentsOfURL: imageURL), // this is OK for example purposes, in real life use NSURLSession and related classes
+            guard let imageURL = URL(string: "https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-90081.jpg"),
+                  let imageData = (try? Data(contentsOf: imageURL)), // this is OK for example purposes, in real life use NSURLSession and related classes
                   let image = UIImage(data: imageData)
             else {
                 throw NSError(domain: "com.alecrim.AlecrimAsyncKitExampleiOS", code: 1000, userInfo: nil)
             }
             
-            await(delay(3)) // I think we can let them waiting a little more...
+            await(asyncDelay(timeInterval: 5)) // I think we can let them waiting a little more...
             
             // thank you for the image, Minions and wallhaven.cc :-) 
             // (All rights reserved to its owners. Gru?)
@@ -187,10 +185,10 @@ extension ViewController {
     
 }
 
-private func mainThread(block: () -> Void) {
-    dispatch_async(dispatch_get_main_queue(), block)
+private func mainThread(_ block: () -> Void) {
+    DispatchQueue.main.async(execute: block)
 }
 
-private func backgroundThread(block: () -> Void) {
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UNSPECIFIED, 0), block)
+private func backgroundThread(_ block: () -> Void) {
+    DispatchQueue.global(attributes: .qosDefault).async(execute: block)
 }
