@@ -62,6 +62,5 @@ internal struct Queue {
     // MARK: - Convenience GCD Queues
     
     internal static let mainQueue = DispatchQueue.main
-    internal static let globalUtilitityQueue = DispatchQueue.global(attributes: .qosUtility)
     
 }

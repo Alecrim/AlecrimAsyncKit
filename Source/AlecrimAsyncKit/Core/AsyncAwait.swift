@@ -103,11 +103,9 @@ public func asyncDelay(in queue: OperationQueue = Queue.taskDefaultOperationQueu
 
 public func asyncSleep(in queue: OperationQueue = Queue.taskDefaultOperationQueue, forTimeInterval timeInterval: TimeInterval) -> NonFailableTask<Void> {
     return asyncEx(in: queue) { t in
-        let timer = DispatchSource.timer(flags: [], queue: Queue.delayQueue)
-        
-        timer.scheduleOneshot(deadline: DispatchTime.now() + timeInterval)
-        timer.setEventHandler() { t.finish() }
-        timer.resume()
+        Queue.delayQueue.after(when: DispatchTime.now() + timeInterval) {
+            t.finish()
+        }
     }
 }
 
