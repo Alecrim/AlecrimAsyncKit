@@ -40,7 +40,7 @@ catch let error {
     print(error)
 }
 
-func calculate() -> Task<Int> {
+func asyncCalculate() -> Task<Int> {
     return async {
         var value = 0
 
