@@ -26,7 +26,7 @@ A failable task is created passing a closure to the `async` global function (tha
 // this code is running in background
 do {
     // the task is started immediately
-    let task = calculate()
+    let task = asyncCalculate()
 
     // we can do other things while the calculation is made...
     // ...
@@ -40,8 +40,7 @@ catch let error {
     print(error)
 }
 
-@warn_unused_result
-func calculate() -> Task<Int> {
+func asyncCalculate() -> Task<Int> {
     return async {
         var value = 0
 
@@ -69,11 +68,10 @@ You mark a task as non-failable using `NonFailableTask<T>` class instead of `Tas
 
 ```swift
 // this code is running in background
-let value = await { calculate() }
+let value = await { asyncCalculate() }
 print("The result is \(value)")
 
-@warn_unused_result
-func calculate() -> NonFailableTask<Int> {
+func asyncCalculate() -> NonFailableTask<Int> {
     return async {
         var value = 0
 
@@ -119,7 +117,6 @@ catch let error {
 
 extension CKDatabase {
 
-    @warn_unused_result
     public func asyncPerformQuery(query: CKQuery, inZoneWithID zoneID: CKRecordZoneID?) -> Task<[CKRecord]> {
         return asyncEx { task in
             self.performQuery(query, inZoneWithID: zoneID) { records, error in
@@ -160,8 +157,7 @@ One task may have one or more conditions. Different tasks can have the same cond
 The **AlecrimAsyncKit** framework provides some predefined conditions, but you can create others. The `MutuallyExclusiveCondition` is one special kind of condition that prevents tasks that share the same behavior from running at the same time.
 
 ```swift
-@warn_unused_result
-func doSomething() -> Task<Void> {
+func asyncDoSomething() -> Task<Void> {
     let condition = TaskCondition { result in
         if ... {
             result(.Satisfied)
@@ -187,13 +183,12 @@ A task can have its beginning and its ending observed using the `TaskObserver` c
 The **AlecrimAsyncKit** framework provides some predefined observers, but you can create others.
 
 ```swift
-@warn_unused_result
-func doSomething() -> Task<Void> {
+func asyncDoSomething() -> Task<Void> {
     let observer = TaskObserver()
-        .didStart { _ in
+        .didStartTask { _ in
             print("The task was started...")
         }
-        .didFinish { _ in
+        .didFinishTask { _ in
             print("The task was finished...")
         }
 
@@ -224,7 +219,7 @@ If you want to handle its completion you may use methods from `TaskAwaiter` help
 ```swift
 // this code is running on the main thread
 
-let _ = calculate()
+let _ = asyncCalculate()
     .didFinishWithValue { value in
         print("The result is \(value)")
     }
@@ -245,8 +240,7 @@ let _ = calculate()
         }
     }
 
-@warn_unused_result
-func calculate() -> Task<Int> {
+func asyncCalculate() -> Task<Int> {
     return async {
         var value = 0
 
