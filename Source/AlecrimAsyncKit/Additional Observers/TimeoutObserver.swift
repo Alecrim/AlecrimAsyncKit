@@ -20,7 +20,7 @@ public struct TimeoutObserver: TaskWillStartObserver {
         if let task = task as? CancellableTask {
             weak var weakTask = task
             
-            Queue.delayQueue.after(when: DispatchTime.now() + self.timeout) {
+            Queue.delayQueue.asyncAfter(deadline: DispatchTime.now() + self.timeout) {
                 weakTask?.cancel()
             }
         }

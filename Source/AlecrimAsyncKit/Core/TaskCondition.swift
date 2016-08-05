@@ -16,7 +16,7 @@ import Foundation
 public enum TaskConditionResult {
     case satisfied
     case notSatisfied
-    case failed(ErrorProtocol)
+    case failed(Error)
 }
 
 /// A condition determines if a task can be executed or not.
@@ -130,7 +130,7 @@ extension TaskCondition {
     internal static func evaluateConditions(_ conditions: [TaskCondition]) -> Task<Void> {
         return async(in: Queue.taskConditionOperationQueue) {
             for condition in conditions {
-                if let subconditions = condition.subconditions where !subconditions.isEmpty {
+                if let subconditions = condition.subconditions, !subconditions.isEmpty {
                     try await(TaskCondition.evaluateConditions(subconditions))
                 }
                 

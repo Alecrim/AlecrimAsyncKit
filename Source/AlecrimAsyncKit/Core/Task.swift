@@ -51,7 +51,7 @@ public class AbstractTask<V>: TaskOperation, ValueReportingTask {
     // MARK: -
     
     public override final func waitUntilFinished() {
-        precondition(!Thread.isMainThread(), "Cannot wait task on main thread.")
+        precondition(!Thread.isMainThread, "Cannot wait task on main thread.")
         super.waitUntilFinished()
     }
     
@@ -131,7 +131,7 @@ public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProt
             
             guard self.value == nil && self.error == nil else { return }
             
-            self.error = NSError.userCancelledError()
+            self.error = NSError.userCancelledError(domain: AlecrimAsyncKitErrorDomain)
         }
         
         //
@@ -148,7 +148,7 @@ public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProt
     
     // MARK: -
     
-    public private(set) var error: ErrorProtocol?
+    public private(set) var error: Error?
     
     public override func finish(with value: V) {
         self.willAccessValue()
@@ -167,7 +167,7 @@ public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProt
         self.value = value
     }
     
-    public func finish(with error: ErrorProtocol) {
+    public func finish(with error: Error) {
         self.willAccessValue()
         defer {
             self.didAccessValue()

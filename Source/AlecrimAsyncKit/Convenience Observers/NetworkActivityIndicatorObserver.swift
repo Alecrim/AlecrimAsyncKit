@@ -89,7 +89,7 @@ public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskD
         Queue.mainQueue.async() {
             let delay = self.networkActivityIndicatorHandler.networkActivityIndicatorVisible ? self.dismissDelay : self.showDelay
             
-            Queue.mainQueue.after(when: DispatchTime.now() + delay) {
+            Queue.mainQueue.asyncAfter(deadline: DispatchTime.now() + delay) {
                 withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockLock)
                 defer { withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockUnlock) }
                 

@@ -21,12 +21,12 @@ public final class ProcessInfoActivityObserver: TaskDidStartObserver, TaskDidFin
     }
     
     public func didStartTask(_ task: TaskProtocol) {
-        self.activity = ProcessInfo.processInfo().beginActivity(self.options, reason: self.reason)
+        self.activity = ProcessInfo.processInfo.beginActivity(options: self.options, reason: self.reason)
     }
     
     public func didFinishTask(_ task: TaskProtocol) {
         if let activity = self.activity {
-            ProcessInfo.processInfo().endActivity(activity)
+            ProcessInfo.processInfo.endActivity(activity)
             self.activity = nil
         }
     }

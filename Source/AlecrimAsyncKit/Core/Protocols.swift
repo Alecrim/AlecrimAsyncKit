@@ -80,19 +80,19 @@ extension ValueReportingTask where Self.ValueType == Void {
 // MARK: - ErrorReportingTask
 
 public protocol ErrorReportingTask: TaskProtocol {
-    var error: ErrorProtocol? { get }
-    func finish(with error: ErrorProtocol)
+    var error: Error? { get }
+    func finish(with error: Error)
 }
 
 // MARK: - FailableTaskProtocol
 
 public protocol FailableTaskProtocol: CancellableTask, ValueReportingTask, ErrorReportingTask {
-    func finish(with value: Self.ValueType!, or error: ErrorProtocol?)
+    func finish(with value: Self.ValueType!, or error: Error?)
 }
 
 extension FailableTaskProtocol {
     
-    public final func finish(with value: Self.ValueType!, or error: ErrorProtocol?) {
+    public final func finish(with value: Self.ValueType!, or error: Error?) {
         if let error = error {
             self.finish(with: error)
         }

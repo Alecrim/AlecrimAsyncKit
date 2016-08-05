@@ -94,12 +94,12 @@ extension Task {
     }
 
     @available(*, unavailable, renamed: "finish")
-    public final func finishWithError(error: ErrorProtocol) {
+    public final func finishWithError(error: Error) {
         fatalError()
     }
 
     @available(*, unavailable, renamed: "finish")
-    public final func finishWithValue(value: V!, error: ErrorProtocol?) {
+    public final func finishWithValue(value: V!, error: Error?) {
         fatalError()
     }
     

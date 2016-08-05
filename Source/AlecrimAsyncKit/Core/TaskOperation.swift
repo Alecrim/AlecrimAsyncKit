@@ -41,7 +41,7 @@ public class TaskOperation: Operation, TaskProtocol {
     //
     
     private lazy var mutuallyExclusiveConditions: [MutuallyExclusiveCondition]? = {
-        if let mecs = self.conditions?.flatMap({ $0 as? MutuallyExclusiveCondition }) where !mecs.isEmpty {
+        if let mecs = self.conditions?.flatMap({ $0 as? MutuallyExclusiveCondition }), !mecs.isEmpty {
             return mecs
         }
         
@@ -128,7 +128,7 @@ public class TaskOperation: Operation, TaskProtocol {
     }
     
     internal final func evaluateConditions() {
-        guard !self.isCancelled, let conditions = self.conditions where !conditions.isEmpty else {
+        guard !self.isCancelled, let conditions = self.conditions, !conditions.isEmpty else {
             self.isReady = true
             return
         }

@@ -17,7 +17,6 @@ private let _sharedEventStore = EKEventStore()
 /// A condition for verifying access to the user's calendar.
 public final class EventStorePermissionCondition: TaskCondition {
     
-    @warn_unused_result
     private static func requestAuthorization(entityType: EKEntityType) -> Task<Void> {
         return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
             let status = EKEventStore.authorizationStatus(for: entityType)

@@ -52,11 +52,11 @@ internal struct Queue {
         return queue
     }()
     
-    internal static let taskAwaiterCallbackSerialQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.TaskAwaiter.Callback", attributes: [.qosUtility, .serial])
+    internal static let taskAwaiterCallbackSerialQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.TaskAwaiter.Callback", qos: .utility /*, attributes: .serial */)
     
     // MARK: - Convenience Queues
     
     internal static let mainQueue = DispatchQueue.main
-    internal static let delayQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Delay", attributes: [.qosUtility, .concurrent])
+    internal static let delayQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Delay", qos: .utility, attributes: .concurrent)
     
 }

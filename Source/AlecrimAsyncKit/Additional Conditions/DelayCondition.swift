@@ -18,7 +18,7 @@ public final class DelayCondition: TaskCondition {
     /// - returns: A condition that will wait for a given time interval to be satisfied.
     public init(timeInterval: TimeInterval) {
         super.init() { result in
-            Queue.delayQueue.after(when: DispatchTime.now() + timeInterval) {
+            Queue.delayQueue.asyncAfter(deadline: DispatchTime.now() + timeInterval) {
                 result(.satisfied)
             }
         }

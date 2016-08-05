@@ -19,7 +19,6 @@ public final class LocationPermissionCondition: TaskCondition {
         case always
     }
     
-    @warn_unused_result
     private static func requestAuthorizationIfNeeded(usage: LocationPermissionCondition.Usage) -> Task<Void> {
         return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
             /*

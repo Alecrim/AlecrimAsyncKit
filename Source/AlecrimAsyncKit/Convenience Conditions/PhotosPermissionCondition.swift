@@ -14,7 +14,6 @@ import Photos
 /// A condition for verifying access to the user's Photos library.
 public final class PhotosPermissionCondition: TaskCondition {
     
-    @warn_unused_result
     private static func requestAuthorizationIfNeeded() -> Task<Void> {
         return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()

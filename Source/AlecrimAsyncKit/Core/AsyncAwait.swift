@@ -22,7 +22,7 @@ public func async<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue,
 }
 
 public func async<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, condition: TaskCondition, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
-    return async(in: queue, qualityOfService: qualityOfService, conditions: [condition], taskPriority: taskPriority, observers: observers, closure: closure)
+    return async(in: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: [condition], observers: observers, closure: closure)
 }
 
 public func async<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, closure: () throws -> V) -> Task<V> {
@@ -63,7 +63,7 @@ public func await<V>(_ closure: @noescape () -> NonFailableTask<V>) -> V {
 @discardableResult
 public func await<V>(_ task: NonFailableTask<V>) -> V {
     // this should never be called, but just in case...
-    if let parentTask = Thread.current().task as? CancellableTask, let currentTask = task as? CancellableTask where parentTask !== currentTask {
+    if let parentTask = Thread.current.task as? CancellableTask, let currentTask = task as? CancellableTask, parentTask !== currentTask {
         currentTask.internalInheritCancellation(from: parentTask)
     }
     
@@ -81,7 +81,7 @@ public func await<V>(_ closure: @noescape () -> Task<V>) throws -> V {
 @discardableResult
 public func await<V>(_ task: Task<V>) throws -> V {
     //
-    if let parentTask = Thread.current().task as? CancellableTask where parentTask !== task {
+    if let parentTask = Thread.current.task as? CancellableTask, parentTask !== task {
         task.internalInheritCancellation(from: parentTask)
     }
 
@@ -103,7 +103,7 @@ public func asyncDelay(in queue: OperationQueue = Queue.taskDefaultOperationQueu
 
 public func asyncSleep(in queue: OperationQueue = Queue.taskDefaultOperationQueue, forTimeInterval timeInterval: TimeInterval) -> NonFailableTask<Void> {
     return asyncEx(in: queue) { t in
-        Queue.delayQueue.after(when: DispatchTime.now() + timeInterval) {
+        Queue.delayQueue.asyncAfter(deadline: DispatchTime.now() + timeInterval) {
             t.finish()
         }
     }
@@ -125,7 +125,7 @@ public func asyncValue<V>(in queue: OperationQueue = Queue.taskDefaultOperationQ
     return async(in: queue) { return value }
 }
 
-public func asyncError<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, _ error: ErrorProtocol) -> Task<V> {
+public func asyncError<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, _ error: Error) -> Task<V> {
     return async(in: queue) { throw error }
 }
 
@@ -136,8 +136,8 @@ private func createdTask<T: InitializableTask>(queue: OperationQueue, qualityOfS
     
     //
     let effectiveClosure: (T) -> Void = {
-        Thread.current().task = $0
-        defer { Thread.current().task = nil }
+        Thread.current.task = $0
+        defer { Thread.current.task = nil }
         
         closure($0)
     }

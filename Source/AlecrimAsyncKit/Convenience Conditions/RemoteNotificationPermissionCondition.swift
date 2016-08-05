@@ -29,7 +29,7 @@
     private enum RemoteRegistrationStatus {
         case unknown
         case success
-        case error(ErrorProtocol)
+        case error(Error)
     }
     
     /// A condition for verifying that the app has the ability to receive push notifications.
@@ -39,7 +39,7 @@
         private static var status = RemoteRegistrationStatus.unknown
         
         #if os(OSX)
-        public static var remoteNotificationTypes: NSRemoteNotificationType = [.none]
+        public static var remoteNotificationTypes: NSRemoteNotificationType = []
         #endif
         
         // MARK: -

@@ -14,9 +14,9 @@ import Foundation
 ///
 /// - notSatisfied: The condition was not satisfied.
 /// - failed:       The condition evaluation was failed with an error.
-public enum TaskConditionError: ErrorProtocol {
+public enum TaskConditionError: Error {
     case notSatisfied
-    case failed(ErrorProtocol)
+    case failed(Error)
 }
 
 // MARK: -
@@ -34,7 +34,7 @@ extension NSError {
     /// - parameter dict:   The `userInfo` dictionary for the error. `userInfo` is optional and may be `nil`.
     ///
     /// - returns: An `NSError` object for domain that represents an user cancelled error and the dictionary of arbitrary data userInfo.
-    public static func userCancelledError(domain: String = AlecrimAsyncKitErrorDomain, userInfo dict: [NSObject : AnyObject]? = nil) -> NSError {
+    public static func userCancelledError(domain: String, userInfo dict: [NSObject : AnyObject]? = [:]) -> NSError {
         return NSError(domain: domain, code: NSUserCancelledError, userInfo: dict)
     }
     
@@ -42,7 +42,7 @@ extension NSError {
 
 // MARK: -
 
-extension ErrorProtocol {
+extension Error {
     
     /// A Boolean value indicating whether the receiver represents an user cancelled error.
     public var isUserCancelled: Bool {
