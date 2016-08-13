@@ -31,7 +31,7 @@ public protocol CancellableTask: TaskProtocol {
 
 extension CancellableTask {
     
-    @available(*, deprecated, message="A cancellable task now forward cancellation to their cancellable child tasks when they are awaited.")
+    @available(*, deprecated)
     public func forwardCancellation(to task: CancellableTask) -> Self {
         self.cancellationHandler = { [weak task] in
             task?.cancel()
@@ -40,13 +40,23 @@ extension CancellableTask {
         return self
     }
     
-    @available(*, deprecated, message="Cancellable child tasks when awaited now inherit cancellation from the parent cancellable task.")
+    @available(*, deprecated)
     public func inheritCancellation(from task: CancellableTask) -> Self {
-        task.forwardCancellation(to: self)
+        task.cancellationHandler = { [weak self] in
+            self?.cancel()
+        }
+
+        return self
+    }
+
+    internal func internalInheritCancellation(from task: CancellableTask) -> Self {
+        task.cancellationHandler = { [weak self] in
+            self?.cancel()
+        }
         
         return self
     }
-    
+
 }
 
 // MARK: - ValueReportingTask
@@ -82,7 +92,6 @@ public protocol FailableTaskProtocol: CancellableTask, ValueReportingTask, Error
 
 extension FailableTaskProtocol {
     
-    
     public func finish(with value: Self.ValueType!, or error: ErrorType?) {
         if let error = error {
             self.finish(with: error)
@@ -97,7 +106,7 @@ extension FailableTaskProtocol {
     /// - parameter task: The task the execution is forward to.
     public func forward<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(to task: T, inheritCancellation: Bool = true) {
         if inheritCancellation {
-            task.inheritCancellation(from: self)
+            task.internalInheritCancellation(from: self)
         }
         
         task.waitUntilFinished()

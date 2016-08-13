@@ -77,10 +77,8 @@ public func await<V>(@noescape closure: () -> NonFailableTask<V>) -> V {
 
 public func await<V>(task: NonFailableTask<V>) -> V {
     // this should never be called, but just in case...
-    if let parentTask = NSThread.currentThread().task as? CancellableTask, let currentTask = task as? CancellableTask where currentTask !== parentTask {
-        parentTask.cancellationHandler = { [weak currentTask] in
-            currentTask?.cancel()
-        }
+    if let parentTask = NSThread.currentThread().task as? CancellableTask, let currentTask = task as? CancellableTask where parentTask !== currentTask {
+        currentTask.internalInheritCancellation(from: parentTask)
     }
     
     //
@@ -95,10 +93,8 @@ public func await<V>(@noescape closure: () -> Task<V>) throws -> V {
 
 public func await<V>(task: Task<V>) throws -> V {
     //
-    if let parentTask = NSThread.currentThread().task as? CancellableTask, let currentTask = task as? CancellableTask where currentTask !== parentTask {
-        parentTask.cancellationHandler = { [weak currentTask] in
-            currentTask?.cancel()
-        }
+    if let parentTask = NSThread.currentThread().task as? CancellableTask where parentTask !== task {
+        task.internalInheritCancellation(from: parentTask)
     }
 
     //
@@ -114,13 +110,13 @@ public func await<V>(task: Task<V>) throws -> V {
 // MARK: - Helper methods
 
 @warn_unused_result
-public func delay(timeInterval: NSTimeInterval) -> NonFailableTask<Void> {
-    return sleep(forTimeInterval: timeInterval)
+public func asyncDelay(in queue: NSOperationQueue = _defaultTaskQueue, timeInterval: NSTimeInterval) -> NonFailableTask<Void> {
+    return asyncSleep(in: queue, forTimeInterval: timeInterval)
 }
 
 @warn_unused_result
-public func sleep(forTimeInterval ti: NSTimeInterval) -> NonFailableTask<Void> {
-    return asyncEx { t in
+public func asyncSleep(in queue: NSOperationQueue = _defaultTaskQueue, forTimeInterval ti: NSTimeInterval) -> NonFailableTask<Void> {
+    return asyncEx(in: queue) { t in
         let when = dispatch_time(DISPATCH_TIME_NOW, Int64(ti * Double(NSEC_PER_SEC)))
         dispatch_after(when, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)) {
             t.finish()
@@ -129,15 +125,25 @@ public func sleep(forTimeInterval ti: NSTimeInterval) -> NonFailableTask<Void> {
 }
 
 @warn_unused_result
-public func sleep(until date: NSDate) -> NonFailableTask<Void> {
+public func asyncSleep(in queue: NSOperationQueue = _defaultTaskQueue, until date: NSDate) -> NonFailableTask<Void> {
     let now = NSDate()
     if now.compare(date) == .OrderedAscending {
         let ti = date.timeIntervalSinceDate(now)
-        return sleep(forTimeInterval: ti)
+        return asyncSleep(in: queue, forTimeInterval: ti)
     }
     else {
-        return async {}
+        return async(in: queue) {}
     }
+}
+
+@warn_unused_result
+public func asyncValue<V>(in queue: NSOperationQueue = _defaultTaskQueue, value: V) -> Task<V> {
+    return async(in: queue) { return value }
+}
+
+@warn_unused_result
+public func asyncError<V>(in queue: NSOperationQueue = _defaultTaskQueue, error: ErrorType) -> Task<V> {
+    return async(in: queue) { throw error }
 }
 
 // MARK: -
