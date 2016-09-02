@@ -17,7 +17,7 @@ public protocol TaskProtocol: class {
 // MARK: - InitializableTask
 
 internal protocol InitializableTask: TaskProtocol {
-    init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Self) -> Void)
+    init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: @escaping (Self) -> Void)
 }
 
 // MARK: - CancellableTask
@@ -104,7 +104,7 @@ extension FailableTaskProtocol {
     /// Forwards the execution to other task and finishes the receiver when that task is finished.
     ///
     /// - parameter task: The task the execution is forward to.
-    public final func forward<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(to task: T, inheritCancellation: Bool = true) {
+    public final func forward<T: FailableTaskProtocol>(to task: T, inheritCancellation: Bool = true) where T.ValueType == Self.ValueType {
         if inheritCancellation {
             task.internalInheritCancellation(from: self)
         }
@@ -126,7 +126,7 @@ extension NonFailableTaskProtocol {
     /// Forwards the execution to other non failable task and finishes the receiver when that task is finished.
     ///
     /// - parameter task: The non failable task the execution is forward to.
-    public final func forward<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(to task: T) {
+    public final func forward<T: NonFailableTaskProtocol>(to task: T) where T.ValueType == Self.ValueType {
         task.waitUntilFinished()
         self.finish(with: task.value)
     }

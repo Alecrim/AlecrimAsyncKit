@@ -34,7 +34,7 @@ extension NSError {
     /// - parameter dict:   The `userInfo` dictionary for the error. `userInfo` is optional and may be `nil`.
     ///
     /// - returns: An `NSError` object for domain that represents an user cancelled error and the dictionary of arbitrary data userInfo.
-    public static func userCancelledError(domain: String, userInfo dict: [NSObject : AnyObject]? = [:]) -> NSError {
+    public static func userCancelledError(domain: String, userInfo dict: [AnyHashable : Any]? = nil) -> NSError {
         return NSError(domain: domain, code: NSUserCancelledError, userInfo: dict)
     }
     

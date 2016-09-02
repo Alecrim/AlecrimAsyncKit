@@ -16,7 +16,7 @@ public final class BooleanCondition: TaskCondition {
     /// - parameter valueClosure: The closure that will return `true` if the condition is satisfied, `false` otherwise.
     ///
     /// - returns: An initialized `BooleanCondition` that will be satisfied if the passed closure returns `true`
-    public init(_ valueClosure: @autoclosure(escaping) () -> Bool) {
+    public init(_ valueClosure: @autoclosure @escaping  () -> Bool) {
         super.init() { result in
             if valueClosure() {
                 result(.satisfied)

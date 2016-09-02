@@ -62,7 +62,7 @@
         
         private static func waitForResponse(from application: RemoteNotificationPermissionConditionApplication) -> Task<Void> {
             return asyncEx { task in
-                if application.isRegisteredForRemoteNotifications() {
+                if application.isRegisteredForRemoteNotifications {
                     self.status = .success
                     task.finish()
                 }
@@ -100,14 +100,14 @@
         /// - returns: A condition for verifying that the app has the ability to receive push notifications.
         ///
         /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
-        private init(application: RemoteNotificationPermissionConditionApplication) {
+        fileprivate init(application: RemoteNotificationPermissionConditionApplication) {
             let dependencyTask: Task<Void>
-            if let staticDependencyTask = self.dynamicType.dependencyTask {
+            if let staticDependencyTask = type(of: self).dependencyTask {
                 dependencyTask = staticDependencyTask
             }
             else {
                 dependencyTask = RemoteNotificationPermissionCondition.waitForResponse(from: application)
-                self.dynamicType.dependencyTask = dependencyTask
+                type(of: self).dependencyTask = dependencyTask
             }
             
             super.init(dependencyTask: dependencyTask) { result in
@@ -132,10 +132,10 @@
     extension RemoteNotificationPermissionConditionApplication {
         
         private struct AssociatedKeys {
-            private static var remoteNotificationPermissionCondition = "remoteNotificationPermissionCondition"
+            fileprivate static var remoteNotificationPermissionCondition = "remoteNotificationPermissionCondition"
             
             #if os(OSX)
-            private static var registeredForRemoteNotifications = "registeredForRemoteNotifications"
+            fileprivate static var registeredForRemoteNotifications = "registeredForRemoteNotifications"
             #endif
             
         }
@@ -168,12 +168,12 @@
             }
         }
         
-        private func registerForRemoteNotifications() {
+        fileprivate func registerForRemoteNotifications() {
             self.registerForRemoteNotifications(matching: RemoteNotificationPermissionCondition.remoteNotificationTypes)
             self.__registeredForRemoteNotifications = true
         }
         
-        private func isRegisteredForRemoteNotifications() -> Bool {
+        fileprivate func isRegisteredForRemoteNotifications() -> Bool {
             return self.__registeredForRemoteNotifications
         }
 

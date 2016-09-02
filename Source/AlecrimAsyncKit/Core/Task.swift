@@ -18,18 +18,18 @@ public class AbstractTask<V>: TaskOperation, ValueReportingTask {
     
     private final var valueSpinlock = OS_SPINLOCK_INIT
     
-    private final func willAccessValue() {
-        withUnsafeMutablePointer(&self.valueSpinlock, OSSpinLockLock)
+    fileprivate final func willAccessValue() {
+        withUnsafeMutablePointer(to: &self.valueSpinlock, OSSpinLockLock)
     }
     
-    private final func didAccessValue() {
-        withUnsafeMutablePointer(&self.valueSpinlock, OSSpinLockUnlock)
+    fileprivate final func didAccessValue() {
+        withUnsafeMutablePointer(to: &self.valueSpinlock, OSSpinLockUnlock)
     }
 
     
     // MARK: -
     
-    public private(set) final var value: V!
+    public fileprivate(set) final var value: V!
     
     public func finish(with value: V) {
         self.willAccessValue()
@@ -56,7 +56,7 @@ public class AbstractTask<V>: TaskOperation, ValueReportingTask {
     }
     
     // MARK: -
-    private var _progress: Progress?
+    fileprivate var _progress: Progress?
     public final var progress: Progress {
         if self._progress == nil {
             self._progress = TaskProgress(task: self)
@@ -67,9 +67,9 @@ public class AbstractTask<V>: TaskOperation, ValueReportingTask {
 
     // MARK: -
     
-    private final var closure: (() -> Void)?
+    fileprivate final var closure: (() -> Void)?
     
-    private override init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool) {
+    fileprivate override init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
     }
     
@@ -181,7 +181,7 @@ public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProt
     
     // MARK: -
     
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Task<V>) -> Void) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: @escaping (Task<V>) -> Void) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
         
         self.closure = { [unowned self] in
@@ -193,7 +193,7 @@ public final class Task<V>: AbstractTask<V>, InitializableTask, FailableTaskProt
 
 public final class NonFailableTask<V>: AbstractTask<V>, InitializableTask, NonFailableTaskProtocol {
 
-    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (NonFailableTask<V>) -> Void) {
+    internal init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: @escaping (NonFailableTask<V>) -> Void) {
         super.init(conditions: conditions, observers: observers, asynchronous: asynchronous)
         
         self.closure = { [unowned self] in
@@ -215,7 +215,7 @@ private final class TaskProgress: Progress {
     
     private unowned let task: TaskProtocol
     
-    private init(task: TaskProtocol) {
+    fileprivate init(task: TaskProtocol) {
         self.task = task
         super.init(parent: nil, userInfo: nil)
         

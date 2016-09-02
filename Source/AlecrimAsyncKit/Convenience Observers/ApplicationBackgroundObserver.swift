@@ -25,13 +25,13 @@
         ///
         /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
         /// - note: The *"background task"* term as used here is in the context of of `UIApplication`. In this observer it will be related but it is not the same as `Task<V>` or `NonFailableTask<V>`.
-        private init(application: UIApplication) {
+        fileprivate init(application: UIApplication) {
             //
             self.application = application
             
             // We need to know when the application moves to/from the background.
-            NotificationCenter.default().addObserver(self, selector: #selector(ApplicationBackgroundObserver.didEnterBackground(_:)), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
-            NotificationCenter.default().addObserver(self, selector: #selector(ApplicationBackgroundObserver.didBecomeActive(_:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(ApplicationBackgroundObserver.didEnterBackground(_:)), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(ApplicationBackgroundObserver.didBecomeActive(_:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
             
             //
             self.isInBackground = self.application.applicationState == .background
@@ -43,8 +43,8 @@
         }
         
         deinit {
-            NotificationCenter.default().removeObserver(self, name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
-            NotificationCenter.default().removeObserver(self, name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         }
         
         // MARK: -

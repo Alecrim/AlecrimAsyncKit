@@ -119,12 +119,12 @@ extension NonFailableTask {
 extension FailableTaskProtocol {
 
     @available(*, unavailable, renamed: "forward")
-    public func `continue`<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T, inheritCancellation: Bool = true) {
+    public func `continue`<T: FailableTaskProtocol>(with task: T, inheritCancellation: Bool = true) where T.ValueType == Self.ValueType {
         fatalError()
     }
     
     @available(*, unavailable, renamed: "forward")
-    public func continueWith<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(task: T, inheritCancellation: Bool = true) {
+    public func continueWith<T: FailableTaskProtocol>(task: T, inheritCancellation: Bool = true) where T.ValueType == Self.ValueType {
         fatalError()
     }
 
@@ -133,12 +133,12 @@ extension FailableTaskProtocol {
 extension NonFailableTaskProtocol {
     
     @available(*, unavailable, renamed: "forward")
-    public func `continue`<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T) {
+    public func `continue`<T: NonFailableTaskProtocol>(with task: T) where T.ValueType == Self.ValueType {
         fatalError()
     }
 
     @available(*, unavailable, renamed: "forward")
-    public func continueWith<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(task: T) {
+    public func continueWith<T: NonFailableTaskProtocol>(task: T) where T.ValueType == Self.ValueType {
         fatalError()
     }
 

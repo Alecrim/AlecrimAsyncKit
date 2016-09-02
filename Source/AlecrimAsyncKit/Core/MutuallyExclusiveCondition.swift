@@ -9,10 +9,10 @@
 import Foundation
 
 private final class Semaphore {
-    private let dispatchSemaphore: DispatchSemaphore
-    private var count: Int
+    fileprivate let dispatchSemaphore: DispatchSemaphore
+    fileprivate var count: Int
     
-    private init(dispatchSemaphore: DispatchSemaphore, count: Int) {
+    fileprivate init(dispatchSemaphore: DispatchSemaphore, count: Int) {
         self.dispatchSemaphore = dispatchSemaphore
         self.count = count
     }
@@ -42,7 +42,7 @@ public final class MutuallyExclusiveCondition: TaskCondition {
     /// - parameter defaultCategory: The default category enumeration member that will define the condition exclusivity group.
     ///
     /// - returns: A condition for describing kinds of operations that may not execute concurrently.
-    private convenience init(category: MutuallyExclusiveCondition.Category) {
+    fileprivate convenience init(category: MutuallyExclusiveCondition.Category) {
         self.init(name: category.rawValue)
     }
     
@@ -65,8 +65,8 @@ public final class MutuallyExclusiveCondition: TaskCondition {
         let dispatchSemaphore: DispatchSemaphore
         
         do {
-            withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-            defer { withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock) }
+            withUnsafeMutablePointer(to: &self.spinlock, OSSpinLockLock)
+            defer { withUnsafeMutablePointer(to: &self.spinlock, OSSpinLockUnlock) }
             
             if let semaphore = self.mutuallyExclusiveSemaphores[categoryName] {
                 semaphore.count += 1
@@ -87,8 +87,8 @@ public final class MutuallyExclusiveCondition: TaskCondition {
     internal static func signal(condition: MutuallyExclusiveCondition, categoryName: String) {
         let dispatchSemaphore: DispatchSemaphore
         
-        withUnsafeMutablePointer(&self.spinlock, OSSpinLockLock)
-        defer { withUnsafeMutablePointer(&self.spinlock, OSSpinLockUnlock) }
+        withUnsafeMutablePointer(to: &self.spinlock, OSSpinLockLock)
+        defer { withUnsafeMutablePointer(to: &self.spinlock, OSSpinLockUnlock) }
         
         if condition.waiting {
             condition.waiting = false

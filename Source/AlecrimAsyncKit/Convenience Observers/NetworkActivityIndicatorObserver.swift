@@ -57,8 +57,8 @@ public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskD
     
     public func increment() {
         do {
-            withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockLock)
-            defer { withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockUnlock) }
+            withUnsafeMutablePointer(to: &self.activityCountSpinLock, OSSpinLockLock)
+            defer { withUnsafeMutablePointer(to: &self.activityCountSpinLock, OSSpinLockUnlock) }
             
             self.activityCount += 1
         }
@@ -68,8 +68,8 @@ public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskD
     
     public func decrement() {
         do {
-            withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockLock)
-            defer { withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockUnlock) }
+            withUnsafeMutablePointer(to: &self.activityCountSpinLock, OSSpinLockLock)
+            defer { withUnsafeMutablePointer(to: &self.activityCountSpinLock, OSSpinLockUnlock) }
             
             self.activityCount -= 1
             
@@ -90,8 +90,8 @@ public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskD
             let delay = self.networkActivityIndicatorHandler.networkActivityIndicatorVisible ? self.dismissDelay : self.showDelay
             
             Queue.mainQueue.asyncAfter(deadline: DispatchTime.now() + delay) {
-                withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockLock)
-                defer { withUnsafeMutablePointer(&self.activityCountSpinLock, OSSpinLockUnlock) }
+                withUnsafeMutablePointer(to: &self.activityCountSpinLock, OSSpinLockLock)
+                defer { withUnsafeMutablePointer(to: &self.activityCountSpinLock, OSSpinLockUnlock) }
                 
                 let visible = (self.activityCount > 0)
                 if visible && !self.networkActivityIndicatorHandler.networkActivityIndicatorVisible {
@@ -119,12 +119,12 @@ public postfix func -- (networkActivityObserver: NetworkActivityIndicatorObserve
 // MARK: - Associated Properties
 
 private struct AssociatedKeys {
-    private static var networkActivity = "networkActivity"
+    fileprivate static var networkActivity = "networkActivity"
 }
 
 extension NetworkActivityIndicatorHandler {
     
-    public private(set) var networkActivity: NetworkActivityIndicatorObserver {
+    public fileprivate(set) var networkActivity: NetworkActivityIndicatorObserver {
         get {
             if let value = objc_getAssociatedObject(self, &AssociatedKeys.networkActivity) as? NetworkActivityIndicatorObserver {
                 return value
@@ -138,7 +138,7 @@ extension NetworkActivityIndicatorHandler {
         }
     }
     
-    private var networkActivityIsAssigned: Bool {
+    fileprivate var networkActivityIsAssigned: Bool {
         if let _ = objc_getAssociatedObject(self, &AssociatedKeys.networkActivity) as? NetworkActivityIndicatorObserver {
             return true
         }

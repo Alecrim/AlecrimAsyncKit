@@ -158,7 +158,7 @@ extension ViewController {
 
     func asyncLoadImage() -> Task<UIImage> {
         // an observer is not needed to the task finish its job, but to have a network activity indicator at the top would be nice...
-        let networkActivityObserver = UIApplication.shared().networkActivity
+        let networkActivityObserver = UIApplication.shared.networkActivity
 
         // if you replace 10 for 2, for example, the task will be cancelled before it is finished
         let timeoutObserver = TimeoutObserver(timeout: 10)
@@ -185,10 +185,10 @@ extension ViewController {
     
 }
 
-private func mainThread(_ block: () -> Void) {
+private func mainThread(_ block: @escaping () -> Void) {
     DispatchQueue.main.async(execute: block)
 }
 
-private func backgroundThread(_ block: () -> Void) {
-    DispatchQueue.global(attributes: .qosDefault).async(execute: block)
+private func backgroundThread(_ block: @escaping () -> Void) {
+    DispatchQueue.global(qos: .default).async(execute: block)
 }

@@ -49,7 +49,7 @@ public final class LocationPermissionCondition: TaskCondition {
                 }
                 
                 // This is helpful when developing the app.
-                assert(Bundle.main().objectForInfoDictionaryKey(key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
+                assert(Bundle.main.object(forInfoDictionaryKey: key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
 
                 
             default:
@@ -96,14 +96,14 @@ public final class LocationPermissionCondition: TaskCondition {
 
 private final class LocationManager: CLLocationManager, CLLocationManagerDelegate {
     
-    private var didChangeAuthorizationStatusClosure: ((CLAuthorizationStatus) -> Void)? = nil
+    fileprivate var didChangeAuthorizationStatusClosure: ((CLAuthorizationStatus) -> Void)? = nil
     
-    private override init() {
+    fileprivate override init() {
         super.init()
         self.delegate = self
     }
     
-    @objc private func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    @objc func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         self.didChangeAuthorizationStatusClosure?(status)
         
         self.delegate = nil

@@ -21,11 +21,11 @@ public class TaskOperation: Operation, TaskProtocol {
     private var stateSpinlock = OS_SPINLOCK_INIT
     
     private func willAccessState() {
-        withUnsafeMutablePointer(&self.stateSpinlock, OSSpinLockLock)
+        withUnsafeMutablePointer(to: &self.stateSpinlock, OSSpinLockLock)
     }
     
     private func didAccessState() {
-        withUnsafeMutablePointer(&self.stateSpinlock, OSSpinLockUnlock)
+        withUnsafeMutablePointer(to: &self.stateSpinlock, OSSpinLockUnlock)
     }
     
     private func willChangeValueForStateKey(stateKey: StateKey) {
