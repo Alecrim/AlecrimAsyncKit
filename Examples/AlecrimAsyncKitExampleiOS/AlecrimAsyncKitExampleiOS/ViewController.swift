@@ -177,7 +177,7 @@ extension ViewController {
                 throw NSError(domain: "com.alecrim.AlecrimAsyncKitExampleiOS", code: 1000, userInfo: nil)
             }
             
-            await(delay(3)) // I think we can let them waiting a little more...
+            await(asyncDelay(timeInterval: 3)) // I think we can let them waiting a little more...
             
             // thank you for the image, Minions and wallhaven.cc :-) 
             // (All rights reserved to its owners. Gru?)
