@@ -20,7 +20,7 @@ public enum TaskConditionResult {
 }
 
 ///
-public typealias TaskConditionEvaluationClosureType = @escaping (@escaping (TaskConditionResult) -> Void) -> Void
+public typealias TaskConditionEvaluationClosureType = (@escaping (TaskConditionResult) -> Void) -> Void
 
 /// A condition determines if a task can be executed or not.
 open class TaskCondition {
@@ -41,7 +41,7 @@ open class TaskCondition {
     /// - parameter evaluationClosure: The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(evaluationClosure: TaskConditionEvaluationClosureType) {
+    public init(evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = nil
         self.dependencyTaskClosure = nil
         self.evaluationClosure = evaluationClosure
@@ -53,7 +53,7 @@ open class TaskCondition {
     /// - parameter evaluationClosure:     The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(dependencyTask dependencyTaskClosure: @autoclosure @escaping () -> Task<Void>?, evaluationClosure: TaskConditionEvaluationClosureType) {
+    public init(dependencyTask dependencyTaskClosure: @autoclosure @escaping () -> Task<Void>?, evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = nil
         self.dependencyTaskClosure = dependencyTaskClosure
         self.evaluationClosure = evaluationClosure
@@ -65,7 +65,7 @@ open class TaskCondition {
     /// - parameter evaluationClosure: The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(subcondition: TaskCondition, evaluationClosure: TaskConditionEvaluationClosureType) {
+    public init(subcondition: TaskCondition, evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = [subcondition]
         self.dependencyTaskClosure = { return nil }
         self.evaluationClosure = evaluationClosure
@@ -78,7 +78,7 @@ open class TaskCondition {
     /// - parameter evaluationClosure:     The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(subcondition: TaskCondition, dependencyTask dependencyTaskClosure: @autoclosure @escaping () -> Task<Void>?, evaluationClosure: TaskConditionEvaluationClosureType) {
+    public init(subcondition: TaskCondition, dependencyTask dependencyTaskClosure: @autoclosure @escaping () -> Task<Void>?, evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = [subcondition]
         self.dependencyTaskClosure = dependencyTaskClosure
         self.evaluationClosure = evaluationClosure
@@ -90,7 +90,7 @@ open class TaskCondition {
     /// - parameter evaluationClosure: The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(subconditions: [TaskCondition], evaluationClosure: TaskConditionEvaluationClosureType) {
+    public init(subconditions: [TaskCondition], evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = subconditions
         self.dependencyTaskClosure = { return nil }
         self.evaluationClosure = evaluationClosure
@@ -103,7 +103,7 @@ open class TaskCondition {
     /// - parameter evaluationClosure:     The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(subconditions: [TaskCondition]?, dependencyTask dependencyTaskClosure: @autoclosure @escaping () -> Task<Void>?, evaluationClosure: TaskConditionEvaluationClosureType) {
+    public init(subconditions: [TaskCondition]?, dependencyTask dependencyTaskClosure: @autoclosure @escaping () -> Task<Void>?, evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = subconditions
         self.dependencyTaskClosure = dependencyTaskClosure
         self.evaluationClosure = evaluationClosure

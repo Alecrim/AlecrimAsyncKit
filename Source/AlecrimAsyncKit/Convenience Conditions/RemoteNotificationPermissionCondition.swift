@@ -173,7 +173,7 @@
             self.__registeredForRemoteNotifications = true
         }
         
-        fileprivate func isRegisteredForRemoteNotifications() -> Bool {
+        fileprivate var isRegisteredForRemoteNotifications: Bool {
             return self.__registeredForRemoteNotifications
         }
 
