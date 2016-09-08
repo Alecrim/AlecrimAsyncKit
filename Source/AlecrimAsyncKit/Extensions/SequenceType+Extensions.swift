@@ -8,12 +8,11 @@
 
 import Foundation
 
-extension SequenceType where Self.Generator.Element == TaskProtocol {
+extension Sequence where Self.Iterator.Element == TaskProtocol {
     
     /// Creates a task that will finish when all of the tasks in the sequence have finished.
     ///
     /// - returns: A task that represents the completion of all of the tasks.
-    @warn_unused_result
     public func whenAll() -> Task<Void> {
         return async {
             for task in self {
@@ -29,10 +28,11 @@ extension SequenceType where Self.Generator.Element == TaskProtocol {
     /// Creates a task that will finish when any of the tasks in the sequence have finished.
     ///
     /// - returns: A task that represents the completion of one of the tasks. The returned task's result is the task that finished.
-    @warn_unused_result
-    public func whenAny() -> Task<Self.Generator.Element> {
+    public func whenAny() -> Task<Self.Iterator.Element> {
         return asyncEx { t in
-            func observeTask(task: Self.Generator.Element) throws -> Task<Void> {
+            
+            @discardableResult
+            func observeTask(_ task: Self.Iterator.Element) throws -> Task<Void> {
                 return async {
                     task.waitUntilFinished()
                     
@@ -46,7 +46,7 @@ extension SequenceType where Self.Generator.Element == TaskProtocol {
             
             do {
                 for task in self {
-                    if t.finished {
+                    if t.isFinished {
                         break
                     }
                     

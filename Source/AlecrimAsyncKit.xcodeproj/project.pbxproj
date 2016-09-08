@@ -11,6 +11,7 @@
 		1416E08D1BDC931A00F1EA73 /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */; };
 		142561B51BE31B9D00A4C974 /* TaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142561B41BE31B9D00A4C974 /* TaskOperation.swift */; };
 		143045511BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143045501BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift */; };
+		1437EC371D105946000D5C02 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1437EC361D105946000D5C02 /* Queue.swift */; };
 		14749B841B9C437700661E98 /* EventStorePermissionCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B831B9C437700661E98 /* EventStorePermissionCondition.swift */; };
 		14749B861B9C4DA300661E98 /* BooleanCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14749B851B9C4DA300661E98 /* BooleanCondition.swift */; };
 		147B5F371B9CFB0700F9F2CE /* ApplicationBackgroundObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundObserver.swift */; };
@@ -41,6 +42,7 @@
 		1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
 		142561B41BE31B9D00A4C974 /* TaskOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskOperation.swift; sourceTree = "<group>"; };
 		143045501BB7AB5900CD0AED /* ProcessInfoActivityObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessInfoActivityObserver.swift; sourceTree = "<group>"; };
+		1437EC361D105946000D5C02 /* Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 		14749B831B9C437700661E98 /* EventStorePermissionCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStorePermissionCondition.swift; sourceTree = "<group>"; };
 		14749B851B9C4DA300661E98 /* BooleanCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BooleanCondition.swift; sourceTree = "<group>"; };
 		147B5F361B9CFB0700F9F2CE /* ApplicationBackgroundObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationBackgroundObserver.swift; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 			children = (
 				14CD62BE1CF0D6AE007442FB /* Availability.swift */,
 				148513961B9BD15100FAB0FA /* Errors.swift */,
+				1437EC361D105946000D5C02 /* Queue.swift */,
 				1413F62D1BDCAE8B001049D5 /* Protocols.swift */,
 				148513951B9BD15100FAB0FA /* AsyncAwait.swift */,
 				142561B41BE31B9D00A4C974 /* TaskOperation.swift */,
@@ -225,11 +228,12 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Alecrim;
 				TargetAttributes = {
 					14E585BA1B7803EC003EC4DC = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -281,6 +285,7 @@
 				148513A21B9BD15100FAB0FA /* ReachabilityCondition.swift in Sources */,
 				148513A71B9BD15100FAB0FA /* Task.swift in Sources */,
 				148513A51B9BD15100FAB0FA /* Errors.swift in Sources */,
+				1437EC371D105946000D5C02 /* Queue.swift in Sources */,
 				148513A41B9BD15100FAB0FA /* AsyncAwait.swift in Sources */,
 				148513AE1B9BD38100FAB0FA /* LocationPermissionCondition.swift in Sources */,
 				1485139D1B9BD15100FAB0FA /* DelayCondition.swift in Sources */,
@@ -414,6 +419,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -435,6 +441,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.alecrim.AlecrimAsyncKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

@@ -19,7 +19,7 @@ public final class ReachabilityCondition: TaskCondition {
     /// - parameter URL: The URL containing the host to test the reachability.
     ///
     /// - returns: A condition that performs network reachability check.
-    public init(url: NSURL) {
+    public init(url: URL) {
         super.init() { result in
             if requestReachability(for: url) {
                 result(.satisfied)
@@ -36,14 +36,15 @@ public final class ReachabilityCondition: TaskCondition {
     
 private var reachabilityRefs = [String : SCNetworkReachability]()
 
-private func requestReachability(for url: NSURL) -> Bool {
+private func requestReachability(for url: URL) -> Bool {
     guard let host = url.host else { return false }
     
     var ref = reachabilityRefs[host]
     
     if ref == nil {
-        let hostString = host as NSString
-        ref = SCNetworkReachabilityCreateWithName(nil, hostString.UTF8String)
+        if let utf8String = (host as NSString).utf8String {
+            ref = SCNetworkReachabilityCreateWithName(nil, utf8String)
+        }
     }
     
     if let ref = ref {
@@ -51,6 +52,7 @@ private func requestReachability(for url: NSURL) -> Bool {
         
         var reachable = false
         var flags: SCNetworkReachabilityFlags = []
+        
         if SCNetworkReachabilityGetFlags(ref, &flags) {
             /*
             Note that this is a very basic "is reachable" check.
@@ -58,7 +60,7 @@ private func requestReachability(for url: NSURL) -> Bool {
             such as whether or not the connection would require
             VPN, a cellular connection, etc.
             */
-            reachable = flags.contains(.Reachable)
+            reachable = flags.contains(.reachable)
         }
         
         return reachable

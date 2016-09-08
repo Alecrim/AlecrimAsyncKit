@@ -8,16 +8,7 @@
 
 import Foundation
 
-private let _conditionEvaluationQueue: NSOperationQueue = {
-    let queue = NSOperationQueue()
-    queue.name = "com.alecrim.AlecrimAsyncKit.ConditionEvaluation"
-    queue.qualityOfService = .Utility
-    queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
-    
-    return queue
-}()
-
-public class TaskOperation: NSOperation, TaskProtocol {
+public class TaskOperation: Operation, TaskProtocol {
     
     private enum StateKey: String {
         case executing = "isExecuting"
@@ -30,27 +21,27 @@ public class TaskOperation: NSOperation, TaskProtocol {
     private var stateSpinlock = OS_SPINLOCK_INIT
     
     private func willAccessState() {
-        withUnsafeMutablePointer(&self.stateSpinlock, OSSpinLockLock)
+        withUnsafeMutablePointer(to: &self.stateSpinlock, OSSpinLockLock)
     }
     
     private func didAccessState() {
-        withUnsafeMutablePointer(&self.stateSpinlock, OSSpinLockUnlock)
+        withUnsafeMutablePointer(to: &self.stateSpinlock, OSSpinLockUnlock)
     }
     
     private func willChangeValueForStateKey(stateKey: StateKey) {
-        self.willChangeValueForKey(stateKey.rawValue)
+        self.willChangeValue(forKey: stateKey.rawValue)
         self.willAccessState()
     }
     
     private func didChangeValueForStateKey(stateKey: StateKey) {
         self.didAccessState()
-        self.didChangeValueForKey(stateKey.rawValue)
+        self.didChangeValue(forKey: stateKey.rawValue)
     }
     
     //
     
     private lazy var mutuallyExclusiveConditions: [MutuallyExclusiveCondition]? = {
-        if let mecs = self.conditions?.flatMap({ $0 as? MutuallyExclusiveCondition }) where !mecs.isEmpty {
+        if let mecs = self.conditions?.flatMap({ $0 as? MutuallyExclusiveCondition }), !mecs.isEmpty {
             return mecs
         }
         
@@ -59,13 +50,13 @@ public class TaskOperation: NSOperation, TaskProtocol {
     
     //
 
-    public override var concurrent: Bool { return self.__asynchronous }
-    public override var asynchronous: Bool { return self.__asynchronous }
+    public override var isConcurrent: Bool { return self.__asynchronous }
+    public override var isAsynchronous: Bool { return self.__asynchronous }
     
     //
     
     private var __executing: Bool = false
-    public private(set) override var executing: Bool {
+    public private(set) override var isExecuting: Bool {
         get {
             self.willAccessState()
             defer { self.didAccessState() }
@@ -76,8 +67,8 @@ public class TaskOperation: NSOperation, TaskProtocol {
             let oldValue: Bool
             
             do {
-                self.willChangeValueForStateKey(.executing)
-                defer { self.didChangeValueForStateKey(.executing) }
+                self.willChangeValueForStateKey(stateKey: .executing)
+                defer { self.didChangeValueForStateKey(stateKey: .executing) }
                 
                 oldValue = self.__executing
                 self.__executing = newValue
@@ -90,7 +81,7 @@ public class TaskOperation: NSOperation, TaskProtocol {
     }
 
     private var __finished: Bool = false
-    public private(set) override var finished: Bool {
+    public private(set) override var isFinished: Bool {
         get {
             self.willAccessState()
             defer { self.didAccessState() }
@@ -98,15 +89,15 @@ public class TaskOperation: NSOperation, TaskProtocol {
             return self.__finished
         }
         set {
-            self.willChangeValueForStateKey(.finished)
-            defer { self.didChangeValueForStateKey(.finished) }
+            self.willChangeValueForStateKey(stateKey: .finished)
+            defer { self.didChangeValueForStateKey(stateKey: .finished) }
             
             self.__finished = newValue
         }
     }
 
     private var __ready: Bool = false
-    public private(set) override var ready: Bool {
+    public private(set) override var isReady: Bool {
         get {
             self.willAccessState()
             defer { self.didAccessState() }
@@ -114,8 +105,8 @@ public class TaskOperation: NSOperation, TaskProtocol {
             return self.__ready
         }
         set {
-            self.willChangeValueForStateKey(.ready)
-            defer { self.didChangeValueForStateKey(.ready) }
+            self.willChangeValueForStateKey(stateKey: .ready)
+            defer { self.didChangeValueForStateKey(stateKey: .ready) }
             
             self.__ready = newValue
         }
@@ -126,8 +117,8 @@ public class TaskOperation: NSOperation, TaskProtocol {
     public override func cancel() {
         super.cancel()
         
-        self.executing = false
-        self.ready = true
+        self.isExecuting = false
+        self.isReady = true
     }
     
     // MARK: -
@@ -137,19 +128,19 @@ public class TaskOperation: NSOperation, TaskProtocol {
     }
     
     internal final func evaluateConditions() {
-        guard !self.cancelled, let conditions = self.conditions where !conditions.isEmpty else {
-            self.ready = true
+        guard !self.isCancelled, let conditions = self.conditions, !conditions.isEmpty else {
+            self.isReady = true
             return
         }
 
         //
-        let evaluateConditionsOperation = NSBlockOperation {
+        let evaluateConditionsOperation = BlockOperation {
             do {
                 defer {
-                    self.ready = true
+                    self.isReady = true
                 }
                 
-                if !self.cancelled {
+                if !self.isCancelled {
                     try await(TaskCondition.evaluateConditions(conditions))
                 }
             }
@@ -175,17 +166,17 @@ public class TaskOperation: NSOperation, TaskProtocol {
         }
         
         //
-        _conditionEvaluationQueue.addOperation(evaluateConditionsOperation)
+        Queue.taskConditionEvaluationOperationQueue.addOperation(evaluateConditionsOperation)
     }
     
     // to be overrided calling super
     internal func execute() {
         //
-        self.ready = false
-        self.executing = true
+        self.isReady = false
+        self.isExecuting = true
         
         //
-        self.observers?.flatMap({ $0 as? TaskDidStartObserver }).forEach({ $0.didStart(self) })
+        self.observers?.flatMap({ $0 as? TaskDidStartObserver }).forEach({ $0.didStartTask(self) })
     }
     
     private var hasFinishedAlready = false
@@ -199,15 +190,15 @@ public class TaskOperation: NSOperation, TaskProtocol {
         self.hasFinishedAlready = true
         
         //
-        self.observers?.flatMap({ $0 as? TaskWillFinishObserver }).forEach({ $0.willFinish(self) })
+        self.observers?.flatMap({ $0 as? TaskWillFinishObserver }).forEach({ $0.willFinishTask(self) })
         
         //
-        self.ready = false
-        self.executing = false
-        self.finished = true
+        self.isReady = false
+        self.isExecuting = false
+        self.isFinished = true
         
         //
-        self.observers?.flatMap({ $0 as? TaskDidFinishObserver }).forEach({ $0.didFinish(self) })
+        self.observers?.flatMap({ $0 as? TaskDidFinishObserver }).forEach({ $0.didFinishTask(self) })
     }
     
     internal final func signalMutuallyExclusiveConditionsIfNeeded() {
@@ -236,17 +227,17 @@ public class TaskOperation: NSOperation, TaskProtocol {
         
         super.start()
         
-        if self.cancelled {
+        if self.isCancelled {
             self.finishOperation()
         }
     }
     
     public override func main() {
         //
-        self.observers?.flatMap({ $0 as? TaskWillStartObserver }).forEach({ $0.willStart(self) })
+        self.observers?.flatMap({ $0 as? TaskWillStartObserver }).forEach({ $0.willStartTask(self) })
 
         //
-        if self.cancelled {
+        if self.isCancelled {
             self.finishOperation()
         }
         else {
