@@ -211,7 +211,7 @@ public final class NonFailableTask<V>: AbstractTask<V>, InitializableTask, NonFa
 
 // MARK: -
 
-private final class TaskProgress: Progress {
+fileprivate final class TaskProgress: Progress {
     
     private unowned let task: TaskProtocol
     
@@ -224,7 +224,7 @@ private final class TaskProgress: Progress {
     }
     
     //
-    private override var cancellationHandler: (() -> Void)? {
+    fileprivate override var cancellationHandler: (() -> Void)? {
         get {
             if let cancellableTask = self.task as? CancellableTask {
                 return cancellableTask.cancellationHandler
@@ -243,7 +243,7 @@ private final class TaskProgress: Progress {
         }
     }
     
-    private override func cancel() {
+    fileprivate override func cancel() {
         super.cancel()
         
         if let cancellableTask = self.task as? CancellableTask {

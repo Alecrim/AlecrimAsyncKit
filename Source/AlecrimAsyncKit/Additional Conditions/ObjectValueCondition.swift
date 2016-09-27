@@ -24,7 +24,7 @@ public final class ObjectValueCondition: TaskCondition {
 
 // MARK: -
 
-private final class ValueObserver: NSObject {
+fileprivate final class ValueObserver: NSObject {
     
     private var context = 0
     private var observing = false
@@ -49,7 +49,7 @@ private final class ValueObserver: NSObject {
         self.stopObserving()
     }
     
-    private override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    fileprivate override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if context == &self.context {
             if let newValue = change?[NSKeyValueChangeKey.newKey] {
                 let satisfied = self.evaluationClosure(newValue)
