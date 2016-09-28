@@ -52,11 +52,13 @@ public final class NonFailableTaskAwaiter<V> {
         }
     }
     
+    @discardableResult
     public func didFinish(_ closure: @escaping (NonFailableTask<V>) -> Void) -> Self {
         self.didFinishClosure = closure
         return self
     }
 
+    @discardableResult
     public func didFinishWithValue(_ closure: @escaping (V) -> Void) -> Self {
         self.didFinishWithValueClosure = closure
         return self
@@ -129,21 +131,25 @@ public final class TaskAwaiter<V> {
         }
     }
     
+    @discardableResult
     public func didFinish(_ closure: @escaping (Task<V>) -> Void) -> Self {
         self.didFinishClosure = closure
         return self
     }
     
+    @discardableResult
     public func didFinishWithValue(_ closure: @escaping (V) -> Void) -> Self {
         self.didFinishWithValueClosure = closure
         return self
     }
 
+    @discardableResult
     public func didFinishWithError(_ closure: @escaping (Error) -> Void) -> Self {
         self.didFinishWithErrorClosure = closure
         return self
     }
 
+    @discardableResult
     public func didCancel(_ closure: @escaping () -> Void) -> Self {
         self.didCancelClosure = closure
         return self
@@ -155,10 +161,12 @@ public final class TaskAwaiter<V> {
 
 extension NonFailableTask {
     
+    @discardableResult
     public func didFinish(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main, closure: @escaping (NonFailableTask<V>) -> Void) -> NonFailableTaskAwaiter<V> {
         return NonFailableTaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinish(closure)
     }
     
+    @discardableResult
     public func didFinishWithValue(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main, closure: @escaping (V) -> Void) -> NonFailableTaskAwaiter<V> {
         return NonFailableTaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithValue(closure)
     }
@@ -167,18 +175,22 @@ extension NonFailableTask {
 
 extension Task {
 
+    @discardableResult
     public func didFinish(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main, closure: @escaping (Task<V>) -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinish(closure)
     }
     
+    @discardableResult
     public func didFinishWithValue(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main, closure: @escaping (V) -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithValue(closure)
     }
 
+    @discardableResult
     public func didFinishWithError(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main, closure: @escaping (Error) -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didFinishWithError(closure)
     }
     
+    @discardableResult
     public func didCancel(queue: OperationQueue = Queue.taskAwaiterDefaultOperationQueue, callbackQueue: OperationQueue = OperationQueue.main, closure: @escaping () -> Void) -> TaskAwaiter<V> {
         return TaskAwaiter(queue: queue, callbackQueue: callbackQueue, task: self).didCancel(closure)
     }
