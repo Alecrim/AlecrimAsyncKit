@@ -17,13 +17,13 @@ public protocol TaskProtocol: class {
 // MARK: - InitializableTask
 
 internal protocol InitializableTask: TaskProtocol {
-    init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: (Self) -> Void)
+    init(conditions: [TaskCondition]?, observers: [TaskObserver]?, asynchronous: Bool, closure: @escaping (Self) -> Void)
 }
 
 // MARK: - CancellableTask
 
 public protocol CancellableTask: TaskProtocol {
-    var cancelled: Bool { get }
+    var isCancelled: Bool { get }
     var cancellationHandler: (() -> Void)? { get set }
     
     func cancel()
@@ -32,7 +32,8 @@ public protocol CancellableTask: TaskProtocol {
 extension CancellableTask {
     
     @available(*, deprecated)
-    public func forwardCancellation(to task: CancellableTask) -> Self {
+    @discardableResult
+    public final func forwardCancellation(to task: CancellableTask) -> Self {
         self.cancellationHandler = { [weak task] in
             task?.cancel()
         }
@@ -41,7 +42,8 @@ extension CancellableTask {
     }
     
     @available(*, deprecated)
-    public func inheritCancellation(from task: CancellableTask) -> Self {
+    @discardableResult
+    public final func inheritCancellation(from task: CancellableTask) -> Self {
         task.cancellationHandler = { [weak self] in
             self?.cancel()
         }
@@ -49,12 +51,10 @@ extension CancellableTask {
         return self
     }
 
-    internal func internalInheritCancellation(from task: CancellableTask) -> Self {
+    internal final func internalInheritCancellation(from task: CancellableTask) {
         task.cancellationHandler = { [weak self] in
             self?.cancel()
         }
-        
-        return self
     }
 
 }
@@ -71,7 +71,7 @@ public protocol ValueReportingTask: TaskProtocol {
 extension ValueReportingTask where Self.ValueType == Void {
     
     /// Causes the receiver to treat the task as finished.
-    public func finish() {
+    public final func finish() {
         self.finish(with: ())
     }
     
@@ -80,19 +80,19 @@ extension ValueReportingTask where Self.ValueType == Void {
 // MARK: - ErrorReportingTask
 
 public protocol ErrorReportingTask: TaskProtocol {
-    var error: ErrorType? { get }
-    func finish(with error: ErrorType)
+    var error: Error? { get }
+    func finish(with error: Error)
 }
 
 // MARK: - FailableTaskProtocol
 
 public protocol FailableTaskProtocol: CancellableTask, ValueReportingTask, ErrorReportingTask {
-    func finish(with value: Self.ValueType!, or error: ErrorType?)
+    func finish(with value: Self.ValueType!, or error: Error?)
 }
 
 extension FailableTaskProtocol {
     
-    public func finish(with value: Self.ValueType!, or error: ErrorType?) {
+    public final func finish(with value: Self.ValueType!, or error: Error?) {
         if let error = error {
             self.finish(with: error)
         }
@@ -104,7 +104,7 @@ extension FailableTaskProtocol {
     /// Forwards the execution to other task and finishes the receiver when that task is finished.
     ///
     /// - parameter task: The task the execution is forward to.
-    public func forward<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(to task: T, inheritCancellation: Bool = true) {
+    public final func forward<T: FailableTaskProtocol>(to task: T, inheritCancellation: Bool = true) where T.ValueType == Self.ValueType {
         if inheritCancellation {
             task.internalInheritCancellation(from: self)
         }
@@ -126,7 +126,7 @@ extension NonFailableTaskProtocol {
     /// Forwards the execution to other non failable task and finishes the receiver when that task is finished.
     ///
     /// - parameter task: The non failable task the execution is forward to.
-    public func forward<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(to task: T) {
+    public final func forward<T: NonFailableTaskProtocol>(to task: T) where T.ValueType == Self.ValueType {
         task.waitUntilFinished()
         self.finish(with: task.value)
     }

@@ -20,7 +20,6 @@ public final class NegateCondition: TaskCondition {
         super.init(subconditions: otherCondition.subconditions, dependencyTask: otherCondition.dependencyTaskClosure?(), evaluationClosure: otherCondition.evaluationClosure)
     }
 
-    @warn_unused_result
     internal override func evaluate() -> Task<Void> {
         return asyncEx { task in
             do {

@@ -14,13 +14,12 @@ import Photos
 /// A condition for verifying access to the user's Photos library.
 public final class PhotosPermissionCondition: TaskCondition {
     
-    @warn_unused_result
     private static func requestAuthorizationIfNeeded() -> Task<Void> {
         return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()
             
-            if case .NotDetermined = authorizationStatus {
-                dispatch_async(dispatch_get_main_queue()) {
+            if case .notDetermined = authorizationStatus {
+                Queue.mainQueue.async {
                     PHPhotoLibrary.requestAuthorization { _ in
                         task.finish()
                     }
@@ -39,7 +38,7 @@ public final class PhotosPermissionCondition: TaskCondition {
         super.init(dependencyTask: PhotosPermissionCondition.requestAuthorizationIfNeeded()) { result in
             let authorizationStatus = PHPhotoLibrary.authorizationStatus()
             
-            if case .Authorized = authorizationStatus {
+            if case .authorized = authorizationStatus {
                 result(.satisfied)
             }
             else {

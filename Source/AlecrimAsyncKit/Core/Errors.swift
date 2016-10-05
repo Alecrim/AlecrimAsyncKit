@@ -10,14 +10,19 @@ import Foundation
 
 // MARK: -
 
-/// The possible errors related to task condition evalution.
+/// The possible errors related to task condition evaluation.
 ///
-/// - NotSatisfied: The condition was not satisfied.
-/// - Failed:       The condition evaluation was failed with an error.
-public enum TaskConditionError: ErrorType {
+/// - notSatisfied: The condition was not satisfied.
+/// - failed:       The condition evaluation was failed with an error.
+public enum TaskConditionError: Error {
     case notSatisfied
-    case failed(ErrorType)
+    case failed(Error)
 }
+
+// MARK: -
+
+/// Predefined domain for errors from AlecrimAsyncKit.
+public let AlecrimAsyncKitErrorDomain = "com.alecrim.AlecrimAsyncKit.ErrorDomain"
 
 // MARK: -
 
@@ -29,13 +34,15 @@ extension NSError {
     /// - parameter dict:   The `userInfo` dictionary for the error. `userInfo` is optional and may be `nil`.
     ///
     /// - returns: An `NSError` object for domain that represents an user cancelled error and the dictionary of arbitrary data userInfo.
-    public static func userCancelledError(domain domain: String = NSCocoaErrorDomain, userInfo dict: [NSObject : AnyObject]? = nil) -> NSError {
+    public static func userCancelledError(domain: String, userInfo dict: [AnyHashable : Any]? = nil) -> NSError {
         return NSError(domain: domain, code: NSUserCancelledError, userInfo: dict)
     }
     
 }
 
-extension ErrorType {
+// MARK: -
+
+extension Error {
     
     /// A Boolean value indicating whether the receiver represents an user cancelled error.
     public var isUserCancelled: Bool {

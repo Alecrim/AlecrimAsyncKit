@@ -19,15 +19,14 @@ public final class LocationPermissionCondition: TaskCondition {
         case always
     }
     
-    @warn_unused_result
-    private static func requestAuthorizationIfNeeded(usage usage: LocationPermissionCondition.Usage) -> Task<Void> {
+    private static func requestAuthorizationIfNeeded(usage: LocationPermissionCondition.Usage) -> Task<Void> {
         return asyncEx(conditions: [MutuallyExclusiveAlertCondition]) { task in
             /*
             Not only do we need to handle the "Not Determined" case, but we also
             need to handle the "upgrade" (.WhenInUse -> .Always) case.
             */
             switch (CLLocationManager.authorizationStatus(), usage) {
-            case (.NotDetermined, _), (.AuthorizedWhenInUse, .always):
+            case (.notDetermined, _), (.authorizedWhenInUse, .always):
                 let locationManager = LocationManager()
                 locationManager.didChangeAuthorizationStatusClosure = { status in
                     task.finish()
@@ -38,19 +37,19 @@ public final class LocationPermissionCondition: TaskCondition {
                 switch usage {
                 case .whenInUse:
                     key = "NSLocationWhenInUseUsageDescription"
-                    dispatch_async(dispatch_get_main_queue()) {
+                    Queue.mainQueue.async {
                         locationManager.requestWhenInUseAuthorization()
                     }
                     
                 case .always:
                     key = "NSLocationAlwaysUsageDescription"
-                    dispatch_async(dispatch_get_main_queue()) {
+                    Queue.mainQueue.async {
                         locationManager.requestAlwaysAuthorization()
                     }
                 }
                 
                 // This is helpful when developing the app.
-                assert(NSBundle.mainBundle().objectForInfoDictionaryKey(key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
+                assert(Bundle.main.object(forInfoDictionaryKey: key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
 
                 
             default:
@@ -71,11 +70,11 @@ public final class LocationPermissionCondition: TaskCondition {
             
             // There are several factors to consider when evaluating this condition
             switch (enabled, usage, actual) {
-            case (true, _, .AuthorizedAlways):
+            case (true, _, .authorizedAlways):
                 // The service is enabled, and we have "Always" permission -> condition satisfied.
                 result(.satisfied)
                 
-            case (true, .whenInUse, .AuthorizedWhenInUse):
+            case (true, .whenInUse, .authorizedWhenInUse):
                 // The service is enabled, and we have and need "WhenInUse" permission -> condition satisfied.
                 result(.satisfied)
                 
@@ -97,14 +96,14 @@ public final class LocationPermissionCondition: TaskCondition {
 
 private final class LocationManager: CLLocationManager, CLLocationManagerDelegate {
     
-    private var didChangeAuthorizationStatusClosure: ((CLAuthorizationStatus) -> Void)? = nil
+    fileprivate var didChangeAuthorizationStatusClosure: ((CLAuthorizationStatus) -> Void)? = nil
     
-    private override init() {
+    fileprivate override init() {
         super.init()
         self.delegate = self
     }
     
-    @objc private func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+    @objc func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         self.didChangeAuthorizationStatusClosure?(status)
         
         self.delegate = nil
