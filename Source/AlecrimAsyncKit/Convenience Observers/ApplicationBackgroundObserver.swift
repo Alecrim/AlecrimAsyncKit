@@ -25,16 +25,16 @@
         ///
         /// - note: Usually you will pass `UIApplication.sharedApplication()` as parameter. This is needed because the framework is marked to allow app extension API only.
         /// - note: The *"background task"* term as used here is in the context of of `UIApplication`. In this observer it will be related but it is not the same as `Task<V>` or `NonFailableTask<V>`.
-        private init(application: UIApplication) {
+        fileprivate init(application: UIApplication) {
             //
             self.application = application
             
             // We need to know when the application moves to/from the background.
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundObserver.didEnterBackground(_:)), name: UIApplicationDidEnterBackgroundNotification, object: nil)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ApplicationBackgroundObserver.didBecomeActive(_:)), name: UIApplicationDidBecomeActiveNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(ApplicationBackgroundObserver.didEnterBackground(_:)), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(ApplicationBackgroundObserver.didBecomeActive(_:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
             
             //
-            self.isInBackground = self.application.applicationState == .Background
+            self.isInBackground = self.application.applicationState == .background
             
             // If we're in the background already, immediately begin the *background task*.
             if self.isInBackground {
@@ -43,13 +43,13 @@
         }
         
         deinit {
-            NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidEnterBackgroundNotification, object: nil)
-            NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         }
         
         // MARK: -
 
-        public func didFinish(task: TaskProtocol) {
+        public func didFinishTask(_ task: TaskProtocol) {
             self.endBackgroundTask()
         }
         
@@ -57,7 +57,7 @@
         
         private func startBackgroundTask() {
             if self.identifier == UIBackgroundTaskInvalid {
-                self.identifier = self.application.beginBackgroundTaskWithName("AAK.ABTO." + NSUUID().UUIDString, expirationHandler: {
+                self.identifier = self.application.beginBackgroundTask(withName: "AAK.ABTO." + NSUUID().uuidString, expirationHandler: {
                     self.endBackgroundTask()
                 })
             }
@@ -70,14 +70,14 @@
             }
         }
         
-        @objc private func didEnterBackground(notification: NSNotification) {
+        @objc private func didEnterBackground(_ notification: NSNotification) {
             if !self.isInBackground {
                 self.isInBackground = true
                 self.startBackgroundTask()
             }
         }
         
-        @objc private func didBecomeActive(notification: NSNotification) {
+        @objc private func didBecomeActive(_ notification: NSNotification) {
             if self.isInBackground {
                 self.isInBackground = false
                 self.endBackgroundTask()

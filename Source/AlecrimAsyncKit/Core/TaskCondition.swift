@@ -8,16 +8,6 @@
 
 import Foundation
 
-private let _defaultTaskConditionQueue: NSOperationQueue = {
-    let queue = NSOperationQueue()
-    queue.name = "com.alecrim.AlecrimAsyncKit.TaskCondition"
-    queue.qualityOfService = .Utility
-    queue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount
-    
-    return queue
-    }()
-
-
 /// An enumeration with the possible condition results.
 ///
 /// - satisfied:    The condition was satisfied.
@@ -26,15 +16,18 @@ private let _defaultTaskConditionQueue: NSOperationQueue = {
 public enum TaskConditionResult {
     case satisfied
     case notSatisfied
-    case failed(ErrorType)
+    case failed(Error)
 }
 
+///
+public typealias TaskConditionEvaluationClosureType = (@escaping (TaskConditionResult) -> Void) -> Void
+
 /// A condition determines if a task can be executed or not.
-public class TaskCondition {
+open class TaskCondition {
     
     internal let subconditions: [TaskCondition]?
     internal let dependencyTaskClosure: (() -> Task<Void>?)?
-    internal var evaluationClosure: (((TaskConditionResult) -> Void) -> Void)
+    internal var evaluationClosure: TaskConditionEvaluationClosureType
     
     // for deferred evaluationClosure assignment only (we don't care about the evaluationClosureAssignmentDeferred value)
     internal init(evaluationClosureAssignmentDeferred: Bool) {
@@ -48,7 +41,7 @@ public class TaskCondition {
     /// - parameter evaluationClosure: The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+    public init(evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = nil
         self.dependencyTaskClosure = nil
         self.evaluationClosure = evaluationClosure
@@ -60,7 +53,7 @@ public class TaskCondition {
     /// - parameter evaluationClosure:     The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(@autoclosure(escaping) dependencyTask dependencyTaskClosure: () -> Task<Void>?, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+    public init(dependencyTask dependencyTaskClosure: @autoclosure @escaping () -> Task<Void>?, evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = nil
         self.dependencyTaskClosure = dependencyTaskClosure
         self.evaluationClosure = evaluationClosure
@@ -72,7 +65,7 @@ public class TaskCondition {
     /// - parameter evaluationClosure: The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(subcondition: TaskCondition, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+    public init(subcondition: TaskCondition, evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = [subcondition]
         self.dependencyTaskClosure = { return nil }
         self.evaluationClosure = evaluationClosure
@@ -85,7 +78,7 @@ public class TaskCondition {
     /// - parameter evaluationClosure:     The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(subcondition: TaskCondition, @autoclosure(escaping) dependencyTask dependencyTaskClosure: () -> Task<Void>?, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+    public init(subcondition: TaskCondition, dependencyTask dependencyTaskClosure: @autoclosure @escaping () -> Task<Void>?, evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = [subcondition]
         self.dependencyTaskClosure = dependencyTaskClosure
         self.evaluationClosure = evaluationClosure
@@ -97,7 +90,7 @@ public class TaskCondition {
     /// - parameter evaluationClosure: The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(subconditions: [TaskCondition], evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+    public init(subconditions: [TaskCondition], evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = subconditions
         self.dependencyTaskClosure = { return nil }
         self.evaluationClosure = evaluationClosure
@@ -110,15 +103,14 @@ public class TaskCondition {
     /// - parameter evaluationClosure:     The evaluation closure returning a `TaskConditionResult` enumeration member.
     ///
     /// - returns: A condition that will determine if a task can be executed or not.
-    public init(subconditions: [TaskCondition]?, @autoclosure(escaping) dependencyTask dependencyTaskClosure: () -> Task<Void>?, evaluationClosure: ((TaskConditionResult) -> Void) -> Void) {
+    public init(subconditions: [TaskCondition]?, dependencyTask dependencyTaskClosure: @autoclosure @escaping () -> Task<Void>?, evaluationClosure: @escaping TaskConditionEvaluationClosureType) {
         self.subconditions = subconditions
         self.dependencyTaskClosure = dependencyTaskClosure
         self.evaluationClosure = evaluationClosure
     }
     
-    @warn_unused_result
     internal func evaluate() -> Task<Void> {
-        return asyncEx(in: _defaultTaskConditionQueue) { [unowned self] task in
+        return asyncEx(in: Queue.taskConditionOperationQueue) { [unowned self] task in
             self.evaluationClosure { conditionResult in
                 switch conditionResult {
                 case .satisfied:
@@ -138,11 +130,10 @@ public class TaskCondition {
 
 extension TaskCondition {
     
-    @warn_unused_result
-    internal static func evaluateConditions(conditions: [TaskCondition]) -> Task<Void> {
-        return async(in: _defaultTaskConditionQueue) {
+    internal static func evaluateConditions(_ conditions: [TaskCondition]) -> Task<Void> {
+        return async(in: Queue.taskConditionOperationQueue) {
             for condition in conditions {
-                if let subconditions = condition.subconditions where !subconditions.isEmpty {
+                if let subconditions = condition.subconditions, !subconditions.isEmpty {
                     try await(TaskCondition.evaluateConditions(subconditions))
                 }
                 

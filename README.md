@@ -1,10 +1,11 @@
 ![AlecrimAsyncKit](https://raw.githubusercontent.com/Alecrim/AlecrimAsyncKit/master/AlecrimAsyncKit.png)
 
-[![Language: Swift](https://img.shields.io/badge/lang-Swift-orange.svg?style=flat)](https://developer.apple.com/swift/)
+[![Language: Swift](https://img.shields.io/badge/lang-Swift 3-orange.svg?style=flat)](https://developer.apple.com/swift/)
+[![Platform](https://img.shields.io/cocoapods/p/AlecrimAsyncKit.svg?style=flat)](http://cocoadocs.org/docsets/AlecrimAsyncKit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/Alecrim/AlecrimAsyncKit/develop/LICENSE)
 [![CocoaPods](https://img.shields.io/cocoapods/v/AlecrimAsyncKit.svg?style=flat)](http://cocoapods.org)
-[![Forks](https://img.shields.io/github/forks/Alecrim/AlecrimAsyncKit.svg?style=flat)](https://github.com/Alecrim/AlecrimAsyncKit/network)
-[![Stars](https://img.shields.io/github/stars/Alecrim/AlecrimAsyncKit.svg?style=flat)](https://github.com/Alecrim/AlecrimAsyncKit/stargazers)
+[![Apps](https://img.shields.io/cocoapods/at/AlecrimAsyncKit.svg?style=flat)](http://cocoadocs.org/docsets/AlecrimAsyncKit)
+[![Twitter](https://img.shields.io/badge/twitter-@vmartinelli-blue.svg?style=flat)](https://twitter.com/vmartinelli)
 
 Bringing async and await to Swift world with some flavouring.
 
@@ -50,7 +51,7 @@ func asyncCalculate() -> Task<Int> {
 
         if i >= 1_000_000 {
             // when using async with a failable task, we can throw errors
-            throw ...
+            throw AAKError.general
         }
 
         // when using async, we return the task value
@@ -102,7 +103,7 @@ import CloudKit
 let database: CKDatabase = ...
 
 do {
-    let records = try await(database.asyncPerformQuery(query, inZoneWithID: zoneID))
+    let records = try await(database.asyncPerform(query, inZoneWith: zoneID))
 
     for record in records {
         // ...
@@ -117,9 +118,9 @@ catch let error {
 
 extension CKDatabase {
 
-    public func asyncPerformQuery(query: CKQuery, inZoneWithID zoneID: CKRecordZoneID?) -> Task<[CKRecord]> {
+    public func asyncPerform(_ query: CKQuery, inZoneWith zoneID: CKRecordZoneID?) -> Task<[CKRecord]> {
         return asyncEx { task in
-            self.performQuery(query, inZoneWithID: zoneID) { records, error in
+            self.perform(query, inZoneWith: zoneID) { records, error in
                 task.finish(with: records, or: error)
             }
         }
@@ -140,7 +141,7 @@ If other queue is not specified a task will run in a default (and shared) backgr
 ```swift
 @warn_unused_result
 func doSomething() -> Task<Void> {
-    return async(queue: someAlreadyCreatedOperationQueue) {
+    return async(in: queue) {
         // ...
     }
 }
@@ -160,10 +161,10 @@ The **AlecrimAsyncKit** framework provides some predefined conditions, but you c
 func asyncDoSomething() -> Task<Void> {
     let condition = TaskCondition { result in
         if ... {
-            result(.Satisfied)
+            result(.satisfied)
         }
         else {
-            result(.Failed(NSError(...)))
+            result(.failed(AAKError.general))
         }
     }
 
@@ -232,7 +233,7 @@ let _ = asyncCalculate()
     .didFinish { task in
         // this closure will be always called, even if the task was cancelled
 
-        if let error = error where !error.userCancelled {
+        if let error = error where !error.isUserCancelled {
             // do a nice error handling here
         }
         else {
@@ -287,16 +288,6 @@ The Session 226 of WWDC 2015 (“Advanced NSOperations”) that exemplified seve
 
 - master - The production branch. Clone or fork this repository for the latest copy.
 - develop - The active development branch. [Pull requests](https://help.github.com/articles/creating-a-pull-request) should be directed to this branch.
-
-If you want to contribute, please feel free to fork the repository and send pull requests with your fixes, suggestions and additions. :-)
-
-The main areas the framework needs improvement:
-
-- Correct the README, code and examples for English mistakes;
-- Write more and better code documentation;
-- Write unit tests;
-- Write more conditions and observers;
-- Replace some pieces of code with more "elegant" ones.
 
 ---
 

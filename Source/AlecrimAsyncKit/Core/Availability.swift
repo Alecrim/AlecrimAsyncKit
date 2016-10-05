@@ -10,57 +10,57 @@ import Foundation
 
 // MARK: - Core Conditions
 
-@available(*, unavailable, renamed="MutuallyExclusiveCondition")
+@available(*, unavailable, renamed: "MutuallyExclusiveCondition")
 public final class MutuallyExclusiveTaskCondition {}
 
 // MARK: - Additional Conditions
 
-@available(*, unavailable, renamed="BooleanCondition")
+@available(*, unavailable, renamed: "BooleanCondition")
 public final class BooleanTaskCondition {}
 
-@available(*, unavailable, renamed="DelayCondition")
+@available(*, unavailable, renamed: "DelayCondition")
 public final class DelayTaskCondition {}
 
-@available(*, unavailable, renamed="NegateCondition")
+@available(*, unavailable, renamed: "NegateCondition")
 public final class NegateTaskCondition {}
 
-@available(*, unavailable, renamed="ObjectValueCondition")
+@available(*, unavailable, renamed: "ObjectValueCondition")
 public final class ObjectValueTaskCondition {}
 
-@available(*, unavailable, renamed="SilentCondition")
+@available(*, unavailable, renamed: "SilentCondition")
 public final class SilentTaskCondition {}
 
 // MARK: - Convenience Conditions
 
-@available(*, unavailable, renamed="EventStorePermissionCondition")
+@available(*, unavailable, renamed: "EventStorePermissionCondition")
 public final class EventStorePermissionTaskCondition {}
 
-@available(*, unavailable, renamed="LocationPermissionCondition")
+@available(*, unavailable, renamed: "LocationPermissionCondition")
 public final class LocationPermissionTaskCondition {}
 
-@available(*, unavailable, renamed="PhotosPermissionCondition")
+@available(*, unavailable, renamed: "PhotosPermissionCondition")
 public final class PhotosPermissionTaskCondition {}
 
-@available(*, unavailable, renamed="ReachabilityCondition")
+@available(*, unavailable, renamed: "ReachabilityCondition")
 public final class ReachabilityTaskCondition {}
 
-@available(*, unavailable, renamed="RemoteNotificationPermissionCondition")
+@available(*, unavailable, renamed: "RemoteNotificationPermissionCondition")
 public final class RemoteNotificationPermissionTaskCondition {}
 
 // MARK: - Additional Observers
 
-@available(*, unavailable, renamed="TimeoutObserver")
+@available(*, unavailable, renamed: "TimeoutObserver")
 public final class TimeoutTaskObserver {}
 
 // MARK: - Convenience Observers
 
-@available(*, unavailable, renamed="ApplicationBackgroundObserver")
+@available(*, unavailable, renamed: "ApplicationBackgroundObserver")
 public final class ApplicationBackgroundTaskObserver {}
 
-@available(*, unavailable, renamed="NetworkActivityIndicatorObserver")
+@available(*, unavailable, renamed: "NetworkActivityIndicatorObserver")
 public final class NetworkActivityIndicatorTaskObserver {}
 
-@available(*, unavailable, renamed="ProcessInfoActivityObserver")
+@available(*, unavailable, renamed: "ProcessInfoActivityObserver")
 public final class ProcessInfoActivityTaskObserver {}
 
 // MARK: -
@@ -69,12 +69,12 @@ public final class ProcessInfoActivityTaskObserver {}
     
     extension UIApplication {
         
-        @available(*, unavailable, renamed="applicationBackgroundObserver")
+        @available(*, unavailable, renamed: "applicationBackgroundObserver")
         public final func applicationBackgroundTaskObserver() -> ApplicationBackgroundObserver {
             fatalError()
         }
         
-        @available(*, unavailable, renamed="networkActivity")
+        @available(*, unavailable, renamed: "networkActivity")
         public final func networkActivityIndicatorTaskObserver() -> NetworkActivityIndicatorObserver {
             fatalError()
         }
@@ -88,18 +88,18 @@ public final class ProcessInfoActivityTaskObserver {}
 
 extension Task {
     
-    @available(*, unavailable, renamed="finish")
+    @available(*, unavailable, renamed: "finish")
     public final func finishWithValue(value: V) {
         fatalError()
     }
 
-    @available(*, unavailable, renamed="finish")
-    public final func finishWithError(error: ErrorType) {
+    @available(*, unavailable, renamed: "finish")
+    public final func finishWithError(error: Error) {
         fatalError()
     }
 
-    @available(*, unavailable, renamed="finish")
-    public final func finishWithValue(value: V!, error: ErrorType?) {
+    @available(*, unavailable, renamed: "finish")
+    public final func finishWithValue(value: V!, error: Error?) {
         fatalError()
     }
     
@@ -107,7 +107,7 @@ extension Task {
 
 extension NonFailableTask {
 
-    @available(*, unavailable, renamed="finish")
+    @available(*, unavailable, renamed: "finish")
     public final func finishWithValue(value: V) {
         fatalError()
     }
@@ -118,13 +118,13 @@ extension NonFailableTask {
 
 extension FailableTaskProtocol {
 
-    @available(*, unavailable, renamed="forward")
-    public func `continue`<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T, inheritCancellation: Bool = true) {
+    @available(*, unavailable, renamed: "forward")
+    public func `continue`<T: FailableTaskProtocol>(with task: T, inheritCancellation: Bool = true) where T.ValueType == Self.ValueType {
         fatalError()
     }
     
-    @available(*, unavailable, renamed="forward")
-    public func continueWith<T: FailableTaskProtocol where T.ValueType == Self.ValueType>(task: T, inheritCancellation: Bool = true) {
+    @available(*, unavailable, renamed: "forward")
+    public func continueWith<T: FailableTaskProtocol>(task: T, inheritCancellation: Bool = true) where T.ValueType == Self.ValueType {
         fatalError()
     }
 
@@ -132,13 +132,13 @@ extension FailableTaskProtocol {
 
 extension NonFailableTaskProtocol {
     
-    @available(*, unavailable, renamed="forward")
-    public func `continue`<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(with task: T) {
+    @available(*, unavailable, renamed: "forward")
+    public func `continue`<T: NonFailableTaskProtocol>(with task: T) where T.ValueType == Self.ValueType {
         fatalError()
     }
 
-    @available(*, unavailable, renamed="forward")
-    public func continueWith<T: NonFailableTaskProtocol where T.ValueType == Self.ValueType>(task: T) {
+    @available(*, unavailable, renamed: "forward")
+    public func continueWith<T: NonFailableTaskProtocol>(task: T) where T.ValueType == Self.ValueType {
         fatalError()
     }
 

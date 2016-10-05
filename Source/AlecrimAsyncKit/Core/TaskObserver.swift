@@ -14,17 +14,17 @@ public protocol TaskObserver {
 }
 
 public protocol TaskWillStartObserver: TaskObserver {
-    func willStart(task: TaskProtocol)
+    func willStartTask(_ task: TaskProtocol)
 }
 
 public protocol TaskDidStartObserver: TaskObserver {
-    func didStart(task: TaskProtocol)
+    func didStartTask(_ task: TaskProtocol)
 }
 
 public protocol TaskWillFinishObserver: TaskObserver {
-    func willFinish(task: TaskProtocol)
+    func willFinishTask(_ task: TaskProtocol)
 }
 
 public protocol TaskDidFinishObserver: TaskObserver {
-    func didFinish(task: TaskProtocol)
+    func didFinishTask(_ task: TaskProtocol)
 }
