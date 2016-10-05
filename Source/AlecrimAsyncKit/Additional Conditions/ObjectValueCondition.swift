@@ -24,7 +24,7 @@ public final class ObjectValueCondition: TaskCondition {
 
 // MARK: -
 
-fileprivate final class ValueObserver: NSObject {
+private final class ValueObserver: NSObject {
     
     private var context = 0
     private var observing = false

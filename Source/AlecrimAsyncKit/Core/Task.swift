@@ -211,7 +211,7 @@ public final class NonFailableTask<V>: AbstractTask<V>, InitializableTask, NonFa
 
 // MARK: -
 
-fileprivate final class TaskProgress: Progress {
+private final class TaskProgress: Progress {
     
     private unowned let task: TaskProtocol
     
