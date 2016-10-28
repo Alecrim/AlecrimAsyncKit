@@ -26,7 +26,7 @@ public final class MutuallyExclusiveCondition: TaskCondition {
     /// An enumeration with the default categories used by the condition.
     ///
     /// - Alert: The category that represents a potential modal alert to the user.
-    private enum Category: String {
+    fileprivate enum Category: String {
         case alert = "_CAAAK.METC.DC.Alert"
     }
 
