@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1410E17C1DF298A200FA2945 /* DispatchQueue+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1410E17B1DF298A200FA2945 /* DispatchQueue+Extensions.swift */; };
 		1413F62E1BDCAE8B001049D5 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1413F62D1BDCAE8B001049D5 /* Protocols.swift */; };
 		1416E08D1BDC931A00F1EA73 /* TaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */; };
 		142561B51BE31B9D00A4C974 /* TaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142561B41BE31B9D00A4C974 /* TaskOperation.swift */; };
@@ -38,6 +39,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1410E17B1DF298A200FA2945 /* DispatchQueue+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Extensions.swift"; sourceTree = "<group>"; };
 		1413F62D1BDCAE8B001049D5 /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		1416E08C1BDC931A00F1EA73 /* TaskObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskObserver.swift; sourceTree = "<group>"; };
 		142561B41BE31B9D00A4C974 /* TaskOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskOperation.swift; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 		14A701751CF9738300566C11 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				1410E17B1DF298A200FA2945 /* DispatchQueue+Extensions.swift */,
 				14A701761CF9738300566C11 /* SequenceType+Extensions.swift */,
 			);
 			path = Extensions;
@@ -228,7 +231,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = Alecrim;
 				TargetAttributes = {
 					14E585BA1B7803EC003EC4DC = {
@@ -287,6 +290,7 @@
 				148513A51B9BD15100FAB0FA /* Errors.swift in Sources */,
 				1437EC371D105946000D5C02 /* Queue.swift in Sources */,
 				148513A41B9BD15100FAB0FA /* AsyncAwait.swift in Sources */,
+				1410E17C1DF298A200FA2945 /* DispatchQueue+Extensions.swift in Sources */,
 				148513AE1B9BD38100FAB0FA /* LocationPermissionCondition.swift in Sources */,
 				1485139D1B9BD15100FAB0FA /* DelayCondition.swift in Sources */,
 				1485139F1B9BD15100FAB0FA /* SilentCondition.swift in Sources */,
@@ -315,8 +319,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -368,8 +374,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -406,7 +414,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 275;
+				CURRENT_PROJECT_VERSION = 301;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -429,7 +437,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 275;
+				CURRENT_PROJECT_VERSION = 301;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
