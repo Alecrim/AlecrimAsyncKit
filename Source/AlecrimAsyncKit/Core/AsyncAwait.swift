@@ -14,19 +14,19 @@ public typealias TaskPriority = Operation.QueuePriority
 
 // MARK: - async
 
-public func async<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserver]? = nil, using closure: @escaping () -> V) -> NonFailableTask<V> {
-    return createdTask(in: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: false) { task in
+public func async<V>(in queue: OperationQueue? = nil, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserver]? = nil, using closure: @escaping () -> V) -> NonFailableTask<V> {
+    return createdTask(in: queue ?? Queue.taskDefaultOperationQueue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: false) { task in
         let value = closure()
         task.finish(with: value)
     }
 }
 
-public func async<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, condition: TaskCondition, observers: [TaskObserver]? = nil, using closure: @escaping () throws -> V) -> Task<V> {
-    return async(in: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: [condition], observers: observers, using: closure)
+public func async<V>(in queue: OperationQueue? = nil, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, condition: TaskCondition, observers: [TaskObserver]? = nil, using closure: @escaping () throws -> V) -> Task<V> {
+    return async(in: queue ?? Queue.taskDefaultOperationQueue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: [condition], observers: observers, using: closure)
 }
 
-public func async<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, using closure: @escaping () throws -> V) -> Task<V> {
-    return createdTask(in: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: false) { task in
+public func async<V>(in queue: OperationQueue? = nil, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, using closure: @escaping () throws -> V) -> Task<V> {
+    return createdTask(in: queue ?? Queue.taskDefaultOperationQueue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: false) { task in
         do {
             let value = try closure()
             task.finish(with: value)
@@ -39,16 +39,16 @@ public func async<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue,
 
 // MARK: - asyncEx
 
-public func asyncEx<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserver]? = nil, using closure: @escaping (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
-    return createdTask(in: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: true, using: closure)
+public func asyncEx<V>(in queue: OperationQueue? = nil, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, observers: [TaskObserver]? = nil, using closure: @escaping (NonFailableTask<V>) -> Void) -> NonFailableTask<V> {
+    return createdTask(in: queue ?? Queue.taskDefaultOperationQueue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: nil, observers: observers, asynchronous: true, using: closure)
 }
 
-public func asyncEx<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, condition: TaskCondition, observers: [TaskObserver]? = nil, using closure: @escaping (Task<V>) -> Void) -> Task<V> {
+public func asyncEx<V>(in queue: OperationQueue? = nil, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, condition: TaskCondition, observers: [TaskObserver]? = nil, using closure: @escaping (Task<V>) -> Void) -> Task<V> {
     return asyncEx(in: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: [condition], observers: observers, using: closure)
 }
 
-public func asyncEx<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, using closure: @escaping (Task<V>) -> Void) -> Task<V> {
-    return createdTask(in: queue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: true, using: closure)
+public func asyncEx<V>(in queue: OperationQueue? = nil, qualityOfService: QualityOfService? = nil, taskPriority: TaskPriority? = nil, conditions: [TaskCondition]? = nil, observers: [TaskObserver]? = nil, using closure: @escaping (Task<V>) -> Void) -> Task<V> {
+    return createdTask(in: queue ?? Queue.taskDefaultOperationQueue, qualityOfService: qualityOfService, taskPriority: taskPriority, conditions: conditions, observers: observers, asynchronous: true, using: closure)
 }
 
 
@@ -97,11 +97,11 @@ public func await<V>(_ task: Task<V>) throws -> V {
 
 // MARK: - Helper methods
 
-public func asyncDelay(in queue: OperationQueue = Queue.taskDefaultOperationQueue, timeInterval: TimeInterval) -> NonFailableTask<Void> {
+public func asyncDelay(in queue: OperationQueue? = nil, timeInterval: TimeInterval) -> NonFailableTask<Void> {
     return asyncSleep(in: queue, forTimeInterval: timeInterval)
 }
 
-public func asyncSleep(in queue: OperationQueue = Queue.taskDefaultOperationQueue, forTimeInterval timeInterval: TimeInterval) -> NonFailableTask<Void> {
+public func asyncSleep(in queue: OperationQueue? = nil, forTimeInterval timeInterval: TimeInterval) -> NonFailableTask<Void> {
     return asyncEx(in: queue) { t in
         Queue.delayQueue.asyncAfter(deadline: DispatchTime.now() + timeInterval) {
             t.finish()
@@ -109,7 +109,7 @@ public func asyncSleep(in queue: OperationQueue = Queue.taskDefaultOperationQueu
     }
 }
 
-public func asyncSleep(in queue: OperationQueue = Queue.taskDefaultOperationQueue, until date: Date) -> NonFailableTask<Void> {
+public func asyncSleep(in queue: OperationQueue? = nil, until date: Date) -> NonFailableTask<Void> {
     let now = Date()
     
     if date > now {
@@ -121,11 +121,11 @@ public func asyncSleep(in queue: OperationQueue = Queue.taskDefaultOperationQueu
     }
 }
 
-public func asyncValue<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, _ value: V) -> Task<V> {
+public func asyncValue<V>(in queue: OperationQueue? = nil, _ value: V) -> Task<V> {
     return async(in: queue) { return value }
 }
 
-public func asyncError<V>(in queue: OperationQueue = Queue.taskDefaultOperationQueue, _ error: Error) -> Task<V> {
+public func asyncError<V>(in queue: OperationQueue? = nil, _ error: Error) -> Task<V> {
     return async(in: queue) { throw error }
 }
 

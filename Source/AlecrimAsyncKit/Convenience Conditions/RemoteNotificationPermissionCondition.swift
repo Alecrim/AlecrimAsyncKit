@@ -39,7 +39,7 @@
         private static var status = RemoteRegistrationStatus.unknown
         
         #if os(OSX)
-        public static var remoteNotificationTypes: NSRemoteNotificationType = []
+        public static var remoteNotificationTypes: NSApplication.RemoteNotificationType = []
         #endif
         
         // MARK: -
