@@ -52,48 +52,77 @@ public func asyncEx<V>(in queue: OperationQueue? = nil, qualityOfService: Qualit
 }
 
 
-// MARK: - await
+// MARK: - await - non failable task
 
-@discardableResult
-public func await<V>(_ closure: () -> NonFailableTask<V>) -> V {
-    let task = closure()
-    return await(task)
+extension NonFailableTask {
+
+    @discardableResult
+    fileprivate func await() -> V {
+        //
+        let task = self
+        
+        // this should never be called, but just in case...
+        if let parentTask = Thread.current.task as? CancellableTask, let currentTask = task as? CancellableTask, parentTask !== currentTask {
+            currentTask.internalInheritCancellation(from: parentTask)
+        }
+        
+        //
+        task.waitUntilFinished()
+        
+        //
+        return task.value
+    }
+
 }
 
 @discardableResult
 public func await<V>(_ task: NonFailableTask<V>) -> V {
-    // this should never be called, but just in case...
-    if let parentTask = Thread.current.task as? CancellableTask, let currentTask = task as? CancellableTask, parentTask !== currentTask {
-        currentTask.internalInheritCancellation(from: parentTask)
-    }
+    return task.await()
+}
+
+@discardableResult
+public func await<V>(_ closure: () -> NonFailableTask<V>) -> V {
+    let task = closure()
+    return task.await()
+}
+
+// MARK: - await - task
     
-    //
-    task.waitUntilFinished()
-    return task.value
+extension Task {
+
+    @discardableResult
+    fileprivate func await() throws -> V {
+        //
+        let task = self
+        
+        //
+        if let parentTask = Thread.current.task as? CancellableTask, parentTask !== task {
+            task.internalInheritCancellation(from: parentTask)
+        }
+        
+        //
+        task.waitUntilFinished()
+        
+        if let error = task.error {
+            throw error
+        }
+        
+        return task.value
+    }
+
+}
+
+@discardableResult
+public func await<V>(_ task: Task<V>) throws -> V {
+    return try task.await()
 }
 
 @discardableResult
 public func await<V>(_ closure: () -> Task<V>) throws -> V {
     let task = closure()
-    return try await(task)
+    return try task.await()
 }
 
-@discardableResult
-public func await<V>(_ task: Task<V>) throws -> V {
-    //
-    if let parentTask = Thread.current.task as? CancellableTask, parentTask !== task {
-        task.internalInheritCancellation(from: parentTask)
-    }
-
-    //
-    task.waitUntilFinished()
-    
-    if let error = task.error {
-        throw error
-    }
-    
-    return task.value
-}
 
 // MARK: - Helper methods
 
