@@ -15,7 +15,7 @@ import Foundation
 // MARK: - Handler Protocol
 
 public protocol NetworkActivityIndicatorHandler: class {
-    var networkActivityIndicatorVisible: Bool { get set }
+    var isNetworkActivityIndicatorVisible: Bool { get set }
 }
 
 // MARK: - Observer
@@ -87,18 +87,18 @@ public final class NetworkActivityIndicatorObserver: TaskDidStartObserver, TaskD
     
     private func showOrHideActivityIndicatorAfterDelay() {
         Queue.mainQueue.async() {
-            let delay = self.networkActivityIndicatorHandler.networkActivityIndicatorVisible ? self.dismissDelay : self.showDelay
+            let delay = self.networkActivityIndicatorHandler.isNetworkActivityIndicatorVisible ? self.dismissDelay : self.showDelay
             
             Queue.mainQueue.asyncAfter(deadline: DispatchTime.now() + delay) {
                 withUnsafeMutablePointer(to: &self.activityCountSpinLock, OSSpinLockLock)
                 defer { withUnsafeMutablePointer(to: &self.activityCountSpinLock, OSSpinLockUnlock) }
                 
                 let visible = (self.activityCount > 0)
-                if visible && !self.networkActivityIndicatorHandler.networkActivityIndicatorVisible {
-                    self.networkActivityIndicatorHandler.networkActivityIndicatorVisible = true
+                if visible && !self.networkActivityIndicatorHandler.isNetworkActivityIndicatorVisible {
+                    self.networkActivityIndicatorHandler.isNetworkActivityIndicatorVisible = true
                 }
-                else if !visible && self.networkActivityIndicatorHandler.networkActivityIndicatorVisible {
-                    self.networkActivityIndicatorHandler.networkActivityIndicatorVisible = false
+                else if !visible && self.networkActivityIndicatorHandler.isNetworkActivityIndicatorVisible {
+                    self.networkActivityIndicatorHandler.isNetworkActivityIndicatorVisible = false
                 }
             }
         }

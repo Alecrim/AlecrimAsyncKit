@@ -1,14 +1,14 @@
 Pod::Spec.new do |s|
 
   s.name         = "AlecrimAsyncKit"
-  s.version      = "3.0.1"
+  s.version      = "3.1"
   s.summary      = "Bringing async and await to Swift world with some flavouring."
   s.homepage     = "https://github.com/Alecrim/AlecrimAsyncKit"
 
   s.license      = "MIT"
 
   s.author             = { "Vanderlei Martinelli" => "vanderlei.martinelli@gmail.com" }
-  s.social_media_url   = "https://twitter.com/vmartinelli"
+  s.social_media_url   = "https://www.linkedin.com/in/vmartinelli/"
 
   s.osx.deployment_target     = "10.10"
   s.ios.deployment_target     = "8.0"

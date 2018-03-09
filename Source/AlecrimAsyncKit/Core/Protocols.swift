@@ -33,7 +33,7 @@ extension CancellableTask {
     
     @available(*, deprecated)
     @discardableResult
-    public final func forwardCancellation(to task: CancellableTask) -> Self {
+    public func forwardCancellation(to task: CancellableTask) -> Self {
         self.cancellationHandler = { [weak task] in
             task?.cancel()
         }
@@ -43,7 +43,7 @@ extension CancellableTask {
     
     @available(*, deprecated)
     @discardableResult
-    public final func inheritCancellation(from task: CancellableTask) -> Self {
+    public func inheritCancellation(from task: CancellableTask) -> Self {
         task.cancellationHandler = { [weak self] in
             self?.cancel()
         }
@@ -51,7 +51,7 @@ extension CancellableTask {
         return self
     }
 
-    internal final func internalInheritCancellation(from task: CancellableTask) {
+    internal func internalInheritCancellation(from task: CancellableTask) {
         task.cancellationHandler = { [weak self] in
             self?.cancel()
         }
@@ -71,7 +71,7 @@ public protocol ValueReportingTask: TaskProtocol {
 extension ValueReportingTask where Self.ValueType == Void {
     
     /// Causes the receiver to treat the task as finished.
-    public final func finish() {
+    public func finish() {
         self.finish(with: ())
     }
     
@@ -92,7 +92,7 @@ public protocol FailableTaskProtocol: CancellableTask, ValueReportingTask, Error
 
 extension FailableTaskProtocol {
     
-    public final func finish(with value: Self.ValueType!, or error: Error?) {
+    public func finish(with value: Self.ValueType!, or error: Error?) {
         if let error = error {
             self.finish(with: error)
         }
@@ -104,7 +104,7 @@ extension FailableTaskProtocol {
     /// Forwards the execution to other task and finishes the receiver when that task is finished.
     ///
     /// - parameter task: The task the execution is forward to.
-    public final func forward<T: FailableTaskProtocol>(to task: T, inheritCancellation: Bool = true) where T.ValueType == Self.ValueType {
+    public func forward<T: FailableTaskProtocol>(to task: T, inheritCancellation: Bool = true) where T.ValueType == Self.ValueType {
         if inheritCancellation {
             task.internalInheritCancellation(from: self)
         }
@@ -126,7 +126,7 @@ extension NonFailableTaskProtocol {
     /// Forwards the execution to other non failable task and finishes the receiver when that task is finished.
     ///
     /// - parameter task: The non failable task the execution is forward to.
-    public final func forward<T: NonFailableTaskProtocol>(to task: T) where T.ValueType == Self.ValueType {
+    public func forward<T: NonFailableTaskProtocol>(to task: T) where T.ValueType == Self.ValueType {
         task.waitUntilFinished()
         self.finish(with: task.value)
     }
