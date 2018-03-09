@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.license      = "MIT"
 
   s.author             = { "Vanderlei Martinelli" => "vanderlei.martinelli@gmail.com" }
-  s.social_media_url   = "https://twitter.com/vmartinelli"
+  s.social_media_url   = "https://www.linkedin.com/in/vmartinelli/"
 
   s.osx.deployment_target     = "10.10"
   s.ios.deployment_target     = "8.0"
