@@ -14,6 +14,7 @@
 		143E712320531F9B002F7222 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143E712220531F9B002F7222 /* Errors.swift */; };
 		143E712520531FBC002F7222 /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143E712420531FBC002F7222 /* Async.swift */; };
 		143E712720531FF9002F7222 /* Await.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143E712620531FF9002F7222 /* Await.swift */; };
+		14A391242053A03300AD8249 /* Cancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A391232053A03300AD8249 /* Cancellation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		143E712220531F9B002F7222 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		143E712420531FBC002F7222 /* Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
 		143E712620531FF9002F7222 /* Await.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Await.swift; sourceTree = "<group>"; };
+		14A391232053A03300AD8249 /* Cancellation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cancellation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +71,7 @@
 			children = (
 				143E712420531FBC002F7222 /* Async.swift */,
 				143E712620531FF9002F7222 /* Await.swift */,
+				14A391232053A03300AD8249 /* Cancellation.swift */,
 				1409928120534672005BF03C /* Convenience.swift */,
 				143E712220531F9B002F7222 /* Errors.swift */,
 				143E712020531E5E002F7222 /* Task.swift */,
@@ -168,6 +171,7 @@
 			files = (
 				1409928420534BE0005BF03C /* TaskAwaiter.swift in Sources */,
 				143E712720531FF9002F7222 /* Await.swift in Sources */,
+				14A391242053A03300AD8249 /* Cancellation.swift in Sources */,
 				1409928220534672005BF03C /* Convenience.swift in Sources */,
 				143E712520531FBC002F7222 /* Async.swift in Sources */,
 				143E712320531F9B002F7222 /* Errors.swift in Sources */,

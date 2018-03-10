@@ -25,16 +25,6 @@ fileprivate let defaultOperationQueue: OperationQueue = {
 
 public typealias AsyncTaskClosure<Value> = () throws -> Value
 public typealias AsyncTaskFullClosure<Value> = (Task<Value>) -> Void
-public typealias AsyncTaskCancellationHandler = () -> Void
-
-//
-
-public protocol CancellableTask: class {
-    var isCancelled: Bool { get }
-    var cancellationHandler: AsyncTaskCancellationHandler? { get set }
-    
-    func cancel()
-}
 
 //
 
@@ -81,11 +71,11 @@ fileprivate func enqueue<Value>(in queue: OperationQueue?, closure taskClosure: 
     
     //
     let parentTask = Thread.current.task
-    parentTask?.cancellationHandler = { [weak task] in
+    parentTask?.cancellation += { [weak task] in
         task?.cancel()
     }
     
-    task.cancellationHandler = { [weak operation] in
+    task.cancellation += { [weak operation] in
         operation?.cancel()
     }
     

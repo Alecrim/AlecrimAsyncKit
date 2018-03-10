@@ -66,47 +66,10 @@ public final class Task<Value>: CancellableTask {
     
     // cancellation support
     
+    public private(set) lazy var cancellation = Cancellation()
+
     public var isCancelled: Bool {
         return self.error?.isUserCancelled ?? false
-    }
-    
-    private var _cancellationHandlerLock = os_unfair_lock_s()
-    private var _cancellationHandler: AsyncTaskCancellationHandler?
-    
-    public var cancellationHandler: AsyncTaskCancellationHandler? {
-        get {
-            os_unfair_lock_lock(&self._cancellationHandlerLock); defer { os_unfair_lock_unlock(&self._cancellationHandlerLock) }
-            return self._cancellationHandler
-        }
-        set {
-            os_unfair_lock_lock(&self._cancellationHandlerLock); defer { os_unfair_lock_unlock(&self._cancellationHandlerLock) }
-
-            if let oldValue = self._cancellationHandler {
-                if let newValue = newValue {
-                    self._cancellationHandler = {
-                        oldValue()
-                        newValue()
-                    }
-                }
-                else {
-                    self._cancellationHandler = newValue
-                }
-            }
-            else {
-                self._cancellationHandler = newValue
-            }
-        }
-    }
-    
-    public func cancel() {
-        //
-        if let cancellationHandler = self.cancellationHandler {
-            self.cancellationHandler = nil
-            cancellationHandler()
-        }
-        
-        //
-        self.finish(with: NSError.userCancelled)
     }
     
     //
