@@ -15,7 +15,7 @@ I know I am puttting the cart before the horse, but... For the three functions i
 
 ```swift
 func someFuncRunningInBackground() throws {
-    let value = try await { someLongRunningAsynchronousFunc() }
+    let value = try await { self.someLongRunningAsynchronousFunc() }
     
     // do something with the returned value...
 }
@@ -26,7 +26,7 @@ You can also use the result only when needed:
 ```swift
 func someFuncRunningInBackground() throws {
     // the task starts immediately
-    let task = someLongRunningAsynchronousFunc()
+    let task = self.someLongRunningAsynchronousFunc()
     
     // do other things, the task is running...
     
@@ -112,12 +112,15 @@ Since the `await` func blocks the current thread, you can only await an async fu
 ```swift
 func someFuncRunningInTheMainThread() {
     // start the task from the main thread
-    someLongRunningAsynchronousFunc().didFinishWithValue { value in
-        // when the background work is done,
-        // do something with the returned value (in the main thread again)
-    }
+    self.someLongRunningAsynchronousFunc()
+        .didFinishWithValue { value in
+            // when the background work is done,
+            // do something with the returned value (in the main thread again)
+        }
 }
 ```
+
+You can optionally use the `didFinishWithError`, `didCancel` and `didFinish` methods. If specified, the last method (`didFinish`) will always be called regardless whether the task was cancelled or not, whether there was an error or not.
 
 ## Non failable tasks
 If you read the framework's code you will find the `NonFailableTask<Value>` class. This kind of task cannot fail (sort of). In fact it may fail, but it should not.
