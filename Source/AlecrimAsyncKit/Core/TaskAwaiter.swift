@@ -25,11 +25,11 @@ public final class TaskAwaiter<Value> {
     
     public let task: Task<Value>
     
-    private var didFinishClosure: ((Task<Value>) -> Void)?
     private var didFinishWithValueClosure: ((Value) -> Void)?
     private var didFinishWithErrorClosure: ((Error) -> Void)?
     private var didCancelClosure: (() -> Void)?
-    
+    private var didFinishClosure: (() -> Void)?
+
     fileprivate init(queue: OperationQueue, task: Task<Value>) {
         //
         self.task = task
@@ -38,8 +38,10 @@ public final class TaskAwaiter<Value> {
         queue.addOperation {
             defer {
                 if let didFinishClosure = self.didFinishClosure {
+                    self.didFinishClosure = nil
+                    
                     DispatchQueue.main.async {
-                        didFinishClosure(task)
+                        didFinishClosure()
                     }
                 }
             }
@@ -48,6 +50,8 @@ public final class TaskAwaiter<Value> {
                 try await(task)
                 
                 if let didFinishWithValueClosure = self.didFinishWithValueClosure {
+                    self.didFinishWithValueClosure = nil
+                    
                     DispatchQueue.main.async {
                         didFinishWithValueClosure(task.value!)
                     }
@@ -57,6 +61,8 @@ public final class TaskAwaiter<Value> {
             catch let error {
                 if error.isUserCancelled {
                     if let didCancelClosure = self.didCancelClosure {
+                        self.didCancelClosure = nil
+                        
                         DispatchQueue.main.async {
                             didCancelClosure()
                         }
@@ -64,6 +70,8 @@ public final class TaskAwaiter<Value> {
                 }
                 else {
                     if let didFinishWithErrorClosure = self.didFinishWithErrorClosure {
+                        self.didFinishWithErrorClosure = nil
+                        
                         DispatchQueue.main.async {
                             didFinishWithErrorClosure(error)
                         }
@@ -71,12 +79,6 @@ public final class TaskAwaiter<Value> {
                 }
             }
         }
-    }
-    
-    @discardableResult
-    public func didFinish(_ closure: @escaping (Task<Value>) -> Void) -> Self {
-        self.didFinishClosure = closure
-        return self
     }
     
     @discardableResult
@@ -97,14 +99,15 @@ public final class TaskAwaiter<Value> {
         return self
     }
     
+    @discardableResult
+    public func didFinish(_ closure: @escaping () -> Void) -> Self {
+        self.didFinishClosure = closure
+        return self
+    }
+    
 }
 
 extension Task {
-    
-    @discardableResult
-    public func didFinish(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping (Task<Value>) -> Void) -> TaskAwaiter<Value> {
-        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinish(closure)
-    }
     
     @discardableResult
     public func didFinishWithValue(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping (Value) -> Void) -> TaskAwaiter<Value> {
@@ -120,6 +123,10 @@ extension Task {
     public func didCancel(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping () -> Void) -> TaskAwaiter<Value> {
         return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didCancel(closure)
     }
-    
-}
 
+    @discardableResult
+    public func didFinish(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping () -> Void) -> TaskAwaiter<Value> {
+        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinish(closure)
+    }
+
+}

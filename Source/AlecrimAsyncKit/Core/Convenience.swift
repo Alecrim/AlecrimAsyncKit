@@ -18,22 +18,6 @@ public func async<Value>(in queue: OperationQueue? = nil, error: Error) -> Task<
     return async(in: queue) { throw error }
 }
 
-// MARK:
-
-extension NSError {
-    
-    internal static let userCancelled = NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError, userInfo: nil)
-
-}
-
-extension Error {
-    
-    internal var isUserCancelled: Bool {
-        let error = self as NSError
-        return error.domain == NSCocoaErrorDomain && error.code == NSUserCancelledError
-    }
-}
-
 // MARK: -
 
 @available(*, deprecated, renamed: "async(in:execute:)")

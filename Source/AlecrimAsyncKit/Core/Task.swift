@@ -106,11 +106,6 @@ public final class Task<Value>: CancellableTask {
         }
         
         //
-        guard self.value == nil && self.error == nil else {
-            return
-        }
-
-        //
         self.finish(with: NSError.userCancelled)
     }
     
