@@ -67,3 +67,19 @@ public func asyncValue<Value>(in queue: OperationQueue? = nil, _ value: Value) -
 public func asyncError<Value>(in queue: OperationQueue? = nil, _ error: Error) -> Task<Value> {
     return async(in: queue, error: error)
 }
+
+@available(*, deprecated, renamed: "async(in:delay:)")
+public func asyncDelay(in queue: OperationQueue? = nil, timeInterval: TimeInterval) -> NonFailableTask<Void> {
+    return async(in: queue, delay: timeInterval)
+}
+
+@available(*, deprecated, renamed: "async(in:sleepForTimeInterval:)")
+public func asyncSleep(in queue: OperationQueue? = nil, forTimeInterval timeInterval: TimeInterval) -> NonFailableTask<Void> {
+    return async(in: queue, sleepForTimeInterval: timeInterval)
+}
+
+@available(*, deprecated, renamed: "async(in:sleepUntil:)")
+public func asyncSleep(in queue: OperationQueue? = nil, until date: Date) -> NonFailableTask<Void> {
+    return async(in: queue, sleepUntil: date)
+}
+
