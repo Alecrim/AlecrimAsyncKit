@@ -124,7 +124,7 @@ If you read the framework's code you will find the `NonFailableTask<Value>` clas
 
 The main difference from the failable task class is that you do not have to use the `try` keyword when awaiting for non failable task results. A non failable task cannot be cancelled either.
 
-Please only use this type of task when you are sure that it can not fail.
+Please only use this type of task when you are sure that it can not fail. If it do, your program will crash.
 
 ## Observers and conditions
 The previous version had observers and conditions based on Session 226 of WWDC 2015 (“Advanced NSOperations”). This turned the framework unnecessarily complex.
