@@ -6,7 +6,13 @@
 //  Copyright © 2015-2018 Alecrim. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <TargetConditionals.h>
+
+#if TARGET_OS_EMBEDDED || TARGET_OS_SIMULATOR
+    #import <UIKit/UIKit.h>
+#elif TARGET_OS_MAC
+    #import <Cocoa/Cocoa.h>
+#endif
 
 //! Project version number for AlecrimAsyncKit.
 FOUNDATION_EXPORT double AlecrimAsyncKitVersionNumber;
