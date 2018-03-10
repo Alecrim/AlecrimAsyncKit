@@ -131,7 +131,7 @@ The previous version had observers and conditions based on Session 226 of WWDC 2
 
 If you need this functionality right now you can use version 3.x of **AlecrimAsyncKit**.
 
-Observers and conditions may be implemented in a future release or as a separated framework. No guarantees, though.
+Observers and conditions may be reimplemented in a future release or as a separated framework. No guarantees, though.
 
 ## Contribute
 If you have any problems or need more information, please open an issue using the provided GitHub link.
