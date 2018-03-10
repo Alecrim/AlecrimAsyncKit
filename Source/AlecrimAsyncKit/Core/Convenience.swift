@@ -18,6 +18,35 @@ public func async<Value>(in queue: OperationQueue? = nil, error: Error) -> Task<
     return async(in: queue) { throw error }
 }
 
+//
+
+fileprivate let delayQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Delay", qos: .utility, attributes: .concurrent)
+
+public func async(in queue: OperationQueue? = nil, delay timeInterval: TimeInterval) -> Task<Void> {
+    return async(in: queue, sleepForTimeInterval: timeInterval)
+}
+
+public func async(in queue: OperationQueue? = nil, sleepForTimeInterval timeInterval: TimeInterval) -> Task<Void> {
+    return async(in: queue) { task in
+        delayQueue.asyncAfter(deadline: .now() + timeInterval) {
+            task.finish()
+        }
+    }
+}
+
+public func async(in queue: OperationQueue? = nil, sleepUntil date: Date) -> Task<Void> {
+    let now = Date()
+    
+    if date > now {
+        let timeInterval = date.timeIntervalSince(now)
+        return async(in: queue, sleepForTimeInterval: timeInterval)
+    }
+    else {
+        return async(in: queue) {}
+    }
+}
+
+
 // MARK: -
 
 @available(*, deprecated, renamed: "async(in:execute:)")
