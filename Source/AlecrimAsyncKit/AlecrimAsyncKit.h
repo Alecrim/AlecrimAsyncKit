@@ -3,7 +3,7 @@
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 2015-08-04.
-//  Copyright (c) 2015 Alecrim. All rights reserved.
+//  Copyright © 2015-2018 Alecrim. All rights reserved.
 //
 
 #import <TargetConditionals.h>
