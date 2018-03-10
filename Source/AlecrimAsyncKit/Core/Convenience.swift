@@ -14,6 +14,10 @@ public func async<Value>(in queue: OperationQueue? = nil, value: Value) -> Task<
     return async(in: queue) { return value }
 }
 
+public func async<Value>(in queue: OperationQueue? = nil, value: Value) -> NonFailableTask<Value> {
+    return async(in: queue) { return value }
+}
+
 public func async<Value>(in queue: OperationQueue? = nil, error: Error) -> Task<Value> {
     return async(in: queue) { throw error }
 }
@@ -22,11 +26,11 @@ public func async<Value>(in queue: OperationQueue? = nil, error: Error) -> Task<
 
 fileprivate let delayQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Delay", qos: .utility, attributes: .concurrent)
 
-public func async(in queue: OperationQueue? = nil, delay timeInterval: TimeInterval) -> Task<Void> {
+public func async(in queue: OperationQueue? = nil, delay timeInterval: TimeInterval) -> NonFailableTask<Void> {
     return async(in: queue, sleepForTimeInterval: timeInterval)
 }
 
-public func async(in queue: OperationQueue? = nil, sleepForTimeInterval timeInterval: TimeInterval) -> Task<Void> {
+public func async(in queue: OperationQueue? = nil, sleepForTimeInterval timeInterval: TimeInterval) -> NonFailableTask<Void> {
     return async(in: queue) { task in
         delayQueue.asyncAfter(deadline: .now() + timeInterval) {
             task.finish()
@@ -34,7 +38,7 @@ public func async(in queue: OperationQueue? = nil, sleepForTimeInterval timeInte
     }
 }
 
-public func async(in queue: OperationQueue? = nil, sleepUntil date: Date) -> Task<Void> {
+public func async(in queue: OperationQueue? = nil, sleepUntil date: Date) -> NonFailableTask<Void> {
     let now = Date()
     
     if date > now {

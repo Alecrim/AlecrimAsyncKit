@@ -8,7 +8,7 @@
 
 import Foundation
 
-// MARK: - queues
+// MARK: -
 
 fileprivate let defaultOperationQueue: OperationQueue = {
     let queue = OperationQueue()
@@ -19,16 +19,20 @@ fileprivate let defaultOperationQueue: OperationQueue = {
     return queue
 }()
 
-// MARK: - task
-
-//
+// MARK: -
 
 public typealias AsyncTaskClosure<Value> = () throws -> Value
-public typealias AsyncTaskFullClosure<Value> = (Task<Value>) -> Void
+public typealias AsyncNonFailableTaskClosure<Value> = () -> Value
 
-//
+public typealias AsyncTaskFullClosure<Value> = (BaseTask<Value>) -> Void
+
+// MARK: -
 
 public func async<Value>(in queue: OperationQueue? = nil, execute closure: @escaping AsyncTaskClosure<Value>) -> Task<Value> {
+    return enqueue(in: queue, closure: closure)
+}
+
+public func async<Value>(in queue: OperationQueue? = nil, execute closure: @escaping AsyncNonFailableTaskClosure<Value>) -> NonFailableTask<Value> {
     return enqueue(in: queue, closure: closure)
 }
 
@@ -48,11 +52,26 @@ fileprivate func enqueue<Value>(in queue: OperationQueue?, closure: @escaping As
     return enqueue(in: queue, closure: taskClosure)
 }
 
+fileprivate func enqueue<Value>(in queue: OperationQueue?, closure: @escaping AsyncNonFailableTaskClosure<Value>) -> NonFailableTask<Value> {
+    //
+    let taskClosure: AsyncTaskFullClosure<Value> = {
+        $0.finish(with: closure())
+    }
+    
+    //
+    return enqueue(in: queue, closure: taskClosure)
+}
+
 //
 
 public func async<Value>(in queue: OperationQueue? = nil, execute taskClosure: @escaping AsyncTaskFullClosure<Value>) -> Task<Value> {
     return enqueue(in: queue, closure: taskClosure)
 }
+
+public func async<Value>(in queue: OperationQueue? = nil, execute taskClosure: @escaping AsyncTaskFullClosure<Value>) -> NonFailableTask<Value> {
+    return enqueue(in: queue, closure: taskClosure)
+}
+
 
 fileprivate func enqueue<Value>(in queue: OperationQueue?, closure taskClosure: @escaping AsyncTaskFullClosure<Value>) -> Task<Value> {
     //
@@ -61,7 +80,7 @@ fileprivate func enqueue<Value>(in queue: OperationQueue?, closure taskClosure: 
     
     //
     let effectiveTaskClosure: AsyncTaskFullClosure<Value> = {
-        Thread.current.task = $0; defer { Thread.current.task = nil }
+        Thread.current.cancellableTask = $0 as? CancellableTask; defer { Thread.current.cancellableTask = nil }
         taskClosure($0)
     }
     
@@ -70,8 +89,8 @@ fileprivate func enqueue<Value>(in queue: OperationQueue?, closure taskClosure: 
     let operation = BlockOperation(block: task.start)
     
     //
-    let parentTask = Thread.current.task
-    parentTask?.cancellation += { [weak task] in
+    let parentCancellableTask = Thread.current.cancellableTask
+    parentCancellableTask?.cancellation += { [weak task] in
         task?.cancel()
     }
     
@@ -86,11 +105,26 @@ fileprivate func enqueue<Value>(in queue: OperationQueue?, closure taskClosure: 
     return task
 }
 
+fileprivate func enqueue<Value>(in queue: OperationQueue?, closure taskClosure: @escaping AsyncTaskFullClosure<Value>) -> NonFailableTask<Value> {
+    //
+    let queue = queue ?? defaultOperationQueue
+    precondition(queue.maxConcurrentOperationCount > 1 || queue.maxConcurrentOperationCount == OperationQueue.defaultMaxConcurrentOperationCount)
+    
+    //
+    let task = NonFailableTask<Value>(closure: taskClosure)
+    let operation = BlockOperation(block: task.start)
+    
+    //
+    queue.addOperation(operation)
+    
+    //
+    return task
+}
 // MARK: -
 
 extension Thread {
     
-    fileprivate var task: CancellableTask? {
+    fileprivate var cancellableTask: CancellableTask? {
         get {
             return self.threadDictionary["___AAK_TASK"] as? CancellableTask
         }

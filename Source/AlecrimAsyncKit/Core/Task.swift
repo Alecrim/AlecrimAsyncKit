@@ -10,7 +10,7 @@ import Foundation
 
 // MARK: - Task
 
-public final class Task<Value>: CancellableTask {
+public class BaseTask<Value> {
     
     //
     
@@ -99,7 +99,7 @@ public final class Task<Value>: CancellableTask {
     
 }
 
-extension Task where Value == Void {
+extension BaseTask where Value == Void {
     
     public func finish() {
         self.finish(with: (), or: nil)
@@ -107,3 +107,34 @@ extension Task where Value == Void {
     
 }
 
+// MARK: - Task
+
+public final class Task<Value>: BaseTask<Value>, CancellableTask {
+    
+}
+
+// MARK: - NonFailableTask
+
+public final class NonFailableTask<Value>: BaseTask<Value> {
+    
+    @available(*, unavailable, message: "Non failable tasks cannot be cancelled")
+    public override var cancellation: Cancellation {
+        fatalError("Non failable tasks cannot be cancelled")
+    }
+    
+    @available(*, unavailable, message: "Non failable tasks cannot be cancelled")
+    public override var isCancelled: Bool {
+        fatalError("Non failable tasks cannot be cancelled")
+    }
+    
+    @available(*, unavailable, message: "Non failable tasks cannot be finished with error")
+    public override func finish(with error: Error) {
+        fatalError("Non failable tasks cannot be finished with error")
+    }
+    
+    @available(*, unavailable, message: "Non failable tasks cannot be finished with error")
+    public override func finish(with value: Value?, or error: Error?) {
+        fatalError("Non failable tasks cannot be finished with error")
+    }
+    
+}

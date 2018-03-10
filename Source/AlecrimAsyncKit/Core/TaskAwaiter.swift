@@ -19,7 +19,7 @@ fileprivate let taskAwaiterDefaultOperationQueue: OperationQueue = {
     return queue
 }()
 
-// MARK: -
+// MARK: - TaskAwaiter
 
 public final class TaskAwaiter<Value> {
     
@@ -56,7 +56,6 @@ public final class TaskAwaiter<Value> {
                         didFinishWithValueClosure(task.value!)
                     }
                 }
-                
             }
             catch let error {
                 if error.isUserCancelled {
@@ -129,4 +128,69 @@ extension Task {
         return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinish(closure)
     }
 
+}
+
+// MARK: - NonFailableTaskAwaiter
+
+public final class NonFailableTaskAwaiter<Value> {
+    
+    public let task: NonFailableTask<Value>
+    
+    private var didFinishWithValueClosure: ((Value) -> Void)?
+    private var didFinishClosure: (() -> Void)?
+    
+    fileprivate init(queue: OperationQueue, task: NonFailableTask<Value>) {
+        //
+        self.task = task
+        
+        //
+        queue.addOperation {
+            defer {
+                if let didFinishClosure = self.didFinishClosure {
+                    self.didFinishClosure = nil
+                    
+                    DispatchQueue.main.async {
+                        didFinishClosure()
+                    }
+                }
+            }
+            
+            await(task)
+            
+            if let didFinishWithValueClosure = self.didFinishWithValueClosure {
+                self.didFinishWithValueClosure = nil
+                
+                DispatchQueue.main.async {
+                    didFinishWithValueClosure(task.value!)
+                }
+            }
+        }
+    }
+    
+    @discardableResult
+    public func didFinishWithValue(_ closure: @escaping (Value) -> Void) -> Self {
+        self.didFinishWithValueClosure = closure
+        return self
+    }
+    
+    @discardableResult
+    public func didFinish(_ closure: @escaping () -> Void) -> Self {
+        self.didFinishClosure = closure
+        return self
+    }
+    
+}
+
+extension NonFailableTask {
+    
+    @discardableResult
+    public func didFinishWithValue(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping (Value) -> Void) -> NonFailableTaskAwaiter<Value> {
+        return NonFailableTaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinishWithValue(closure)
+    }
+    
+    @discardableResult
+    public func didFinish(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping () -> Void) -> NonFailableTaskAwaiter<Value> {
+        return NonFailableTaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinish(closure)
+    }
+    
 }
