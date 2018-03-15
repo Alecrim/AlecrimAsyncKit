@@ -97,6 +97,14 @@ public class BaseTask<Value> {
         self.group.leave()
     }
     
+    //
+    
+    internal final func result() -> (value: Value?, error: Error?) {
+        self.lock(); defer { self.unlock() }
+        
+        return (self.value, self.error)
+    }
+    
 }
 
 extension BaseTask where Value == Void {
