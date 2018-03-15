@@ -14,14 +14,14 @@ public class BaseTask<Value> {
     
     //
     
-    private let group: DispatchGroup
+    internal let group: DispatchGroup
     private var closure: AsyncTaskFullClosure<Value>?
     
     // these 3 variables must be accessed only in `finish(with:or:)` and using the `lock()` / `unlock()` functions below
 
     private var isFinished = false
-    internal private(set) var value: Value?
-    internal private(set) var error: Error?
+    internal private(set) final var value: Value?
+    internal private(set) final var error: Error?
     
     private var _lock = os_unfair_lock_s()
     private func lock() { os_unfair_lock_lock(&self._lock) }
@@ -36,14 +36,14 @@ public class BaseTask<Value> {
         self.group.enter()
     }
 
-    internal func start() {
+    internal final func start() {
         if let closure = self.closure {
             self.closure = nil
             closure(self)
         }
     }
     
-    internal func await() throws -> Value {
+    internal final func await() throws -> Value {
         self.wait()
         
         guard let value = self.value else {
@@ -59,7 +59,7 @@ public class BaseTask<Value> {
     
     //
     
-    public func wait() {
+    private final func wait() {
         precondition(!Thread.isMainThread)
         self.group.wait()
     }
@@ -74,7 +74,7 @@ public class BaseTask<Value> {
     
     //
     
-    public func finish(with value: Value) {
+    public final func finish(with value: Value) {
         self.finish(with: value, or: nil)
     }
     
@@ -95,6 +95,14 @@ public class BaseTask<Value> {
         self.isFinished = true
 
         self.group.leave()
+    }
+    
+    //
+    
+    internal final func result() -> (value: Value?, error: Error?) {
+        self.lock(); defer { self.unlock() }
+        
+        return (self.value, self.error)
     }
     
 }
