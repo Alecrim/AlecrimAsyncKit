@@ -78,6 +78,40 @@ func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
 }
 ```
 
+### Creating tasks using DispatchQueue and OperationQueue
+You can also create tasks using convenience methods added to `DispatchQueue` and `OperationQueue`:
+
+```swift
+func calculate() -> Double {
+    // using DispatchQueue
+    
+    let someCalculatedValue = await(DispatchQueue.global(qos: .background).async {
+        var value: Double = 0
+        
+        // do some long running calculation here
+        
+        return value
+        } as NonFailableTask<Double>)
+    
+    // using OperationQueue
+    
+    let operationQueue = OperationQueue()
+    operationQueue.qualityOfService = .background
+    
+    let operationTask = operationQueue.addOperation {
+        var value: Double = 0
+        
+        // do some long running calculation here
+        
+        return value
+        } as NonFailableTask<Double>
+    
+    
+    // using the results
+    return someCalculatedValue * await(operationTask)
+}
+```
+
 ### Cancellation
 You can cancel a task after it was enqueued using its `cancel()` method. When it will be actually cancelled depends on the implementation of its content, however.
 
