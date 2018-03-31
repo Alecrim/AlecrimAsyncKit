@@ -30,7 +30,7 @@ extension DispatchQueue {
 
 fileprivate func _operationQueue(for dispatchQueue: DispatchQueue) -> OperationQueue {
     let operationQueue = OperationQueue()
-    operationQueue.maxConcurrentOperationCount = OperationQueue.defaultMaxConcurrentOperationCount
+    operationQueue.maxConcurrentOperationCount = ProcessInfo().activeProcessorCount * 2
     operationQueue.underlyingQueue = dispatchQueue
     
     return operationQueue
