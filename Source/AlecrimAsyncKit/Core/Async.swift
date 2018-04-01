@@ -16,8 +16,6 @@ fileprivate let defaultOperationQueue: OperationQueue = {
     queue.qualityOfService = .utility
     queue.maxConcurrentOperationCount = ProcessInfo().activeProcessorCount * 2
     
-    print(ProcessInfo().activeProcessorCount * 2)
-    
     return queue
 }()
 
