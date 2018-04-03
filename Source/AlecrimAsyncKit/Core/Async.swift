@@ -14,7 +14,7 @@ fileprivate let defaultOperationQueue: OperationQueue = {
     let queue = OperationQueue()
     queue.name = "com.alecrim.AlecrimAsyncKit.Task"
     queue.qualityOfService = .utility
-    queue.maxConcurrentOperationCount = OperationQueue.defaultMaxConcurrentOperationCount
+    queue.maxConcurrentOperationCount = ProcessInfo().activeProcessorCount * 2
     
     return queue
 }()
