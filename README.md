@@ -84,17 +84,15 @@ You can also create tasks using convenience methods added to `DispatchQueue` and
 ```swift
 func calculate() -> Double {
     // using DispatchQueue
-    
     let someCalculatedValue = await(DispatchQueue.global(qos: .background).async {
         var value: Double = 0
         
         // do some long running calculation here
         
         return value
-        } as NonFailableTask<Double>)
+    } as NonFailableTask<Double>)
     
     // using OperationQueue
-    
     let operationQueue = OperationQueue()
     operationQueue.qualityOfService = .background
     
@@ -104,7 +102,7 @@ func calculate() -> Double {
         // do some long running calculation here
         
         return value
-        } as NonFailableTask<Double>
+    } as NonFailableTask<Double>
     
     
     // using the results
@@ -121,13 +119,13 @@ You can add cancellation blocks to be executed when a task is cancelled this way
 
 ```swift
 func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
-    return async { thisAsyncTask in
+    return async { task in
         let token = self.getSomeValuableValue(completionHandler: { value, error in
             task.finish(with: value, or: error)
         })
         
-        // add a block to be executed when and if the task is cancelled
-        thisAsyncTask.cancellation += {
+        // add a closure to be executed when and if the task is cancelled
+        task.cancellation += {
            token.invalidate()
         }        
     }    
