@@ -10,6 +10,18 @@ import Foundation
 
 // MARK: -
 
+// stubs for Void tasks
+
+public func async(in queue: OperationQueue? = nil) -> Task<Void> {
+    return async(in: queue) { return () }
+}
+
+public func async(in queue: OperationQueue? = nil) -> NonFailableTask<Void> {
+    return async(in: queue) { return () }
+}
+
+// shortcuts to simply return a value or throw an error
+
 public func async<Value>(in queue: OperationQueue? = nil, value: Value) -> Task<Value> {
     return async(in: queue) { return value }
 }
@@ -22,7 +34,7 @@ public func async<Value>(in queue: OperationQueue? = nil, error: Error) -> Task<
     return async(in: queue) { throw error }
 }
 
-//
+// delay / sleep
 
 fileprivate let _delayQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Delay", qos: .utility, attributes: .concurrent)
 
