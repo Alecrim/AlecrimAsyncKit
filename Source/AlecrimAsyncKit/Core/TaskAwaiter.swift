@@ -81,25 +81,25 @@ public final class TaskAwaiter<Value> {
     }
     
     @discardableResult
-    public func didFinishWithValue(_ closure: @escaping (Value) -> Void) -> Self {
+    public func then(_ closure: @escaping (Value) -> Void) -> Self {
         self.didFinishWithValueClosure = closure
         return self
     }
     
     @discardableResult
-    public func didFinishWithError(_ closure: @escaping (Error) -> Void) -> Self {
+    public func `catch`(_ closure: @escaping (Error) -> Void) -> Self {
         self.didFinishWithErrorClosure = closure
         return self
     }
     
     @discardableResult
-    public func didCancel(_ closure: @escaping () -> Void) -> Self {
+    public func cancelled(_ closure: @escaping () -> Void) -> Self {
         self.didCancelClosure = closure
         return self
     }
     
     @discardableResult
-    public func didFinish(_ closure: @escaping () -> Void) -> Self {
+    public func finally(_ closure: @escaping () -> Void) -> Self {
         self.didFinishClosure = closure
         return self
     }
@@ -109,23 +109,23 @@ public final class TaskAwaiter<Value> {
 extension Task {
     
     @discardableResult
-    public func didFinishWithValue(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping (Value) -> Void) -> TaskAwaiter<Value> {
-        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinishWithValue(closure)
+    public func then(in queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping (Value) -> Void) -> TaskAwaiter<Value> {
+        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).then(closure)
     }
     
     @discardableResult
-    public func didFinishWithError(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping (Error) -> Void) -> TaskAwaiter<Value> {
-        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinishWithError(closure)
+    public func `catch`(in queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping (Error) -> Void) -> TaskAwaiter<Value> {
+        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).catch(closure)
     }
     
     @discardableResult
-    public func didCancel(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping () -> Void) -> TaskAwaiter<Value> {
-        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didCancel(closure)
+    public func cancelled(in queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping () -> Void) -> TaskAwaiter<Value> {
+        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).cancelled(closure)
     }
 
     @discardableResult
-    public func didFinish(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping () -> Void) -> TaskAwaiter<Value> {
-        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinish(closure)
+    public func finally(in queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping () -> Void) -> TaskAwaiter<Value> {
+        return TaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).finally(closure)
     }
 
 }
@@ -168,13 +168,13 @@ public final class NonFailableTaskAwaiter<Value> {
     }
     
     @discardableResult
-    public func didFinishWithValue(_ closure: @escaping (Value) -> Void) -> Self {
+    public func then(_ closure: @escaping (Value) -> Void) -> Self {
         self.didFinishWithValueClosure = closure
         return self
     }
     
     @discardableResult
-    public func didFinish(_ closure: @escaping () -> Void) -> Self {
+    public func finally(_ closure: @escaping () -> Void) -> Self {
         self.didFinishClosure = closure
         return self
     }
@@ -184,13 +184,13 @@ public final class NonFailableTaskAwaiter<Value> {
 extension NonFailableTask {
     
     @discardableResult
-    public func didFinishWithValue(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping (Value) -> Void) -> NonFailableTaskAwaiter<Value> {
-        return NonFailableTaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinishWithValue(closure)
+    public func then(in queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping (Value) -> Void) -> NonFailableTaskAwaiter<Value> {
+        return NonFailableTaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).then(closure)
     }
     
     @discardableResult
-    public func didFinish(queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping () -> Void) -> NonFailableTaskAwaiter<Value> {
-        return NonFailableTaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).didFinish(closure)
+    public func finally(in queue: OperationQueue? = nil, callbackQueue: OperationQueue? = nil, closure: @escaping () -> Void) -> NonFailableTaskAwaiter<Value> {
+        return NonFailableTaskAwaiter(queue: queue ?? taskAwaiterDefaultOperationQueue, task: self).finally(closure)
     }
     
 }
