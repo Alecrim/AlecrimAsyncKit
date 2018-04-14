@@ -146,14 +146,14 @@ func someFuncRunningInTheMainThread() {
     //
     self.activityIndicator.startAnimating()
 
-    // start the task from the main thread
+    // start the background task
     self.someLongRunningAsynchronousFunc()
         .then { value in
             // when the background work is done,
-            // do something with the returned value (in the main thread again)
+            // do something with the returned value in the main thread
         }
         .catch { error in
-            // do a nice error handling error
+            // do a nice error handling
         }
         .finally {
             self.activityIndicator.stopAnimating()
@@ -161,7 +161,7 @@ func someFuncRunningInTheMainThread() {
 }
 ```
 
-All methods (`then`, `catch`, `cancelled` and `finally`) are optional. If specified, the last method (`finally`) will always be called regardless whether the task was cancelled or not, whether there was an error or not.
+All methods (`then`, `catch`, `cancelled` and `finally`) are optional. If specified, the closure related to the `finally` method will always be called regardless whether the task was cancelled or not, whether there was an error or not.
 
 ## Non failable tasks
 If you read the framework's code you will find the `NonFailableTask<Value>` class. This kind of task cannot fail (sort of). In fact it may fail, but it should not.
