@@ -8,6 +8,18 @@
 
 import Foundation
 
+// MARK: - externally controlled tasks
+
+/// The task must be retained and the `finish` method shall be called externally when done.
+public func manualTask<Value>(in queue: OperationQueue? = nil) -> Task<Value> {
+    return async(in: queue) { _ in }
+}
+
+/// The task must be retained and the `finish` method shall be called externally when done.
+public func manualTask<Value>(in queue: OperationQueue? = nil) -> NonFailableTask<Value> {
+    return async(in: queue) { _ in }
+}
+
 // MARK: -
 
 // stubs for Void tasks
