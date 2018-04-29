@@ -142,7 +142,11 @@ public final class NonFailableTask<Value>: BaseTask<Value> {
     
     @available(*, unavailable, message: "Non failable tasks cannot be finished with error")
     public override func finish(with value: Value?, or error: Error?) {
-        fatalError("Non failable tasks cannot be finished with error")
+        guard error == nil else {
+            fatalError("Non failable tasks cannot be finished with error")
+        }
+
+        super.finish(with: value, or: error)
     }
     
 }
