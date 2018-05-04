@@ -50,29 +50,26 @@ public final class TaskAwaiter<Value> {
                 try await(task)
                 
                 if let didFinishWithValueClosure = self.didFinishWithValueClosure {
-                    self.didFinishWithValueClosure = nil
-                    
                     DispatchQueue.main.async {
                         didFinishWithValueClosure(task.value!)
+                        self.didFinishWithValueClosure = nil
                     }
                 }
             }
             catch let error {
                 if error.isUserCancelled {
                     if let didCancelClosure = self.didCancelClosure {
-                        self.didCancelClosure = nil
-                        
                         DispatchQueue.main.async {
                             didCancelClosure()
+                            self.didCancelClosure = nil
                         }
                     }
                 }
                 else {
                     if let didFinishWithErrorClosure = self.didFinishWithErrorClosure {
-                        self.didFinishWithErrorClosure = nil
-                        
                         DispatchQueue.main.async {
                             didFinishWithErrorClosure(error)
+                            self.didFinishWithErrorClosure = nil
                         }
                     }
                 }
@@ -147,10 +144,9 @@ public final class NonFailableTaskAwaiter<Value> {
         queue.addOperation {
             defer {
                 if let didFinishClosure = self.didFinishClosure {
-                    self.didFinishClosure = nil
-                    
                     DispatchQueue.main.async {
                         didFinishClosure()
+                        self.didFinishClosure = nil
                     }
                 }
             }
@@ -158,10 +154,9 @@ public final class NonFailableTaskAwaiter<Value> {
             await(task)
             
             if let didFinishWithValueClosure = self.didFinishWithValueClosure {
-                self.didFinishWithValueClosure = nil
-                
                 DispatchQueue.main.async {
                     didFinishWithValueClosure(task.value!)
+                    self.didFinishWithValueClosure = nil
                 }
             }
         }
