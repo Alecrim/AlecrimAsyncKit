@@ -10,6 +10,24 @@ import Foundation
 
 // MARK: -
 
+//
+// example:
+//
+// extension Reachability: TaskCondition {
+//     func evaluate() -> Task<Bool> {
+//         return conditionAsync { conditionTask in
+//             self.whenReachable {
+//                 conditionTask.finish(with: true)
+//             }
+//         }
+//     }
+// }
+//
+// ...
+//
+// async(condition: Reachability()) { ... }
+//
+
 public protocol TaskCondition {
     func evaluate() -> Task<Bool>
 }
@@ -23,6 +41,35 @@ public func conditionAsync(execute closure: @escaping AsyncTaskClosure<Bool>) ->
 public func conditionAsync(execute taskClosure: @escaping AsyncTaskFullClosure<Bool>) -> Task<Bool> {
     return async(in: Queue.taskConditionOperationQueue, execute: taskClosure)
 }
+
+// MARK: -
+
+// boolean tasks can be used as conditions too
+
+extension BaseTask: TaskCondition where Value == Bool {
+    public func evaluate() -> Task<Bool> {
+        return conditionAsync {
+            return try self.await()
+        }
+    }
+}
+
+// MARK: -
+
+// ex: let mtc = ManualTaskCondition(); ...; ...; ...; mtc.result = true
+
+public final class ManualTaskCondition: BaseTask<Bool> {
+    public init() {
+        super.init(dependency: nil, condition: nil, closure: { _ in })
+    }
+
+    public var result = false {
+        didSet {
+            self.finish(with: self.result)
+        }
+    }
+}
+
 
 // MARK: -
 
@@ -89,28 +136,18 @@ public final class CompoundTaskCondition: TaskCondition {
         }
     }
 
-
 }
 
-// MARK: -
+// So we can use: async(condition: (condition1 || condition2) && condition3 && !condition4) { ... }
 
-public final class ManualTaskCondition: BaseTask<Bool>, TaskCondition {
-
-    public init() {
-        super.init(dependency: nil, condition: nil, closure: { _ in })
-    }
-
-    public func evaluate() -> Task<Bool> {
-        return conditionAsync {
-            let result = try self.await()
-            return result
-        }
-    }
-
-    public var result = false {
-        didSet {
-            self.finish(with: self.result)
-        }
-    }
+public func &&(left: TaskCondition, right: TaskCondition) -> TaskCondition {
+    return CompoundTaskCondition(type: .and, subconditions: [left, right])
 }
 
+public func ||(left: TaskCondition, right: TaskCondition) -> TaskCondition {
+    return CompoundTaskCondition(type: .or, subconditions: [left, right])
+}
+
+prefix public func !(left: TaskCondition) -> TaskCondition {
+    return CompoundTaskCondition(type: .not, subconditions: [left])
+}
