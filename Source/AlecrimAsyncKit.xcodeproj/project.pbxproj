@@ -13,6 +13,9 @@
 		143E712320531F9B002F7222 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143E712220531F9B002F7222 /* Errors.swift */; };
 		143E712520531FBC002F7222 /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143E712420531FBC002F7222 /* Async.swift */; };
 		143E712720531FF9002F7222 /* Await.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143E712620531FF9002F7222 /* Await.swift */; };
+		1444522A209E09200016D444 /* TaskDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14445229209E09200016D444 /* TaskDependency.swift */; };
+		1444522C209E22260016D444 /* TaskCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1444522B209E22260016D444 /* TaskCondition.swift */; };
+		1444522E209E545D0016D444 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1444522D209E545D0016D444 /* Queue.swift */; };
 		14665066205B1708006C70AA /* OperationQueue+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14665065205B1708006C70AA /* OperationQueue+Extensions.swift */; };
 		14665068205B1727006C70AA /* DispatchQueue+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14665067205B1727006C70AA /* DispatchQueue+Extensions.swift */; };
 		1466506A205B1763006C70AA /* Availability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14665069205B1763006C70AA /* Availability.swift */; };
@@ -30,6 +33,9 @@
 		143E712220531F9B002F7222 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		143E712420531FBC002F7222 /* Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
 		143E712620531FF9002F7222 /* Await.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Await.swift; sourceTree = "<group>"; };
+		14445229209E09200016D444 /* TaskDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDependency.swift; sourceTree = "<group>"; };
+		1444522B209E22260016D444 /* TaskCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
+		1444522D209E545D0016D444 /* Queue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 		14665065205B1708006C70AA /* OperationQueue+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OperationQueue+Extensions.swift"; sourceTree = "<group>"; };
 		14665067205B1727006C70AA /* DispatchQueue+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Extensions.swift"; sourceTree = "<group>"; };
 		14665069205B1763006C70AA /* Availability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Availability.swift; sourceTree = "<group>"; };
@@ -70,6 +76,7 @@
 			children = (
 				143E711E20531E3F002F7222 /* Core */,
 				14665064205B16E2006C70AA /* Convenience */,
+				14445228209E090E0016D444 /* Conditions and Dependencies */,
 				143E711F20531E45002F7222 /* Supporting Files */,
 			);
 			path = AlecrimAsyncKit;
@@ -82,6 +89,7 @@
 				143E712620531FF9002F7222 /* Await.swift */,
 				14A391232053A03300AD8249 /* Cancellation.swift */,
 				143E712220531F9B002F7222 /* Errors.swift */,
+				1444522D209E545D0016D444 /* Queue.swift */,
 				143E712020531E5E002F7222 /* Task.swift */,
 				1409928320534BE0005BF03C /* TaskAwaiter.swift */,
 			);
@@ -95,6 +103,15 @@
 				143E711720531DFF002F7222 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		14445228209E090E0016D444 /* Conditions and Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				1444522B209E22260016D444 /* TaskCondition.swift */,
+				14445229209E09200016D444 /* TaskDependency.swift */,
+			);
+			path = "Conditions and Dependencies";
 			sourceTree = "<group>";
 		};
 		14665064205B16E2006C70AA /* Convenience */ = {
@@ -190,6 +207,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1466506E205B1905006C70AA /* OtherConveniences.swift in Sources */,
+				1444522E209E545D0016D444 /* Queue.swift in Sources */,
 				1409928420534BE0005BF03C /* TaskAwaiter.swift in Sources */,
 				143E712720531FF9002F7222 /* Await.swift in Sources */,
 				14A391242053A03300AD8249 /* Cancellation.swift in Sources */,
@@ -198,8 +216,10 @@
 				14665066205B1708006C70AA /* OperationQueue+Extensions.swift in Sources */,
 				143E712520531FBC002F7222 /* Async.swift in Sources */,
 				143E712320531F9B002F7222 /* Errors.swift in Sources */,
+				1444522A209E09200016D444 /* TaskDependency.swift in Sources */,
 				1466506A205B1763006C70AA /* Availability.swift in Sources */,
 				143E712120531E5E002F7222 /* Task.swift in Sources */,
+				1444522C209E22260016D444 /* TaskCondition.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
