@@ -20,7 +20,6 @@ public func await<Value>(_ task: NonFailableTask<Value>) -> Value {
     return try! task.await()
 }
 
-
 @discardableResult
 public func await<Value>(_ closure: () -> Task<Value>) throws -> Value {
     let task = closure()

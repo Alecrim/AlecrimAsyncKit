@@ -10,6 +10,24 @@ import Foundation
 
 // MARK: -
 
+//
+// example:
+//
+// extension Reachability: TaskCondition {
+//     func evaluate() -> Task<Bool> {
+//         return conditionAsync { conditionTask in
+//             self.whenReachable {
+//                 conditionTask.finish(with: true)
+//             }
+//         }
+//     }
+// }
+//
+// ...
+//
+// async(condition: Reachability()) { ... }
+//
+
 public protocol TaskCondition {
     func evaluate() -> Task<Bool>
 }
@@ -94,6 +112,8 @@ public final class CompoundTaskCondition: TaskCondition {
 
 // MARK: -
 
+// ex: let mtc = ManualTaskCondition(); ...; ...; ...; mtc.result = true
+
 public final class ManualTaskCondition: BaseTask<Bool>, TaskCondition {
 
     public init() {
@@ -112,5 +132,22 @@ public final class ManualTaskCondition: BaseTask<Bool>, TaskCondition {
             self.finish(with: self.result)
         }
     }
+}
+
+
+// MARK: -
+
+// So we can use: async(condition: (condition1 || condition2) && condition3 && !condition4) { ... }
+
+public func &&(left: TaskCondition, right: TaskCondition) -> TaskCondition {
+    return CompoundTaskCondition(type: .and, subconditions: [left, right])
+}
+
+public func ||(left: TaskCondition, right: TaskCondition) -> TaskCondition {
+    return CompoundTaskCondition(type: .or, subconditions: [left, right])
+}
+
+prefix public func !(left: TaskCondition) -> TaskCondition {
+    return CompoundTaskCondition(type: .not, subconditions: [left])
 }
 
