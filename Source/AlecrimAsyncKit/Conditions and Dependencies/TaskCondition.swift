@@ -44,6 +44,35 @@ public func conditionAsync(execute taskClosure: @escaping AsyncTaskFullClosure<B
 
 // MARK: -
 
+// boolean tasks can be used as conditions too
+
+extension BaseTask: TaskCondition where Value == Bool {
+    public func evaluate() -> Task<Bool> {
+        return conditionAsync {
+            return try self.await()
+        }
+    }
+}
+
+// MARK: -
+
+// ex: let mtc = ManualTaskCondition(); ...; ...; ...; mtc.result = true
+
+public final class ManualTaskCondition: BaseTask<Bool> {
+    public init() {
+        super.init(dependency: nil, condition: nil, closure: { _ in })
+    }
+
+    public var result = false {
+        didSet {
+            self.finish(with: self.result)
+        }
+    }
+}
+
+
+// MARK: -
+
 public final class CompoundTaskCondition: TaskCondition {
     public enum LogicalType: UInt {
         case not = 0
@@ -107,35 +136,7 @@ public final class CompoundTaskCondition: TaskCondition {
         }
     }
 
-
 }
-
-// MARK: -
-
-// ex: let mtc = ManualTaskCondition(); ...; ...; ...; mtc.result = true
-
-public final class ManualTaskCondition: BaseTask<Bool>, TaskCondition {
-
-    public init() {
-        super.init(dependency: nil, condition: nil, closure: { _ in })
-    }
-
-    public func evaluate() -> Task<Bool> {
-        return conditionAsync {
-            let result = try self.await()
-            return result
-        }
-    }
-
-    public var result = false {
-        didSet {
-            self.finish(with: self.result)
-        }
-    }
-}
-
-
-// MARK: -
 
 // So we can use: async(condition: (condition1 || condition2) && condition3 && !condition4) { ... }
 
@@ -150,4 +151,3 @@ public func ||(left: TaskCondition, right: TaskCondition) -> TaskCondition {
 prefix public func !(left: TaskCondition) -> TaskCondition {
     return CompoundTaskCondition(type: .not, subconditions: [left])
 }
-
