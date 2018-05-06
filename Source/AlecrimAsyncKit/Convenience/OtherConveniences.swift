@@ -8,68 +8,92 @@
 
 import Foundation
 
-// MARK: -
-
-public func async<Value>(in queue: OperationQueue? = nil, value: Value) -> Task<Value> {
-    return async(in: queue) { return value }
-}
-
-public func async<Value>(in queue: OperationQueue? = nil, value: Value) -> NonFailableTask<Value> {
-    return async(in: queue) { return value }
-}
-
-public func async<Value>(in queue: OperationQueue? = nil, error: Error) -> Task<Value> {
-    return async(in: queue) { throw error }
-}
-
 //
 
-fileprivate let _delayQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Delay", qos: .utility, attributes: .concurrent)
+// MARK: - externally controlled tasks
 
-public func async(in queue: OperationQueue? = nil, delay timeInterval: TimeInterval) -> Task<Void> {
-    return async(in: queue, sleepForTimeInterval: timeInterval)
+/// The task must be retained and the `finish` method shall be called externally when done.
+public func manualTask<Value>(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil) -> Task<Value> {
+    return async(in: queue, dependency: dependency, condition: condition) { _ in }
 }
 
-public func async(in queue: OperationQueue? = nil, delay timeInterval: TimeInterval) -> NonFailableTask<Void> {
-    return async(in: queue, sleepForTimeInterval: timeInterval)
+/// The task must be retained and the `finish` method shall be called externally when done.
+public func manualTask<Value>(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil) -> NonFailableTask<Value> {
+    return async(in: queue, dependency: dependency, condition: condition) { _ in }
 }
 
-public func async(in queue: OperationQueue? = nil, sleepForTimeInterval timeInterval: TimeInterval) -> Task<Void> {
-    return async(in: queue) { task in
-        _delayQueue.asyncAfter(deadline: .now() + timeInterval) {
+// MARK: -
+
+// stubs for Void tasks
+
+public func async(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil) -> Task<Void> {
+    return async(in: queue, dependency: dependency, condition: condition) { return () }
+}
+
+public func async(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil) -> NonFailableTask<Void> {
+    return async(in: queue, dependency: dependency, condition: condition) { return () }
+}
+
+// shortcuts to simply return a value or throw an error
+
+public func async<Value>(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, value: Value) -> Task<Value> {
+    return async(in: queue, dependency: dependency, condition: condition) { return value }
+}
+
+public func async<Value>(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, value: Value) -> NonFailableTask<Value> {
+    return async(in: queue, dependency: dependency, condition: condition) { return value }
+}
+
+public func async<Value>(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, error: Error) -> Task<Value> {
+    return async(in: queue, dependency: dependency, condition: condition) { throw error }
+}
+
+// delay / sleep
+
+public func async(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, delay timeInterval: TimeInterval) -> Task<Void> {
+    return async(in: queue, dependency: dependency, condition: condition, sleepForTimeInterval: timeInterval)
+}
+
+public func async(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, delay timeInterval: TimeInterval) -> NonFailableTask<Void> {
+    return async(in: queue, dependency: dependency, condition: condition, sleepForTimeInterval: timeInterval)
+}
+
+public func async(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, sleepForTimeInterval timeInterval: TimeInterval) -> Task<Void> {
+    return async(in: queue, dependency: dependency, condition: condition) { task in
+        Queue.delayDispatchQueue.asyncAfter(deadline: .now() + timeInterval) {
             task.finish()
         }
     }
 }
 
-public func async(in queue: OperationQueue? = nil, sleepForTimeInterval timeInterval: TimeInterval) -> NonFailableTask<Void> {
-    return async(in: queue) { task in
-        _delayQueue.asyncAfter(deadline: .now() + timeInterval) {
+public func async(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, sleepForTimeInterval timeInterval: TimeInterval) -> NonFailableTask<Void> {
+    return async(in: queue, dependency: dependency, condition: condition) { task in
+        Queue.delayDispatchQueue.asyncAfter(deadline: .now() + timeInterval) {
             task.finish()
         }
     }
 }
 
-public func async(in queue: OperationQueue? = nil, sleepUntil date: Date) -> Task<Void> {
+public func async(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, sleepUntil date: Date) -> Task<Void> {
     let now = Date()
     
     if date > now {
         let timeInterval = date.timeIntervalSince(now)
-        return async(in: queue, sleepForTimeInterval: timeInterval)
+        return async(in: queue, dependency: dependency, condition: condition, sleepForTimeInterval: timeInterval)
     }
     else {
-        return async(in: queue) {}
+        return async(in: queue, dependency: dependency, condition: condition) {}
     }
 }
 
-public func async(in queue: OperationQueue? = nil, sleepUntil date: Date) -> NonFailableTask<Void> {
+public func async(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, sleepUntil date: Date) -> NonFailableTask<Void> {
     let now = Date()
     
     if date > now {
         let timeInterval = date.timeIntervalSince(now)
-        return async(in: queue, sleepForTimeInterval: timeInterval)
+        return async(in: queue, dependency: dependency, condition: condition, sleepForTimeInterval: timeInterval)
     }
     else {
-        return async(in: queue) {}
+        return async(in: queue, dependency: dependency, condition: condition) {}
     }
 }

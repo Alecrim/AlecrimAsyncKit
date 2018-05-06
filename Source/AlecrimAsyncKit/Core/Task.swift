@@ -15,6 +15,10 @@ public class BaseTask<Value> {
     //
     
     internal let group: DispatchGroup
+
+    private let dependency: TaskDependency?
+    private let condition: TaskCondition?
+
     private var closure: AsyncTaskFullClosure<Value>?
     
     // these 3 variables must be accessed only in `finish(with:or:)` and using the `lock()` / `unlock()` functions below
@@ -29,23 +33,66 @@ public class BaseTask<Value> {
 
     //
     
-    internal init(closure: @escaping AsyncTaskFullClosure<Value>) {
+    internal init(dependency: TaskDependency?, condition: TaskCondition?, closure: @escaping AsyncTaskFullClosure<Value>) {
         self.group = DispatchGroup()
+
+        self.dependency = dependency
+        self.condition = condition
         self.closure = closure
         
         self.group.enter()
     }
 
+    //
+
     internal final func start() {
-        if let closure = self.closure {
-            self.closure = nil
-            closure(self)
+        if let semaphore = self.dependency as? TaskSemaphoreDependency {
+            semaphore.wait()
+        }
+
+        if let dependency = self.dependency {
+            dependency.notify(execute: self._start)
+        }
+        else {
+            self._start()
         }
     }
-    
+
+    private func _start() {
+        if let condition = self.condition {
+            var result = false
+            do {
+                result = try AlecrimAsyncKit.await(condition.evaluate())
+            }
+            catch {}
+
+            if result {
+                self.__start()
+            }
+            else {
+                (self as? CancellableTask)?.cancel()
+            }
+        }
+        else {
+            self.__start()
+        }
+    }
+
+    private func __start() {
+        if let closure = self.closure {
+            self.closure = nil
+
+            if !self.isCancelled {
+                closure(self)
+            }
+        }
+    }
+
+    //
+
     internal final func await() throws -> Value {
         self.wait()
-        
+
         guard let value = self.value else {
             guard let error = self.error else {
                 fatalError("Unexpected: error cannot be nil")
@@ -95,6 +142,10 @@ public class BaseTask<Value> {
         self.isFinished = true
 
         self.group.leave()
+
+        if let semaphore = self.dependency as? TaskSemaphoreDependency {
+            semaphore.signal()
+        }
     }
     
     //
@@ -132,7 +183,7 @@ public final class NonFailableTask<Value>: BaseTask<Value> {
     
     @available(*, unavailable, message: "Non failable tasks cannot be cancelled")
     public override var isCancelled: Bool {
-        fatalError("Non failable tasks cannot be cancelled")
+        return super.isCancelled
     }
     
     @available(*, unavailable, message: "Non failable tasks cannot be finished with error")
@@ -142,7 +193,11 @@ public final class NonFailableTask<Value>: BaseTask<Value> {
     
     @available(*, unavailable, message: "Non failable tasks cannot be finished with error")
     public override func finish(with value: Value?, or error: Error?) {
-        fatalError("Non failable tasks cannot be finished with error")
+        guard error == nil else {
+            fatalError("Non failable tasks cannot be finished with error")
+        }
+
+        super.finish(with: value, or: error)
     }
     
 }

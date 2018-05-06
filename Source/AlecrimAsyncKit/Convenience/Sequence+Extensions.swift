@@ -1,5 +1,5 @@
 //
-//  Collection+Extensions.swift
+//  Sequence+Extensions.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 15/03/18.
@@ -10,11 +10,23 @@ import Foundation
 
 // MARK: -
 
-public protocol FailableTaskProtocol {}
-public protocol NonFailableTaskProtocol {}
+public protocol FailableTaskProtocol {
+    associatedtype ValueType
+}
 
-extension Task: FailableTaskProtocol {}
-extension NonFailableTask: NonFailableTaskProtocol {}
+public protocol NonFailableTaskProtocol {
+    associatedtype ValueType
+}
+
+extension Task: FailableTaskProtocol {
+    public typealias ValueType = Value
+
+}
+
+extension NonFailableTask: NonFailableTaskProtocol {
+    public typealias ValueType = Value
+}
+
 
 // MARK: -
 
@@ -24,20 +36,20 @@ public struct WhenAllError: Error {
 
 // MARK: -
 
-extension Collection where Self.Iterator.Element == FailableTaskProtocol {
+extension Sequence where Element: FailableTaskProtocol {
     
-    public func whenAll() -> Task<[Any]> {
+    public func all() -> Task<[Element.ValueType]>  {
         return async { task in
             let whenAllGroup = DispatchGroup()
             
-            var collectedValues = [Any]()
+            var collectedValues = [Element.ValueType]()
             var collectedErrors = [Error]()
             
             do {
                 whenAllGroup.enter(); defer { whenAllGroup.leave() }
                 
-                for t in self {
-                    let failableTask = t as! Task<Any>
+                for element in self {
+                    let failableTask = element as! Task<Element.ValueType>
                     
                     whenAllGroup.enter()
                     failableTask.group.notify(queue: DispatchQueue.global()) {
@@ -52,7 +64,7 @@ extension Collection where Self.Iterator.Element == FailableTaskProtocol {
                             }
                         }
                         else {
-                            collectedValues.append(task.value!)
+                            collectedValues.append(failableTask.value!)
                         }
                     }
                 }
@@ -72,16 +84,16 @@ extension Collection where Self.Iterator.Element == FailableTaskProtocol {
     }
     
     
-    public func whenAny() -> Task<Void> {
+    public func any() -> Task<Void> {
         return async { task in
             var isFinished = false
             
             var count = 0
             
-            self.forEach { t in
+            self.forEach { element in
                 count += 1
                 
-                let failableTask = t as! Task<Any>
+                let failableTask = element as! Task<Element.ValueType>
                 
                 failableTask.group.notify(queue: DispatchQueue.global()) {
                     if !isFinished {
@@ -100,19 +112,19 @@ extension Collection where Self.Iterator.Element == FailableTaskProtocol {
     
 }
 
-extension Collection where Self.Iterator.Element == NonFailableTaskProtocol {
+extension Sequence where Element: NonFailableTaskProtocol {
     
-    public func whenAll() -> NonFailableTask<[Any]> {
+    public func all() -> NonFailableTask<[Element.ValueType]> {
         return async {
             let whenAllGroup = DispatchGroup()
             
-            var collectedValues = [Any]()
+            var collectedValues = [Element.ValueType]()
             
             do {
                 whenAllGroup.enter(); defer { whenAllGroup.leave() }
                 
-                for t in self {
-                    let nonFailableTask = t as! NonFailableTask<Any>
+                for element in self {
+                    let nonFailableTask = element as! NonFailableTask<Element.ValueType>
                     
                     whenAllGroup.enter()
                     nonFailableTask.group.notify(queue: DispatchQueue.global()) {
@@ -128,16 +140,16 @@ extension Collection where Self.Iterator.Element == NonFailableTaskProtocol {
         }
     }
     
-    public func whenAny() -> NonFailableTask<Void> {
+    public func any() -> NonFailableTask<Void> {
         return async { task in
             var isFinished = false
             
             var count = 0
             
-            self.forEach { t in
+            self.forEach { element in
                 count += 1
                 
-                let nonFailableTask = t as! NonFailableTask<Any>
+                let nonFailableTask = element as! NonFailableTask<Element.ValueType>
                 
                 nonFailableTask.group.notify(queue: DispatchQueue.global()) {
                     if !isFinished {
