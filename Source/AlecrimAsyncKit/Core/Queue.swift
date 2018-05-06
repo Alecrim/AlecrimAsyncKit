@@ -10,7 +10,6 @@ import Foundation
 
 internal /* namespace */ enum Queue {
 
-    //private static let defaultMaxConcurrentOperationCount = ProcessInfo().activeProcessorCount * 2
     private static let defaultMaxConcurrentOperationCount = OperationQueue.defaultMaxConcurrentOperationCount
 
     internal static let defaultOperationQueue: OperationQueue = {
