@@ -14,18 +14,14 @@ import Foundation
 // example:
 //
 // extension Reachability: TaskCondition {
-//     func evaluate() -> Task<Bool> {
-//         return conditionAsync { conditionTask in
-//             self.whenReachable {
-//                 conditionTask.finish(with: true)
-//             }
-//         }
+//     public func evaluate() -> Task<Bool> {
+//         return conditionAsync { self.connection != .none }
 //     }
 // }
 //
 // ...
 //
-// async(condition: Reachability()) { ... }
+// async(condition: self.reachability) { ... }
 //
 
 public protocol TaskCondition {
