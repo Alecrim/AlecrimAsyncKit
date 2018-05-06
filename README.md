@@ -11,12 +11,12 @@ async and await for Swift.
 
 ## Usage
 ### Awaiting the results
-I know I am puttting the cart before the horse, but... For the three functions in the next section you can await the returning value in the same way:
+I know I am putting the cart before the horse, but... For the three functions in the next section you can await the returning value in the same way:
 
 ```swift
 func someFuncRunningInBackground() throws {
     let value = try await { self.someLongRunningAsynchronousFunc() }
-    
+
     // do something with the returned value...
 }
 ```
@@ -27,12 +27,12 @@ You can also use the result only when needed:
 func someFuncRunningInBackground() throws {
     // the task starts immediately
     let task = self.someLongRunningAsynchronousFunc()
-    
+
     // do other things, the task is running...
-    
+
     // continue doing other things...
     // the task can be still running or maybe it is already finished, who knows?
-    
+
     //
     let value = try await(task)
 
@@ -47,9 +47,9 @@ You can simply return the desired value inside the `async` closure.
 func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
     return async {
         let value = self.createSomeValuableValue()
-        
+
         // some long running code here...
-        
+
         return value
     }    
 }
@@ -86,25 +86,25 @@ func calculate() -> Double {
     // using DispatchQueue
     let someCalculatedValue = await(DispatchQueue.global(qos: .background).async {
         var value: Double = 0
-        
+
         // do some long running calculation here
-        
+
         return value
     } as NonFailableTask<Double>)
-    
+
     // using OperationQueue
     let operationQueue = OperationQueue()
     operationQueue.qualityOfService = .background
-    
+
     let operationTask = operationQueue.addOperation {
         var value: Double = 0
-        
+
         // do some long running calculation here
-        
+
         return value
     } as NonFailableTask<Double>
-    
-    
+
+
     // using the results
     return someCalculatedValue * await(operationTask)
 }
@@ -113,7 +113,7 @@ func calculate() -> Double {
 ### Cancellation
 You can cancel a task after it was enqueued using its `cancel()` method. When it will be actually cancelled depends on the implementation of its content, however.
 
-Cancelling a task in **AlecrimAsyncKit** is pretty the same as finishig it with an `NSError` with `NSCocoaErrorDomain` and `NSUserCancelledError` as parameters. But if you use `cancel()` cancellation actions can be fired using provided blocks.
+Cancelling a task in **AlecrimAsyncKit** is pretty the same as finishing it with an `NSError` with `NSCocoaErrorDomain` and `NSUserCancelledError` as parameters. But if you use `cancel()` cancellation actions can be fired using provided blocks.
 
 You can add cancellation blocks to be executed when a task is cancelled this way:
 
@@ -123,7 +123,7 @@ func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
         let token = self.getSomeValuableValue(completionHandler: { value, error in
             task.finish(with: value, or: error)
         })
-        
+
         // add a closure to be executed when and if the task is cancelled
         task.cancellation += {
            token.invalidate()
@@ -180,7 +180,7 @@ Observers and conditions may be reimplemented in a future release or as a separa
 ## Contribute
 If you have any problems or need more information, please open an issue using the provided GitHub link.
 
-You can also contribute by fixing errors or creating new features. When doing this, please submit your pull requests to this repository as I do not have much time to "hunt" forks for not submited patches.
+You can also contribute by fixing errors or creating new features. When doing this, please submit your pull requests to this repository as I do not have much time to "hunt" forks for not submitted patches.
 
 - master - The production branch. Clone or fork this repository for the latest copy.
 - develop - The active development branch. [Pull requests](https://help.github.com/articles/creating-a-pull-request) should be directed to this branch.
