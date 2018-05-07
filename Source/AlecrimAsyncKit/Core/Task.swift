@@ -87,16 +87,20 @@ public class BaseTask<Value> {
     internal final func await() throws -> Value {
         self.wait()
 
-        if let error = self.error {
-            self.value = nil // to be sure
-            throw error
-        }
+        do {
+            self.lock(); defer { self.unlock() }
 
-        guard let value = self.value else {
-            fatalError("Unexpected: value cannot be nil")
+            if let error = self.error {
+                self.value = nil // to be sure
+                throw error
+            }
+
+            guard let value = self.value else {
+                fatalError("Unexpected: value cannot be nil")
+            }
+
+            return value
         }
-        
-        return value
     }
     
     //
