@@ -14,8 +14,8 @@ import Foundation
 // example:
 //
 // extension Reachability: TaskCondition {
-//     public func evaluate() -> Task<Bool> {
-//         return conditionAsync { self.connection != .none }
+//     public func evaluate() -> Bool {
+//         return self.connection != .none
 //     }
 // }
 //
@@ -25,17 +25,8 @@ import Foundation
 //
 
 public protocol TaskCondition {
-    func evaluate() -> Task<Bool>
-}
-
-// MARK: -
-
-public func conditionAsync(execute closure: @escaping AsyncTaskClosure<Bool>) -> Task<Bool> {
-    return async(in: Queue.taskConditionOperationQueue, execute: closure)
-}
-
-public func conditionAsync(execute taskClosure: @escaping AsyncTaskFullClosure<Bool>) -> Task<Bool> {
-    return async(in: Queue.taskConditionOperationQueue, execute: taskClosure)
+    // this will always be executed on a background thread, so the result does not need to me immediately computed
+    func evaluate() -> Bool
 }
 
 // MARK: -
@@ -43,9 +34,12 @@ public func conditionAsync(execute taskClosure: @escaping AsyncTaskFullClosure<B
 // boolean tasks can be used as conditions too
 
 extension BaseTask: TaskCondition where Value == Bool {
-    public func evaluate() -> Task<Bool> {
-        return conditionAsync {
+    public func evaluate() -> Bool {
+        do {
             return try self.await()
+        }
+        catch {
+            return false
         }
     }
 }
@@ -100,35 +94,33 @@ public final class CompoundTaskCondition: TaskCondition {
         self.subconditions = subconditions
     }
 
-    public func evaluate() -> Task<Bool> {
-        return conditionAsync {
-            switch self.compoundTaskConditionType {
-            case .and:
-                var all = true
-                for subcondition in self.subconditions {
-                    if !(try await(subcondition.evaluate()))  {
-                        all = false
-                        break
-                    }
+    public func evaluate() -> Bool {
+        switch self.compoundTaskConditionType {
+        case .and:
+            var all = true
+            for subcondition in self.subconditions {
+                if !subcondition.evaluate()  {
+                    all = false
+                    break
                 }
-
-                return all
-
-            case .or:
-                var any = false
-                for subcondition in self.subconditions {
-                    if (try await(subcondition.evaluate())) {
-                        any = true
-                        break
-                    }
-                }
-
-                return any
-
-            case .not:
-                let subcondition = self.subconditions.first!
-                return !(try await(subcondition.evaluate()))
             }
+
+            return all
+
+        case .or:
+            var any = false
+            for subcondition in self.subconditions {
+                if subcondition.evaluate() {
+                    any = true
+                    break
+                }
+            }
+
+            return any
+
+        case .not:
+            let subcondition = self.subconditions.first!
+            return !subcondition.evaluate()
         }
     }
 
