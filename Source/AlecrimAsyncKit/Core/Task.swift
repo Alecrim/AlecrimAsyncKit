@@ -88,11 +88,12 @@ public class BaseTask<Value> {
         self.wait()
 
         if let error = self.error {
+            self.value = nil // to be sure
             throw error
         }
 
         guard let value = self.value else {
-            fatalError("Unexpected: error cannot be nil")
+            fatalError("Unexpected: value cannot be nil")
         }
         
         return value
