@@ -12,8 +12,8 @@ import Foundation
 
 extension Task {
 
-    public func map<U>(in queue: OperationQueue? = nil, closure: @escaping (Value) throws -> U) -> Task<U> {
-        return async(in: queue) {
+    public func map<U>(on queue: OperationQueue? = nil, closure: @escaping (Value) throws -> U) -> Task<U> {
+        return async(on: queue) {
             let value = try self.await()
             let mappedValue = try closure(value)
 
@@ -21,8 +21,8 @@ extension Task {
         }
     }
 
-    public func map<U>(in queue: OperationQueue? = nil, closure: @escaping (Value) -> U) -> Task<U> {
-        return async(in: queue) {
+    public func map<U>(on queue: OperationQueue? = nil, closure: @escaping (Value) -> U) -> Task<U> {
+        return async(on: queue) {
             let value = try self.await()
             let mappedValue = closure(value)
 
@@ -34,8 +34,8 @@ extension Task {
 
 extension Task {
 
-    public func asNonFailable(in queue: OperationQueue? = nil) -> NonFailableTask<Value> {
-        return async(in: queue) {
+    public func asNonFailable(on queue: OperationQueue? = nil) -> NonFailableTask<Value> {
+        return async(on: queue) {
             return try! self.await()
         }
     }
@@ -46,8 +46,8 @@ extension Task {
 
 extension NonFailableTask {
 
-    public func map<U>(in queue: OperationQueue? = nil, closure: @escaping (Value) -> U) -> NonFailableTask<U> {
-        return async(in: queue) {
+    public func map<U>(on queue: OperationQueue? = nil, closure: @escaping (Value) -> U) -> NonFailableTask<U> {
+        return async(on: queue) {
             let value = try! self.await()
             let mappedValue = closure(value)
 
@@ -59,8 +59,8 @@ extension NonFailableTask {
 
 extension NonFailableTask {
 
-    public func asFailable(in queue: OperationQueue? = nil) -> Task<Value> {
-        return async(in: queue) {
+    public func asFailable(on queue: OperationQueue? = nil) -> Task<Value> {
+        return async(on: queue) {
             return try self.await()
         }
     }
