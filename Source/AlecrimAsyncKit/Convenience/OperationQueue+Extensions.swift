@@ -11,19 +11,19 @@ import Foundation
 extension OperationQueue {
     
     public func addOperation<Value>(_ closure: @escaping AsyncTaskClosure<Value>) -> Task<Value> {
-        return AlecrimAsyncKit.async(in: self, execute: closure)
+        return AlecrimAsyncKit.async(on: self, execute: closure)
     }
     
     public func addOperation<Value>(_ closure: @escaping AsyncNonFailableTaskClosure<Value>) -> NonFailableTask<Value> {
-        return AlecrimAsyncKit.async(in: self, execute: closure)
+        return AlecrimAsyncKit.async(on: self, execute: closure)
     }
     
     public func addOperation<Value>(_ taskClosure: @escaping AsyncTaskFullClosure<Value>) -> Task<Value> {
-        return AlecrimAsyncKit.async(in: self, execute: taskClosure)
+        return AlecrimAsyncKit.async(on: self, execute: taskClosure)
     }
     
     public func addOperation<Value>(_ taskClosure: @escaping AsyncTaskFullClosure<Value>) -> NonFailableTask<Value> {
-        return AlecrimAsyncKit.async(in: self, execute: taskClosure)
+        return AlecrimAsyncKit.async(on: self, execute: taskClosure)
     }
     
 }

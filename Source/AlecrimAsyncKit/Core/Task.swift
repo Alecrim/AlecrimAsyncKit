@@ -60,13 +60,7 @@ public class BaseTask<Value> {
 
     private func _start() {
         if let condition = self.condition {
-            var result = false
-            do {
-                result = try AlecrimAsyncKit.await(condition.evaluate())
-            }
-            catch {}
-
-            if result {
+            if condition.evaluate() {
                 self.__start()
             }
             else {
@@ -93,15 +87,20 @@ public class BaseTask<Value> {
     internal final func await() throws -> Value {
         self.wait()
 
-        guard let value = self.value else {
-            guard let error = self.error else {
-                fatalError("Unexpected: error cannot be nil")
+        do {
+            self.lock(); defer { self.unlock() }
+
+            if let error = self.error {
+                self.value = nil // to be sure
+                throw error
             }
-            
-            throw error
+
+            guard let value = self.value else {
+                fatalError("Unexpected: value cannot be nil")
+            }
+
+            return value
         }
-        
-        return value
     }
     
     //

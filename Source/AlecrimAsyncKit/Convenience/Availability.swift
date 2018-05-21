@@ -8,33 +8,33 @@
 
 import Foundation
 
-@available(*, deprecated, renamed: "async(in:execute:)")
+@available(*, deprecated, renamed: "async(on:execute:)")
 public func asyncEx<Value>(in queue: OperationQueue? = nil, execute closure: @escaping AsyncTaskFullClosure<Value>) -> Task<Value> {
-    return async(in: queue, execute: closure)
+    return async(on: queue, execute: closure)
 }
 
 @available(*, deprecated, renamed: "async(value:)")
 public func asyncValue<Value>(in queue: OperationQueue? = nil, _ value: Value) -> Task<Value> {
-    return async(in: queue, value: value)
+    return async(on: queue, value: value)
 }
 
 @available(*, deprecated, renamed: "async(error:)")
 public func asyncError<Value>(in queue: OperationQueue? = nil, _ error: Error) -> Task<Value> {
-    return async(in: queue, error: error)
+    return async(on: queue, error: error)
 }
 
-@available(*, deprecated, renamed: "async(in:delay:)")
+@available(*, deprecated, renamed: "async(on:delay:)")
 public func asyncDelay(in queue: OperationQueue? = nil, timeInterval: TimeInterval) -> NonFailableTask<Void> {
-    return async(in: queue, delay: timeInterval)
+    return async(on: queue, delay: timeInterval)
 }
 
-@available(*, deprecated, renamed: "async(in:sleepForTimeInterval:)")
+@available(*, deprecated, renamed: "async(on:sleepForTimeInterval:)")
 public func asyncSleep(in queue: OperationQueue? = nil, forTimeInterval timeInterval: TimeInterval) -> NonFailableTask<Void> {
-    return async(in: queue, sleepForTimeInterval: timeInterval)
+    return async(on: queue, sleepForTimeInterval: timeInterval)
 }
 
-@available(*, deprecated, renamed: "async(in:sleepUntil:)")
+@available(*, deprecated, renamed: "async(on:sleepUntil:)")
 public func asyncSleep(in queue: OperationQueue? = nil, until date: Date) -> NonFailableTask<Void> {
-    return async(in: queue, sleepUntil: date)
+    return async(on: queue, sleepUntil: date)
 }
 

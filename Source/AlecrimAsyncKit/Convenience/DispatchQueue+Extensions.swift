@@ -11,19 +11,19 @@ import Foundation
 extension DispatchQueue {
     
     public func async<Value>(execute closure: @escaping AsyncTaskClosure<Value>) -> Task<Value> {
-        return AlecrimAsyncKit.async(in: Queue.operationQueue(for: self), execute: closure)
+        return AlecrimAsyncKit.async(on: Queue.operationQueue(for: self), execute: closure)
     }
     
     public func async<Value>(execute closure: @escaping AsyncNonFailableTaskClosure<Value>) -> NonFailableTask<Value> {
-        return AlecrimAsyncKit.async(in: Queue.operationQueue(for: self), execute: closure)
+        return AlecrimAsyncKit.async(on: Queue.operationQueue(for: self), execute: closure)
     }
     
     public func async<Value>(execute taskClosure: @escaping AsyncTaskFullClosure<Value>) -> Task<Value> {
-        return AlecrimAsyncKit.async(in: Queue.operationQueue(for: self), execute: taskClosure)
+        return AlecrimAsyncKit.async(on: Queue.operationQueue(for: self), execute: taskClosure)
     }
     
     public func async<Value>(execute taskClosure: @escaping AsyncTaskFullClosure<Value>) -> NonFailableTask<Value> {
-        return AlecrimAsyncKit.async(in: Queue.operationQueue(for: self), execute: taskClosure)
+        return AlecrimAsyncKit.async(on: Queue.operationQueue(for: self), execute: taskClosure)
     }
     
 }

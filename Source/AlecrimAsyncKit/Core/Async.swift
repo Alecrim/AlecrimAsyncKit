@@ -17,15 +17,15 @@ public typealias AsyncTaskFullClosure<Value> = (BaseTask<Value>) -> Void
 
 // MARK: -
 
-public func async<Value>(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, execute closure: @escaping AsyncTaskClosure<Value>) -> Task<Value> {
-    return enqueue(in: queue, dependency: dependency, condition: condition, closure: closure)
+public func async<Value>(on queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, execute closure: @escaping AsyncTaskClosure<Value>) -> Task<Value> {
+    return enqueue(on: queue, dependency: dependency, condition: condition, closure: closure)
 }
 
-public func async<Value>(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, execute closure: @escaping AsyncNonFailableTaskClosure<Value>) -> NonFailableTask<Value> {
-    return enqueue(in: queue, dependency: dependency, condition: condition, closure: closure)
+public func async<Value>(on queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, execute closure: @escaping AsyncNonFailableTaskClosure<Value>) -> NonFailableTask<Value> {
+    return enqueue(on: queue, dependency: dependency, condition: condition, closure: closure)
 }
 
-fileprivate func enqueue<Value>(in queue: OperationQueue?, dependency: TaskDependency?, condition: TaskCondition?, closure: @escaping AsyncTaskClosure<Value>) -> Task<Value> {
+fileprivate func enqueue<Value>(on queue: OperationQueue?, dependency: TaskDependency?, condition: TaskCondition?, closure: @escaping AsyncTaskClosure<Value>) -> Task<Value> {
     //
     let taskClosure: AsyncTaskFullClosure<Value> = {
         do {
@@ -38,31 +38,31 @@ fileprivate func enqueue<Value>(in queue: OperationQueue?, dependency: TaskDepen
     }
     
     //
-    return enqueue(in: queue, dependency: dependency, condition: condition, closure: taskClosure)
+    return enqueue(on: queue, dependency: dependency, condition: condition, closure: taskClosure)
 }
 
-fileprivate func enqueue<Value>(in queue: OperationQueue?, dependency: TaskDependency?, condition: TaskCondition?, closure: @escaping AsyncNonFailableTaskClosure<Value>) -> NonFailableTask<Value> {
+fileprivate func enqueue<Value>(on queue: OperationQueue?, dependency: TaskDependency?, condition: TaskCondition?, closure: @escaping AsyncNonFailableTaskClosure<Value>) -> NonFailableTask<Value> {
     //
     let taskClosure: AsyncTaskFullClosure<Value> = {
         $0.finish(with: closure())
     }
     
     //
-    return enqueue(in: queue, dependency: dependency, condition: condition, closure: taskClosure)
+    return enqueue(on: queue, dependency: dependency, condition: condition, closure: taskClosure)
 }
 
 //
 
-public func async<Value>(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, execute taskClosure: @escaping AsyncTaskFullClosure<Value>) -> Task<Value> {
-    return enqueue(in: queue, dependency: dependency, condition: condition, closure: taskClosure)
+public func async<Value>(on queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, execute taskClosure: @escaping AsyncTaskFullClosure<Value>) -> Task<Value> {
+    return enqueue(on: queue, dependency: dependency, condition: condition, closure: taskClosure)
 }
 
-public func async<Value>(in queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, execute taskClosure: @escaping AsyncTaskFullClosure<Value>) -> NonFailableTask<Value> {
-    return enqueue(in: queue, dependency: dependency, condition: condition, closure: taskClosure)
+public func async<Value>(on queue: OperationQueue? = nil, dependency: TaskDependency? = nil, condition: TaskCondition? = nil, execute taskClosure: @escaping AsyncTaskFullClosure<Value>) -> NonFailableTask<Value> {
+    return enqueue(on: queue, dependency: dependency, condition: condition, closure: taskClosure)
 }
 
 
-fileprivate func enqueue<Value>(in queue: OperationQueue?, dependency: TaskDependency?, condition: TaskCondition?, closure taskClosure: @escaping AsyncTaskFullClosure<Value>) -> Task<Value> {
+fileprivate func enqueue<Value>(on queue: OperationQueue?, dependency: TaskDependency?, condition: TaskCondition?, closure taskClosure: @escaping AsyncTaskFullClosure<Value>) -> Task<Value> {
     //
     let queue = queue ?? Queue.defaultOperationQueue
     precondition(queue.maxConcurrentOperationCount > 1 || queue.maxConcurrentOperationCount == OperationQueue.defaultMaxConcurrentOperationCount)
@@ -94,7 +94,7 @@ fileprivate func enqueue<Value>(in queue: OperationQueue?, dependency: TaskDepen
     return task
 }
 
-fileprivate func enqueue<Value>(in queue: OperationQueue?, dependency: TaskDependency?, condition: TaskCondition?, closure taskClosure: @escaping AsyncTaskFullClosure<Value>) -> NonFailableTask<Value> {
+fileprivate func enqueue<Value>(on queue: OperationQueue?, dependency: TaskDependency?, condition: TaskCondition?, closure taskClosure: @escaping AsyncTaskFullClosure<Value>) -> NonFailableTask<Value> {
     //
     let queue = queue ?? Queue.defaultOperationQueue
     precondition(queue.maxConcurrentOperationCount > 1 || queue.maxConcurrentOperationCount == OperationQueue.defaultMaxConcurrentOperationCount)

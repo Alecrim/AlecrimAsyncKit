@@ -22,6 +22,7 @@
 		1466506C205B178F006C70AA /* Sequence+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1466506B205B178F006C70AA /* Sequence+Extensions.swift */; };
 		1466506E205B1905006C70AA /* OtherConveniences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1466506D205B1905006C70AA /* OtherConveniences.swift */; };
 		14A391242053A03300AD8249 /* Cancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A391232053A03300AD8249 /* Cancellation.swift */; };
+		14E8AD3B209FF6F20035DFA2 /* Mapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E8AD3A209FF6F20035DFA2 /* Mapping.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		1466506B205B178F006C70AA /* Sequence+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence+Extensions.swift"; sourceTree = "<group>"; };
 		1466506D205B1905006C70AA /* OtherConveniences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtherConveniences.swift; sourceTree = "<group>"; };
 		14A391232053A03300AD8249 /* Cancellation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cancellation.swift; sourceTree = "<group>"; };
+		14E8AD3A209FF6F20035DFA2 /* Mapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mapping.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,6 +123,7 @@
 				14665067205B1727006C70AA /* DispatchQueue+Extensions.swift */,
 				14665065205B1708006C70AA /* OperationQueue+Extensions.swift */,
 				1466506D205B1905006C70AA /* OtherConveniences.swift */,
+				14E8AD3A209FF6F20035DFA2 /* Mapping.swift */,
 				1466506B205B178F006C70AA /* Sequence+Extensions.swift */,
 			);
 			path = Convenience;
@@ -215,6 +218,7 @@
 				14665068205B1727006C70AA /* DispatchQueue+Extensions.swift in Sources */,
 				14665066205B1708006C70AA /* OperationQueue+Extensions.swift in Sources */,
 				143E712520531FBC002F7222 /* Async.swift in Sources */,
+				14E8AD3B209FF6F20035DFA2 /* Mapping.swift in Sources */,
 				143E712320531F9B002F7222 /* Errors.swift in Sources */,
 				1444522A209E09200016D444 /* TaskDependency.swift in Sources */,
 				1466506A205B1763006C70AA /* Availability.swift in Sources */,
@@ -360,7 +364,7 @@
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 356;
+				CURRENT_PROJECT_VERSION = 370;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -392,7 +396,7 @@
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 356;
+				CURRENT_PROJECT_VERSION = 370;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;

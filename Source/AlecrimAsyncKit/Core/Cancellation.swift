@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Cancellation.swift
 //  AlecrimAsyncKit
 //
 //  Created by Vanderlei Martinelli on 10/03/18.
@@ -14,7 +14,7 @@ public typealias CancellationHandler = () -> Void
 
 //
 
-public protocol CancellableTask: class {
+public protocol CancellableTask: AnyObject {
     var cancellation: Cancellation { get }
     var isCancelled: Bool { get }
 
