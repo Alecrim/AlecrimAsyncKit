@@ -11,7 +11,7 @@ async and await for Swift.
 
 ## Usage
 ### Awaiting the results
-I know I am putting the cart before the horse, but... For the three functions in the next section you can await the returning value in the same way:
+Maybe I am putting the cart before the horses, but... For all the functions in the next section you can await the returning value in the same way:
 
 ```swift
 func someFuncRunningInBackground() throws {
@@ -161,21 +161,19 @@ func someFuncRunningInTheMainThread() {
 }
 ```
 
-All methods (`then`, `catch`, `cancelled` and `finally`) are optional. If specified, the closure related to the `finally` method will always be called regardless whether the task was cancelled or not, whether there was an error or not.
+All methods (`then`, `catch`, `cancelled` and `finally`) are optional. When specified, the closure related to the `finally` method will always be called regardless whether the task was cancelled or not, whether there was an error or not.
 
 ## Non failable tasks
 If you read the framework's code you will find the `NonFailableTask<Value>` class. This kind of task cannot fail (sort of). In fact it may fail, but it should not.
 
-The main difference from the failable task class is that you do not have to use the `try` keyword when awaiting for non failable task results. A non failable task cannot be cancelled either.
+The main difference from the failable task class is that you do not have to `try` when awaiting for non failable task results. A non failable task cannot be cancelled either.
 
-Please only use this type of task when you are sure that it can not fail. If it do, your program will crash.
+Please only use this type of task when you are sure that it cannot fail. If it do and the task fail your program will crash.
 
-## Observers and conditions
-The previous version had observers and conditions based on Session 226 of WWDC 2015 (“Advanced NSOperations”). This turned the framework unnecessarily complex.
+## Dependencies, conditions and observers
+The previous version had observers and conditions based on Session 226 of WWDC 2015 (“Advanced NSOperations”). This turned the framework unnecessarily complex. If you need this functionality right now you can use version 3.x of **AlecrimAsyncKit**.
 
-If you need this functionality right now you can use version 3.x of **AlecrimAsyncKit**.
-
-Observers and conditions may be reimplemented in a future release or as a separated framework. No guarantees, though.
+In version 4.0 the framework has the notion of "dependencies" and a new kind of "conditions" was implemented. Observers may reappear in a future release. No guarantees, though.
 
 ## Contribute
 If you have any problems or need more information, please open an issue using the provided GitHub link.
