@@ -1,24 +1,18 @@
 Pod::Spec.new do |s|
+    s.name                      = 'AlecrimAsyncKit'
+    s.version                   = '5.0'
+    s.summary                   = 'async and await for Swift'
 
-  s.name         = "AlecrimAsyncKit"
-  s.version      = "4.0"
-  s.summary      = "async and await for Swift."
-  s.homepage     = "https://www.alecrim.com/AlecrimAsyncKit"
+    s.homepage                  = 'https://github.com/Alecrim/AlecrimAsyncKit'
+    s.license                   = 'MIT'
+    s.author                    = { 'Vanderlei Martinelli' => 'vanderlei.martinelli@gmail.com' }
+    s.social_media_url          = 'https://www.linkedin.com/in/vmartinelli'
 
-  s.license      = "MIT"
+    s.source                    = { :git => 'https://github.com/Alecrim/AlecrimAsyncKit.git', :tag => s.version.to_s }
+    s.source_files              = 'Sources/**/*'
 
-  s.author             = { "Vanderlei Martinelli" => "vanderlei.martinelli@gmail.com" }
-  s.social_media_url   = "https://www.linkedin.com/in/vmartinelli"
-
-  s.osx.deployment_target     = "10.12"
-  s.ios.deployment_target     = "10.0"
-  s.watchos.deployment_target = "3.0"
-  s.tvos.deployment_target    = "10.0"
-
-  s.source       = { :git => "https://github.com/Alecrim/AlecrimAsyncKit.git", :tag => s.version }
-
-  s.source_files = "Source/**/*.swift"
-
-  s.requires_arc = true
-
+    s.osx.deployment_target     = '10.12'
+    s.ios.deployment_target     = '10.0'
+    s.watchos.deployment_target = '3.0'
+    s.tvos.deployment_target    = '10.0'
 end
