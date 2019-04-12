@@ -10,193 +10,235 @@ import Foundation
 
 // MARK: - Task
 
-public class BaseTask<Value> {
-    
-    //
-    
-    internal let group: DispatchGroup
+public final class Task<V, E: Swift.Error> {
 
-    private let dependency: TaskDependency?
-    private let condition: TaskCondition?
+    // MARK: - Result
 
-    private var closure: AsyncTaskFullClosure<Value>?
-    
-    // these 3 variables must be accessed only in `finish(with:or:)` and using the `lock()` / `unlock()` functions below
+    // Result
+    private var _result: Swift.Result<V, E>?
+    private var result: Swift.Result<V, E>? {
+        get {
+            self.lock(); defer { self.unlock() }
+            return self._result
+        }
+        set {
+            self.lock(); defer { self.unlock() }
 
-    private var isFinished = false
-    internal private(set) final var value: Value?
-    internal private(set) final var error: Error?
-    
+            // We can set the result once
+            if self._result == nil {
+                self._result = newValue
+            }
+        }
+    }
+
+    // Result Lock
     private var _lock = os_unfair_lock_s()
     private func lock() { os_unfair_lock_lock(&self._lock) }
     private func unlock() { os_unfair_lock_unlock(&self._lock) }
 
-    //
-    
-    internal init(dependency: TaskDependency?, condition: TaskCondition?, closure: @escaping AsyncTaskFullClosure<Value>) {
-        self.group = DispatchGroup()
+    // MARK: - Work Item
 
-        self.dependency = dependency
-        self.condition = condition
-        self.closure = closure
-        
-        self.group.enter()
+    // Work Item
+    private var workItem: DispatchWorkItem?
+
+    // MARK: - Initializers
+
+    internal convenience init() {
+        self.init(result: nil)
     }
 
-    //
-
-    internal final func start() {
-        if let semaphore = self.dependency as? TaskSemaphoreDependency {
-            semaphore.wait()
-        }
-
-        if let dependency = self.dependency {
-            dependency.notify(execute: self._start)
-        }
-        else {
-            self._start()
-        }
+    internal convenience init(value: V) {
+        self.init(result: .success(value))
     }
 
-    private func _start() {
-        if let condition = self.condition {
-            if condition.evaluate() {
-                self.__start()
-            }
-            else {
-                (self as? CancellableTask)?.cancel()
-            }
-        }
-        else {
-            self.__start()
-        }
+    fileprivate init(result: Swift.Result<V, E>?) {
+        self.result = result
     }
 
-    private func __start() {
-        if let closure = self.closure {
-            self.closure = nil
+    internal convenience init(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], closure: @escaping (Task<V, E>) -> Void) {
+        self.init(result: nil)
 
-            if !self.isCancelled {
-                closure(self)
-            }
+        let block: () -> Void = {
+            closure(self)
         }
+
+        self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
     }
 
-    //
+    // MARK: - Finishing
 
-    internal final func await() throws -> Value {
-        self.wait()
+    public func finish(with value: V) {
+        self.result = .success(value)
+    }
 
-        do {
-            self.lock(); defer { self.unlock() }
+}
 
-            if let error = self.error {
-                self.value = nil // to be sure
+extension Task where E == Swift.Error {
+
+    // Initializers
+
+    internal convenience init(error: E) {
+        self.init(result: .failure(error))
+    }
+
+    internal convenience init(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], closure: @escaping () throws -> V) {
+        self.init(result: nil)
+
+        let block: () -> Void = {
+            self.result = Swift.Result(catching: closure)
+        }
+
+        self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
+    }
+
+    // MARK: - Executing
+
+    internal func execute(on queue: DispatchQueue) throws -> V {
+        func getValue(from result: Swift.Result<V, E>) throws -> V {
+            switch result {
+            case let .success(value):
+                return value
+
+            case let .failure(error):
                 throw error
             }
+        }
 
-            guard let value = self.value else {
-                fatalError("Unexpected: value cannot be nil")
+        if let result = self.result {
+            return try getValue(from: result)
+        }
+        else if let workItem = self.workItem {
+            queue.async(execute: workItem)
+            workItem.wait()
+
+            guard let result = self.result else {
+                fatalError()
             }
 
-            return value
+            return try getValue(from: result)
+        }
+        else {
+            fatalError()
         }
     }
-    
-    //
-    
-    private final func wait() {
-        precondition(!Thread.isMainThread)
-        self.group.wait()
-    }
-    
-    // cancellation support
-    
-    public private(set) lazy var cancellation = Cancellation()
 
+    // MARK: - Cancelling
+
+    /// A Boolean value that indicates whether the `Task` has been cancelled.
     public var isCancelled: Bool {
-        return self.error?.isUserCancelled ?? false
-    }
-    
-    //
-    
-    public final func finish(with value: Value) {
-        self.finish(with: value, or: nil)
-    }
-    
-    public func finish(with error: Error) {
-        self.finish(with: nil, or: error)
-    }
-    
-    public func finish(with value: Value?, or error: Error?) {
-        self.lock(); defer { self.unlock() }
-
-        guard !self.isFinished else {
-            return
+        guard let result = self.result else {
+            return false
         }
-        
-        self.value = value
-        self.error = error
 
-        self.isFinished = true
+        switch result {
+        case let .failure(error):
+            return error.isUserCancelled
 
-        self.group.leave()
-
-        if let semaphore = self.dependency as? TaskSemaphoreDependency {
-            semaphore.signal()
+        default:
+            return false
         }
     }
-    
-    //
-    
-    internal final func result() -> (value: Value?, error: Error?) {
-        self.lock(); defer { self.unlock() }
-        
-        return (self.value, self.error)
+
+    public func cancel() {
+        self.result = .failure(NSError.userCancelled)
+        self.workItem?.cancel()
     }
-    
+
+    // MARK: - Finishing
+
+    public func finish(with error: E) {
+        self.result = .failure(error)
+    }
+
+    public func finish(with value: V?, or error: E?) {
+        precondition(value != nil || error != nil)
+
+        if let error = error {
+            self.finish(with: error)
+        }
+        else if let value = value {
+            self.finish(with: value)
+        }
+        else {
+            fatalError()
+        }
+    }
+
+    public func finish(with result: Swift.Result<V, E>) {
+        self.result = result
+    }
+
 }
 
-extension BaseTask where Value == Void {
-    
+extension Task where E == Never {
+
+    // Initializers
+
+    @available(*, unavailable)
+    internal convenience init(error: E) {
+        fatalError()
+    }
+
+    internal convenience init(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], closure: @escaping () -> V) {
+        self.init(result: nil)
+
+        let block: () -> Void = {
+            self.result = .success(closure())
+        }
+
+        self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
+    }
+
+    // MARK: - Cancelling
+
+    @available(*, unavailable)
+    public var isCancelled: Bool {
+        fatalError()
+    }
+
+
+    @available(*, unavailable)
+    public func cancel() {
+        fatalError()
+    }
+
+    // MARK: - Executing
+
+    internal func execute(on queue: DispatchQueue) -> V {
+        func getValue(from result: Swift.Result<V, E>) throws -> V {
+            switch result {
+            case let .success(value):
+                return value
+
+            case let .failure(error):
+                throw error
+            }
+        }
+
+        if let result = self.result {
+            return try! getValue(from: result)
+        }
+        else if let workItem = self.workItem {
+            queue.async(execute: workItem)
+            workItem.wait()
+
+            guard let result = self.result else {
+                fatalError()
+            }
+
+            return try! getValue(from: result)
+        }
+        else {
+            fatalError()
+        }
+    }
+
+}
+
+extension Task where V == Void {
+
     public func finish() {
-        self.finish(with: (), or: nil)
+        self.finish(with: ())
     }
-    
-}
 
-// MARK: - Task
-
-public final class Task<Value>: BaseTask<Value>, CancellableTask {
-    
-}
-
-// MARK: - NonFailableTask
-
-public final class NonFailableTask<Value>: BaseTask<Value> {
-    
-    @available(*, unavailable, message: "Non failable tasks cannot be cancelled")
-    public override var cancellation: Cancellation {
-        fatalError("Non failable tasks cannot be cancelled")
-    }
-    
-    @available(*, unavailable, message: "Non failable tasks cannot be cancelled")
-    public override var isCancelled: Bool {
-        return super.isCancelled
-    }
-    
-    @available(*, unavailable, message: "Non failable tasks cannot be finished with error")
-    public override func finish(with error: Error) {
-        fatalError("Non failable tasks cannot be finished with error")
-    }
-    
-    @available(*, unavailable, message: "Non failable tasks cannot be finished with error")
-    public override func finish(with value: Value?, or error: Error?) {
-        guard error == nil else {
-            fatalError("Non failable tasks cannot be finished with error")
-        }
-
-        super.finish(with: value, or: error)
-    }
-    
 }
