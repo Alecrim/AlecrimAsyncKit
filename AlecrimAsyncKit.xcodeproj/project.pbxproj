@@ -59,6 +59,7 @@
 		14A684F9225FCF7300AE56DF /* TaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
 		14A6850C226018AD00AE56DF /* AsyncAwaitBasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitBasicTests.swift; sourceTree = "<group>"; };
 		14A6850E22601D8500AE56DF /* AsyncAwaitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitTests.swift; sourceTree = "<group>"; };
+		14A68510226024ED00AE56DF /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +137,7 @@
 			children = (
 				14A684E7225FCCA600AE56DF /* AlecrimAsyncKit.png */,
 				14A684E5225FCCA600AE56DF /* AlecrimAsyncKit.podspec */,
+				14A68510226024ED00AE56DF /* CHANGELOG.md */,
 				14A684E3225FCCA600AE56DF /* LICENSE */,
 				14A684E4225FCCA600AE56DF /* Package.swift */,
 				14A684E6225FCCA600AE56DF /* README.md */,
