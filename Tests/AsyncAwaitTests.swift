@@ -55,7 +55,7 @@ class AsyncAwaitTests: XCTestCase {
         XCTAssert(value == 5)
     }
 
-    func testCancel() {
+    func testCancellation() {
         var value = 0
         var something2IsCancelled = false
 
@@ -118,6 +118,73 @@ class AsyncAwaitTests: XCTestCase {
         XCTAssert(value == -8)
     }
 
+    func testCascadeCancel() {
+        var sum = 0
+
+        func someTask1(with value: Int) -> Task<Int, Error> {
+            return async { t in
+                self.doNothing(forTimeInterval: 1) {
+                    sum += value
+                    t.finish(with: value)
+                }
+            }
+        }
+
+        func someTask2(with value: Int) -> Task<Int, Error> {
+            return async { t in
+                do {
+                    try await(someTask1(with: 1))
+                    try await(someTask1(with: 2))
+                    try await(someTask1(with: 3))
+
+                    self.doNothing(forTimeInterval: 1) {
+                        sum += value
+                        t.finish(with: value)
+                    }
+                }
+                catch {
+                    sum += value
+                    t.finish(with: error)
+                }
+            }
+        }
+
+        func someTask3(with value: Int) -> Task<Int, Error> {
+            return async { t in
+                do {
+                    try await(someTask2(with: 10))
+                    try await(someTask2(with: 20))
+                    try await(someTask2(with: 30))
+
+                    self.doNothing(forTimeInterval: 1) {
+                        sum += value
+                        t.finish(with: value)
+                    }
+                }
+                catch {
+                    t.finish(with: error)
+                }
+            }
+        }
+
+        let t = someTask3(with: 100)
+
+        self.doNothing(forTimeInterval: 3) {
+            t.cancel()
+        }
+
+        //
+        do {
+            try await(t)
+        }
+        catch {
+            XCTAssert(sum == 6)
+            print(error)
+        }
+
+    }
+
+
     func testBackgroundExecution() {
         var value = 0
         var taskCount = 0
@@ -157,4 +224,5 @@ class AsyncAwaitTests: XCTestCase {
         value += await(task2)
         XCTAssert(value == 5)
     }
+
 }

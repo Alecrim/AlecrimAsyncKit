@@ -62,7 +62,7 @@ class TaskAwaiterTests: XCTestCase {
         XCTAssert(value == 5)
     }
 
-    func testCancel() {
+    func testCancellation() {
         var value = 0
         var something2IsCancelled = false
 

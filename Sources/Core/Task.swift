@@ -203,8 +203,16 @@ extension Task where E == Swift.Error {
     public func cancel() {
         self._finish(with: .failure(NSError.userCancelled))
 
-        self.workItem?.cancel()
-        self.cancellation.run()
+        if let workItem = self.workItem {
+            workItem.notify(queue: DispatchQueue.global()) {
+                self.cancellation.run()
+            }
+
+            workItem.cancel()
+        }
+        else {
+            self.cancellation.run()
+        }
     }
 
     // MARK: Finishing

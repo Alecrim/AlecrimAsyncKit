@@ -15,34 +15,36 @@ public typealias CancellationHandler = () -> Void
 // MARK: -
 
 public final class Cancellation {
-    private var _cancellationHandlerLock = os_unfair_lock_s()
-    private var _cancellationHandler: CancellationHandler?
+    private var _cancellationHandlersLock = os_unfair_lock_s()
+    private var _cancellationHandlers: [CancellationHandler]?
 
     internal init() {
 
     }
     
     fileprivate func addCancellationHandler(_ newValue: @escaping CancellationHandler) {
-        os_unfair_lock_lock(&self._cancellationHandlerLock); defer { os_unfair_lock_unlock(&self._cancellationHandlerLock) }
-        
-        if let oldValue = self._cancellationHandler {
-            self._cancellationHandler = {
-                oldValue()
-                newValue()
-            }
+        os_unfair_lock_lock(&self._cancellationHandlersLock); defer { os_unfair_lock_unlock(&self._cancellationHandlersLock) }
+
+        if self._cancellationHandlers == nil {
+            self._cancellationHandlers = [newValue]
         }
         else {
-            self._cancellationHandler = newValue
+            self._cancellationHandlers!.append(newValue)
         }
     }
     
     internal func run() {
-        os_unfair_lock_lock(&self._cancellationHandlerLock); defer { os_unfair_lock_unlock(&self._cancellationHandlerLock) }
+        var cancellationHandlers: [CancellationHandler]?
+
+        do {
+            os_unfair_lock_lock(&self._cancellationHandlersLock); defer { os_unfair_lock_unlock(&self._cancellationHandlersLock) }
+            cancellationHandlers = self._cancellationHandlers
+            self._cancellationHandlers = nil
+        }
 
         //
-        if let cancellationHandler = self._cancellationHandler {
-            self._cancellationHandler = nil
-            cancellationHandler()
+        cancellationHandlers?.forEach {
+            $0()
         }
     }
 }
