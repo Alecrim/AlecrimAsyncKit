@@ -37,7 +37,7 @@ class TaskBasicTests: XCTestCase {
             XCTAssert(value == 10)
         }
         catch {
-            XCTAssert(false)
+            XCTFail()
         }
 
         task.cancel()
@@ -55,7 +55,7 @@ class TaskBasicTests: XCTestCase {
             task.execute(on: self.executeQueue)
 
             let _ = try task.await()
-            XCTAssert(false)
+            XCTFail()
         }
         catch {
             let error = error as NSError
@@ -90,7 +90,7 @@ class TaskBasicTests: XCTestCase {
             XCTAssert(value == 10)
         }
         catch {
-            XCTAssert(false)
+            XCTFail()
         }
 
         task.cancel()
@@ -112,7 +112,7 @@ class TaskBasicTests: XCTestCase {
             task.execute(on: self.executeQueue)
 
             let _ = try task.await()
-            XCTAssert(false)
+            XCTFail()
         }
         catch {
             let error = error as NSError
@@ -140,13 +140,13 @@ class TaskBasicTests: XCTestCase {
             task.execute(on: self.executeQueue)
 
             let _ = try task.await()
-            XCTAssert(false)
+            XCTFail()
         }
         catch CustomError.general {
             XCTAssert(true)
         }
         catch {
-            XCTAssert(false)
+            XCTFail()
         }
 
         task.cancel()
@@ -184,7 +184,7 @@ class TaskBasicTests: XCTestCase {
             task.execute(on: self.executeQueue)
 
             let _ = try task.await()
-            XCTAssert(false)
+            XCTFail()
         }
         catch {
             let error = error as NSError
@@ -214,7 +214,7 @@ class TaskBasicTests: XCTestCase {
             XCTAssert(value == 10)
         }
         catch {
-            XCTAssert(false)
+            XCTFail()
         }
 
         task.cancel()
@@ -236,7 +236,7 @@ class TaskBasicTests: XCTestCase {
             task.execute(on: self.executeQueue)
 
             let _ = try task.await()
-            XCTAssert(false)
+            XCTFail()
         }
         catch {
             let error = error as NSError
@@ -260,5 +260,4 @@ class TaskBasicTests: XCTestCase {
         XCTAssert(value == 10)
     }
 
-    
 }

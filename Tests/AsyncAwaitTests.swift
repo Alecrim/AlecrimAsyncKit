@@ -61,7 +61,7 @@ class AsyncAwaitTests: XCTestCase {
 
         func doSomething1() -> Task<Void, Error> {
             return async { t in
-                doNothing(forTimeInterval: 1) {
+                self.doNothing(forTimeInterval: 1) {
                     guard !t.isCancelled else {
                         return
                     }
@@ -103,12 +103,12 @@ class AsyncAwaitTests: XCTestCase {
             try await(task1)
         }
         catch {
-            XCTAssert(false)
+            XCTFail()
         }
 
         do {
             try await(task2)
-            XCTAssert(false)
+            XCTFail()
         }
         catch {
             XCTAssert((error as NSError).isUserCancelled)
@@ -126,7 +126,7 @@ class AsyncAwaitTests: XCTestCase {
             return async { t in
                 taskCount += 1
 
-                doNothing(forTimeInterval: 1) {
+                self.doNothing(forTimeInterval: 1) {
                     t.finish(with: 1)
                 }
             }
@@ -136,7 +136,7 @@ class AsyncAwaitTests: XCTestCase {
             return async { t in
                 taskCount += 1
 
-                doNothing(forTimeInterval: 3) {
+                self.doNothing(forTimeInterval: 3) {
                     t.finish(with: 3)
                 }
             }
@@ -158,12 +158,3 @@ class AsyncAwaitTests: XCTestCase {
         XCTAssert(value == 5)
     }
 }
-
-// MARK: -
-
-fileprivate func doNothing(forTimeInterval timeInterval: TimeInterval, completionHandler: @escaping () -> Void) {
-    DispatchQueue.global().asyncAfter(deadline: .now() + timeInterval) {
-        completionHandler()
-    }
-}
-

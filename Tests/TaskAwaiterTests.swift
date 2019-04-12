@@ -198,24 +198,3 @@ class TaskAwaiterTests: XCTestCase {
         XCTAssert(value == 5)
     }
 }
-
-// MARK: -
-
-extension TaskAwaiterTests {
-
-    fileprivate func expectation() -> XCTestExpectation {
-        return self.expectation(description: "GenericExpectation")
-    }
-
-    fileprivate func wait(_ timeout: TimeInterval = 10.0, handler: XCWaitCompletionHandler? = nil) {
-        waitForExpectations(timeout: timeout, handler: handler)
-    }
-
-    fileprivate func doNothing(forTimeInterval timeInterval: TimeInterval, completionHandler: @escaping () -> Void) {
-        DispatchQueue.global().asyncAfter(deadline: .now() + timeInterval) {
-            completionHandler()
-        }
-    }
-
-}
-

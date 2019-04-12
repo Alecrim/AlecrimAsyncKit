@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		145008C8226119A800C0E828 /* XCTestCaseExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145008C7226119A800C0E828 /* XCTestCaseExtensions.swift */; };
 		14A684CF225FCA5300AE56DF /* AlecrimAsyncKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14A684C5225FCA5300AE56DF /* AlecrimAsyncKit.framework */; };
 		14A684D4225FCA5300AE56DF /* TaskBasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A684D3225FCA5300AE56DF /* TaskBasicTests.swift */; };
 		14A684D6225FCA5300AE56DF /* AlecrimAsyncKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14A684C8225FCA5300AE56DF /* AlecrimAsyncKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		145008C7226119A800C0E828 /* XCTestCaseExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XCTestCaseExtensions.swift; sourceTree = "<group>"; };
 		14A684C5225FCA5300AE56DF /* AlecrimAsyncKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlecrimAsyncKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14A684C8225FCA5300AE56DF /* AlecrimAsyncKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AlecrimAsyncKit.h; sourceTree = "<group>"; };
 		14A684C9225FCA5300AE56DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -76,6 +78,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		145008C6226119A800C0E828 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				145008C7226119A800C0E828 /* XCTestCaseExtensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		145008C9226119AE00C0E828 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				14A684D5225FCA5300AE56DF /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		14A684BB225FCA5300AE56DF = {
 			isa = PBXGroup;
 			children = (
@@ -107,7 +125,8 @@
 		14A684D2225FCA5300AE56DF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				14A684D5225FCA5300AE56DF /* Info.plist */,
+				145008C6226119A800C0E828 /* Extensions */,
+				145008C9226119AE00C0E828 /* Supporting Files */,
 				14A684D3225FCA5300AE56DF /* TaskBasicTests.swift */,
 				14A6850C226018AD00AE56DF /* AsyncAwaitBasicTests.swift */,
 				14A6850E22601D8500AE56DF /* AsyncAwaitTests.swift */,
@@ -275,6 +294,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				145008C8226119A800C0E828 /* XCTestCaseExtensions.swift in Sources */,
 				14A685152260498600AE56DF /* TaskAwaiterTests.swift in Sources */,
 				14A6850D226018AD00AE56DF /* AsyncAwaitBasicTests.swift in Sources */,
 				14A684D4225FCA5300AE56DF /* TaskBasicTests.swift in Sources */,

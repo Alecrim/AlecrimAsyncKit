@@ -39,7 +39,7 @@ class AsyncAwaitBasicTests: XCTestCase {
             XCTAssert(value == 10)
         }
         catch {
-            XCTAssert(false)
+            XCTFail()
         }
 
         task.cancel()
@@ -58,7 +58,7 @@ class AsyncAwaitBasicTests: XCTestCase {
 
         do {
             let _ = try await(task)
-            XCTAssert(false)
+            XCTFail()
         }
         catch {
             let error = error as NSError
@@ -92,7 +92,7 @@ class AsyncAwaitBasicTests: XCTestCase {
             XCTAssert(value == 10)
         }
         catch {
-            XCTAssert(false)
+            XCTFail()
         }
 
         task.cancel()
@@ -112,7 +112,7 @@ class AsyncAwaitBasicTests: XCTestCase {
 
         do {
             let _ = try await(task)
-            XCTAssert(false)
+            XCTFail()
         }
         catch {
             let error = error as NSError
@@ -138,13 +138,13 @@ class AsyncAwaitBasicTests: XCTestCase {
 
         do {
             let _ = try await(task)
-            XCTAssert(false)
+            XCTFail()
         }
         catch CustomError.general {
             XCTAssert(true)
         }
         catch {
-            XCTAssert(false)
+            XCTFail()
         }
 
         task.cancel()
@@ -178,7 +178,7 @@ class AsyncAwaitBasicTests: XCTestCase {
 
         do {
             let _ = try await(task)
-            XCTAssert(false)
+            XCTFail()
         }
         catch {
             let error = error as NSError
@@ -206,7 +206,7 @@ class AsyncAwaitBasicTests: XCTestCase {
             XCTAssert(value == 10)
         }
         catch {
-            XCTAssert(false)
+            XCTFail()
         }
 
         task.cancel()
@@ -226,7 +226,7 @@ class AsyncAwaitBasicTests: XCTestCase {
 
         do {
             let _ = try await(task)
-            XCTAssert(false)
+            XCTFail()
         }
         catch {
             let error = error as NSError
