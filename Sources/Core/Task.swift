@@ -66,6 +66,7 @@ public final class Task<V, E: Error> {
 
         //
         let block: () -> Void = {
+            Thread.current.cancellableTaskBox = CancellableTaskBox(self as? CancellableTask)
             closure(self)
         }
 
@@ -80,6 +81,10 @@ public final class Task<V, E: Error> {
             return
         }
         else if let workItem = self.workItem {
+            Thread.current.cancellableTaskBox?.value?.cancellation += { [weak self] in
+                (self as? CancellableTask)?.cancel()
+            }
+
             queue.async(execute: workItem)
         }
         else {
@@ -119,7 +124,7 @@ public final class Task<V, E: Error> {
         }
     }
 
-    private func waitDispatchGroupIfNeeded() {
+    private func waitDispatchGroup() {
         var dispatchGroup: DispatchGroup?
 
         do {
@@ -146,6 +151,7 @@ extension Task where E == Swift.Error {
         self.init(result: nil)
 
         let block: () -> Void = {
+            Thread.current.cancellableTaskBox = CancellableTaskBox(self)
             self._finish(with: Swift.Result(catching: closure))
         }
 
@@ -160,7 +166,7 @@ extension Task where E == Swift.Error {
         }
         else if let workItem = self.workItem {
             workItem.wait()
-            waitDispatchGroupIfNeeded()
+            waitDispatchGroup()
 
             guard let result = self.result else {
                 fatalError("Task may be not properly finished. See `Task.finish(with: _)`.")
@@ -237,6 +243,7 @@ extension Task where E == Never {
         self.init(result: nil)
 
         let block: () -> Void = {
+            Thread.current.cancellableTaskBox = nil
             self._finish(with: .success(closure()))
         }
 
@@ -251,7 +258,7 @@ extension Task where E == Never {
         }
         else if let workItem = self.workItem {
             workItem.wait()
-            waitDispatchGroupIfNeeded()
+            waitDispatchGroup()
 
             guard let result = self.result else {
                 fatalError()
@@ -274,4 +281,36 @@ extension Task where V == Void {
         self.finish(with: ())
     }
 
+}
+
+// MARK: - CancellableTask
+
+fileprivate protocol CancellableTask: AnyObject {
+    var cancellation: Cancellation { get }
+    func cancel()
+}
+
+extension Task: CancellableTask where E == Error {
+
+}
+
+extension Thread {
+
+    fileprivate var cancellableTaskBox: CancellableTaskBox? {
+        get {
+            return self.threadDictionary["___AAK_TASK"] as? CancellableTaskBox
+        }
+        set {
+            self.threadDictionary["___AAK_TASK"] = newValue
+        }
+    }
+
+}
+
+fileprivate struct CancellableTaskBox {
+    fileprivate weak var value: CancellableTask?
+
+    fileprivate init(_ value: CancellableTask?) {
+        self.value = value
+    }
 }
