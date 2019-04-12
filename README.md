@@ -1,11 +1,10 @@
 ![AlecrimAsyncKit](https://raw.githubusercontent.com/Alecrim/AlecrimAsyncKit/master/AlecrimAsyncKit.png)
 
-[![Language: Swift](https://img.shields.io/badge/Swift-4.0-orange.svg?style=flat)](https://developer.apple.com/swift/)
-[![Platforms](https://img.shields.io/cocoapods/p/AlecrimAsyncKit.svg?style=flat)](http://cocoadocs.org/docsets/AlecrimAsyncKit)
+[![Version](https://img.shields.io/badge/v5.0-blue.svg?label=version&style=flat)](https://github.com/Alecrim/AlecrimAsyncKit)
+[![Language: Swift](https://img.shields.io/badge/Swift-v5.0-blue.svg?style=flat)](https://developer.apple.com/swift/)
+[![Platforms](https://img.shields.io/badge/platforms-macOS%2C%20iOS%2C%20watchOS%2C%20tvOS-lightgrey.svg?style=flat)](http://cocoadocs.org/docsets/AlecrimAsyncKit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/Alecrim/AlecrimAsyncKit/develop/LICENSE)
-[![CocoaPods](https://img.shields.io/cocoapods/v/AlecrimAsyncKit.svg?style=flat)](http://cocoapods.org)
-[![Apps](https://img.shields.io/cocoapods/at/AlecrimAsyncKit.svg?style=flat)](http://cocoadocs.org/docsets/AlecrimAsyncKit)
-[![Author: vmartinelli](https://img.shields.io/badge/author-vmartinelli-blue.svg?style=flat)](https://www.linkedin.com/in/vmartinelli)
+[![Author: Vanderlei Martinelli](https://img.shields.io/badge/author-Vanderlei%20Martinelli-blue.svg?style=flat)](https://www.linkedin.com/in/vmartinelli)
 
 async and await for Swift.
 
@@ -44,7 +43,7 @@ func someFuncRunningInBackground() throws {
 You can simply return the desired value inside the `async` closure.
 
 ```swift
-func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
+func someLongRunningAsynchronousFunc -> Task<SomeValuableValue, Never> {
     return async {
         let value = self.createSomeValuableValue()
 
@@ -58,7 +57,7 @@ func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
 If you are calling a method with completion handler, however, you may need a different closure signature with the task itself as parameter and call its `finish(with:)` method when the work is finished.
 
 ```swift
-func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
+func someLongRunningAsynchronousFunc -> Task<SomeValuableValue, Never> {
     return async { task in
         self.getSomeValuableValue(completionHandler: { value in
             task.finish(with: value)
@@ -69,44 +68,12 @@ func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
 If the completion handler has an error as additional parameter, you can pass it to the `finish` method too (and it will be handled in the `try` statement when awaiting for the task result).
 
 ```swift
-func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
+func someLongRunningAsynchronousFunc -> Task<SomeValuableValue, Error> {
     return async { task in
         self.getSomeValuableValue(completionHandler: { value, error in
             task.finish(with: value, or: error)
         })        
     }    
-}
-```
-
-### Creating tasks using DispatchQueue and OperationQueue
-You can also create tasks using convenience methods added to `DispatchQueue` and `OperationQueue`:
-
-```swift
-func calculate() -> Double {
-    // using DispatchQueue
-    let someCalculatedValue = await(DispatchQueue.global(qos: .background).async {
-        var value: Double = 0
-
-        // do some long running calculation here
-
-        return value
-    } as NonFailableTask<Double>)
-
-    // using OperationQueue
-    let operationQueue = OperationQueue()
-    operationQueue.qualityOfService = .background
-
-    let operationTask = operationQueue.addOperation {
-        var value: Double = 0
-
-        // do some long running calculation here
-
-        return value
-    } as NonFailableTask<Double>
-
-
-    // using the results
-    return someCalculatedValue * await(operationTask)
 }
 ```
 
@@ -118,7 +85,7 @@ Cancelling a task in **AlecrimAsyncKit** is pretty the same as finishing it with
 You can add cancellation blocks to be executed when a task is cancelled this way:
 
 ```swift
-func someLongRunningAsynchronousFunc -> Task<SomeValuableValue> {
+func someLongRunningAsynchronousFunc -> Task<SomeValuableValue, Error> {
     return async { task in
         let token = self.getSomeValuableValue(completionHandler: { value, error in
             task.finish(with: value, or: error)
@@ -164,16 +131,12 @@ func someFuncRunningInTheMainThread() {
 All methods (`then`, `catch`, `cancelled` and `finally`) are optional. When specified, the closure related to the `finally` method will always be called regardless whether the task was cancelled or not, whether there was an error or not.
 
 ## Non failable tasks
-If you read the framework's code you will find the `NonFailableTask<Value>` class. This kind of task cannot fail (sort of). In fact it may fail, but it should not.
+If you read the framework's code you will find that tasks with `Never` as error type (`Task<Value, Never>`). This kind of tasks cannot fail (sort of). In fact it may fail, but it should not.
 
 The main difference from the failable task class is that you do not have to `try` when awaiting for non failable task results. A non failable task cannot be cancelled either.
 
 Please only use this type of task when you are sure that it cannot fail. If it do and the task fail your program will crash.
 
-## Dependencies, conditions and observers
-The previous version had observers and conditions based on Session 226 of WWDC 2015 (“Advanced NSOperations”). This turned the framework unnecessarily complex. If you need this functionality right now you can use version 3.x of **AlecrimAsyncKit**.
-
-In version 4.0 the framework has the notion of "dependencies" and a new kind of "conditions" was implemented. Observers may reappear in a future release. No guarantees, though.
 
 ## Contribute
 If you have any problems or need more information, please open an issue using the provided GitHub link.
