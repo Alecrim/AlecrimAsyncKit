@@ -17,6 +17,7 @@
 		14A6850B2260153F00AE56DF /* Await.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A684F2225FCF7300AE56DF /* Await.swift */; };
 		14A6850D226018AD00AE56DF /* AsyncAwaitBasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A6850C226018AD00AE56DF /* AsyncAwaitBasicTests.swift */; };
 		14A6850F22601D8500AE56DF /* AsyncAwaitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A6850E22601D8500AE56DF /* AsyncAwaitTests.swift */; };
+		14A6851122603C8900AE56DF /* Cancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A684F1225FCF7300AE56DF /* Cancellation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -164,9 +165,9 @@
 				14A684F6225FCF7300AE56DF /* Task.swift */,
 				14A684F3225FCF7300AE56DF /* Async.swift */,
 				14A684F2225FCF7300AE56DF /* Await.swift */,
+				14A684F1225FCF7300AE56DF /* Cancellation.swift */,
 				14A684F5225FCF7300AE56DF /* Error+Extensions.swift */,
 				14A684F0225FCF7300AE56DF /* TaskAwaiter.swift */,
-				14A684F1225FCF7300AE56DF /* Cancellation.swift */,
 				14A684F4225FCF7300AE56DF /* Queue.swift */,
 			);
 			path = Core;
@@ -292,6 +293,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				14A6850B2260153F00AE56DF /* Await.swift in Sources */,
+				14A6851122603C8900AE56DF /* Cancellation.swift in Sources */,
 				14A68509225FD7A900AE56DF /* Error+Extensions.swift in Sources */,
 				14A6850A226013CA00AE56DF /* Async.swift in Sources */,
 				14A68506225FCF7300AE56DF /* Task.swift in Sources */,

@@ -12,32 +12,15 @@ import Foundation
 
 public typealias CancellationHandler = () -> Void
 
-//
-
-public protocol CancellableTask: AnyObject {
-    var cancellation: Cancellation { get }
-    var isCancelled: Bool { get }
-
-    func finish(with error: Error)
-}
-
-// MARK: -
-
-extension CancellableTask {
-    
-    public func cancel() {
-        self.cancellation.run()
-        self.finish(with: NSError.userCancelled)
-    }
-    
-}
-
 // MARK: -
 
 public final class Cancellation {
-    
     private var _cancellationHandlerLock = os_unfair_lock_s()
     private var _cancellationHandler: CancellationHandler?
+
+    internal init() {
+
+    }
     
     fileprivate func addCancellationHandler(_ newValue: @escaping CancellationHandler) {
         os_unfair_lock_lock(&self._cancellationHandlerLock); defer { os_unfair_lock_unlock(&self._cancellationHandlerLock) }
@@ -53,7 +36,7 @@ public final class Cancellation {
         }
     }
     
-    fileprivate func run() {
+    internal func run() {
         os_unfair_lock_lock(&self._cancellationHandlerLock); defer { os_unfair_lock_unlock(&self._cancellationHandlerLock) }
 
         //

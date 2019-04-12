@@ -57,6 +57,7 @@ class AsyncAwaitTests: XCTestCase {
 
     func testCancel() {
         var value = 0
+        var something2IsCancelled = false
 
         func doSomething1() -> Task<Void, Error> {
             return async { t in
@@ -72,7 +73,15 @@ class AsyncAwaitTests: XCTestCase {
         }
 
         func doSomething2() -> Task<Void, Error> {
-            return async {
+            return async(on: self.executeQueue) {
+                $0.cancellation += {
+                    something2IsCancelled = true
+                }
+
+                $0.cancellation += {
+                    value -= 10
+                }
+
                 Thread.sleep(forTimeInterval: 3)
 
                 guard !$0.isCancelled else {
@@ -106,7 +115,8 @@ class AsyncAwaitTests: XCTestCase {
             XCTAssert((error as NSError).isUserCancelled)
         }
 
-        XCTAssert(value == 2)
+        XCTAssert(something2IsCancelled)
+        XCTAssert(value == -8)
     }
 
     func testBackgroundExecution() {
@@ -140,10 +150,12 @@ class AsyncAwaitTests: XCTestCase {
 
         Thread.sleep(forTimeInterval: 0.5)
         XCTAssert(taskCount == 2)
+        XCTAssert(value == 1)
 
         value += await(task1)
-        value += await(task2)
+        XCTAssert(value == 2)
 
+        value += await(task2)
         XCTAssert(value == 5)
     }
 }

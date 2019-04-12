@@ -87,6 +87,10 @@ public final class Task<V, E: Error> {
         }
     }
 
+    // MARK: Cancelling
+
+    fileprivate private(set) lazy var _cancellation = Cancellation()
+
     // MARK: Finishing
 
     public func finish(with value: V) {
@@ -186,9 +190,15 @@ extension Task where E == Swift.Error {
         }
     }
 
+    public var cancellation: Cancellation {
+        return self._cancellation
+    }
+
     public func cancel() {
-        self.workItem?.cancel()
         self._finish(with: .failure(NSError.userCancelled))
+
+        self.workItem?.cancel()
+        self.cancellation.run()
     }
 
     // MARK: Finishing
@@ -242,6 +252,11 @@ extension Task where E == Never {
 
     @available(*, unavailable)
     public var isCancelled: Bool {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    public var cancellation: Cancellation {
         fatalError()
     }
 
