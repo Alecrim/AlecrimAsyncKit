@@ -53,7 +53,6 @@
 		14A684F1225FCF7300AE56DF /* Cancellation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellation.swift; sourceTree = "<group>"; };
 		14A684F2225FCF7300AE56DF /* Await.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Await.swift; sourceTree = "<group>"; };
 		14A684F3225FCF7300AE56DF /* Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
-		14A684F4225FCF7300AE56DF /* Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 		14A684F5225FCF7300AE56DF /* Error+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Error+Extensions.swift"; sourceTree = "<group>"; };
 		14A684F6225FCF7300AE56DF /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		14A684F8225FCF7300AE56DF /* TaskDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskDependency.swift; sourceTree = "<group>"; };
@@ -166,9 +165,8 @@
 				14A684F3225FCF7300AE56DF /* Async.swift */,
 				14A684F2225FCF7300AE56DF /* Await.swift */,
 				14A684F1225FCF7300AE56DF /* Cancellation.swift */,
-				14A684F5225FCF7300AE56DF /* Error+Extensions.swift */,
 				14A684F0225FCF7300AE56DF /* TaskAwaiter.swift */,
-				14A684F4225FCF7300AE56DF /* Queue.swift */,
+				14A684F5225FCF7300AE56DF /* Error+Extensions.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
