@@ -8,27 +8,26 @@
 
 import Foundation
 
-// MARK: -
+// MARK: - Await
 
 @discardableResult
-public func await<Value>(_ task: Task<Value>) throws -> Value {
+public func await<V>(_ task: Task<V, Error>) throws -> V {
     return try task.await()
 }
 
 @discardableResult
-public func await<Value>(_ task: NonFailableTask<Value>) -> Value {
-    return try! task.await()
+public func await<V>(_ task: Task<V, Never>) -> V {
+    return task.await()
 }
 
 @discardableResult
-public func await<Value>(_ closure: () -> Task<Value>) throws -> Value {
+public func await<V>(_ closure: () -> Task<V, Error>) throws -> V {
     let task = closure()
     return try task.await()
 }
 
 @discardableResult
-public func await<Value>(_ closure: () -> NonFailableTask<Value>) -> Value {
+public func await<V>(_ closure: () -> Task<V, Never>) -> V {
     let task = closure()
-    return try! task.await()
+    return task.await()
 }
-

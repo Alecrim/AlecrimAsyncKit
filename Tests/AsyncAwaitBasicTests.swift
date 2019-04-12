@@ -1,5 +1,5 @@
 //
-//  TaskBasicTests.swift
+//  AsyncAwaitBasicTests.swift
 //  AlecrimAsyncKitTests
 //
 //  Created by Vanderlei Martinelli on 11/04/19.
@@ -9,11 +9,11 @@
 import XCTest
 @testable import AlecrimAsyncKit
 
-class TaskBasicTests: XCTestCase {
+class AsyncAwaitBasicTests: XCTestCase {
 
     // MARK: -
 
-    private let executeQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKitTests.TaskBasicTests", attributes: .concurrent)
+    private let executeQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKitTests.AsyncAwaitBasicTests", attributes: .concurrent)
 
     // MARK: -
 
@@ -28,12 +28,14 @@ class TaskBasicTests: XCTestCase {
     // MARK: -
 
     func testImmediateValue() {
-        let task: Task<Int, Error> = Task(value: 10)
+        let task: Task<Int, Error> = async {
+            return 10
+        }
+
         XCTAssert(task.isCancelled == false)
 
         do {
-            task.execute(on: self.executeQueue)
-            let value = try task.await()
+            let value = try await(task)
             XCTAssert(value == 10)
         }
         catch {
@@ -48,13 +50,14 @@ class TaskBasicTests: XCTestCase {
         let errorDomain = "com.alecrim.AlecrimAsyncKitTests"
         let errorCode = 1000
 
-        let task: Task<Int, Error> = Task(error: NSError(domain: errorDomain, code: errorCode, userInfo: nil))
+        let task: Task<Int, Error> = async {
+            throw NSError(domain: errorDomain, code: errorCode, userInfo: nil)
+        }
+
         XCTAssert(task.isCancelled == false)
 
         do {
-            task.execute(on: self.executeQueue)
-
-            let _ = try task.await()
+            let _ = try await(task)
             XCTAssert(false)
         }
         catch {
@@ -68,15 +71,16 @@ class TaskBasicTests: XCTestCase {
     }
 
     func testNonFailableImmediateValue() {
-        let task: Task<Int, Never> = Task(value: 10)
-        task.execute(on: self.executeQueue)
+        let task: Task<Int, Never> = async {
+            return 10
+        }
 
-        let value = task.await()
+        let value = await(task)
         XCTAssert(value == 10)
     }
 
     func testValue() {
-        let task: Task<Int, Error> = Task {
+        let task: Task<Int, Error> = async {
             Thread.sleep(forTimeInterval: 1)
             return 10
         }
@@ -84,9 +88,7 @@ class TaskBasicTests: XCTestCase {
         XCTAssert(task.isCancelled == false)
 
         do {
-            task.execute(on: self.executeQueue)
-
-            let value = try task.await()
+            let value = try await(task)
             XCTAssert(value == 10)
         }
         catch {
@@ -101,7 +103,7 @@ class TaskBasicTests: XCTestCase {
         let errorDomain = "com.alecrim.AlecrimAsyncKitTests"
         let errorCode = 1000
 
-        let task: Task<Int, Error> = Task {
+        let task: Task<Int, Error> = async {
             Thread.sleep(forTimeInterval: 1)
             throw NSError(domain: errorDomain, code: errorCode, userInfo: nil)
         }
@@ -109,9 +111,7 @@ class TaskBasicTests: XCTestCase {
         XCTAssert(task.isCancelled == false)
 
         do {
-            task.execute(on: self.executeQueue)
-
-            let _ = try task.await()
+            let _ = try await(task)
             XCTAssert(false)
         }
         catch {
@@ -129,7 +129,7 @@ class TaskBasicTests: XCTestCase {
             case general
         }
 
-        let task: Task<Int, Error> = Task {
+        let task: Task<Int, Error> = async {
             Thread.sleep(forTimeInterval: 1)
             throw CustomError.general
         }
@@ -137,9 +137,7 @@ class TaskBasicTests: XCTestCase {
         XCTAssert(task.isCancelled == false)
 
         do {
-            task.execute(on: self.executeQueue)
-
-            let _ = try task.await()
+            let _ = try await(task)
             XCTAssert(false)
         }
         catch CustomError.general {
@@ -155,14 +153,12 @@ class TaskBasicTests: XCTestCase {
 
 
     func testNonFailableValue() {
-        let task: Task<Int, Never> = Task {
+        let task: Task<Int, Never> = async {
             Thread.sleep(forTimeInterval: 1)
             return 10
         }
 
-        task.execute(on: self.executeQueue)
-
-        let value = task.await()
+        let value = await(task)
         XCTAssert(value == 10)
     }
 
@@ -170,7 +166,7 @@ class TaskBasicTests: XCTestCase {
         let errorDomain = "com.alecrim.AlecrimAsyncKitTests"
         let errorCode = 1000
 
-        let task: Task<Int, Error> = Task {
+        let task: Task<Int, Error> = async {
             Thread.sleep(forTimeInterval: 1)
             throw NSError(domain: errorDomain, code: errorCode, userInfo: nil)
         }
@@ -181,9 +177,7 @@ class TaskBasicTests: XCTestCase {
         XCTAssert(task.isCancelled == true)
 
         do {
-            task.execute(on: self.executeQueue)
-
-            let _ = try task.await()
+            let _ = try await(task)
             XCTAssert(false)
         }
         catch {
@@ -200,7 +194,7 @@ class TaskBasicTests: XCTestCase {
     // MARK: -
 
     func testFinishingWithValue() {
-        let task: Task<Int, Error> = Task {
+        let task: Task<Int, Error> = async {
             Thread.sleep(forTimeInterval: 1)
             $0.finish(with: 10)
         }
@@ -208,9 +202,7 @@ class TaskBasicTests: XCTestCase {
         XCTAssert(task.isCancelled == false)
 
         do {
-            task.execute(on: self.executeQueue)
-
-            let value = try task.await()
+            let value = try await(task)
             XCTAssert(value == 10)
         }
         catch {
@@ -225,7 +217,7 @@ class TaskBasicTests: XCTestCase {
         let errorDomain = "com.alecrim.AlecrimAsyncKitTests"
         let errorCode = 1000
 
-        let task: Task<Int, Error> = Task {
+        let task: Task<Int, Error> = async {
             Thread.sleep(forTimeInterval: 1)
             $0.finish(with: NSError(domain: errorDomain, code: errorCode, userInfo: nil))
         }
@@ -233,9 +225,7 @@ class TaskBasicTests: XCTestCase {
         XCTAssert(task.isCancelled == false)
 
         do {
-            task.execute(on: self.executeQueue)
-
-            let _ = try task.await()
+            let _ = try await(task)
             XCTAssert(false)
         }
         catch {
@@ -249,16 +239,14 @@ class TaskBasicTests: XCTestCase {
     }
 
     func testFinishingWithNonFailableValue() {
-        let task: Task<Int, Never> = Task {
+        let task: Task<Int, Never> = async {
             Thread.sleep(forTimeInterval: 1)
             $0.finish(with: 10)
         }
 
-        task.execute(on: self.executeQueue)
-
-        let value = task.await()
+        let value = await(task)
         XCTAssert(value == 10)
     }
 
-    
+
 }

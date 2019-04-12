@@ -10,9 +10,9 @@ import Foundation
 
 // MARK: - Task
 
-public final class Task<V, E: Swift.Error> {
+public final class Task<V, E: Error> {
 
-    // MARK: - Result
+    // MARK: Result
 
     // Result
     private var _result: Swift.Result<V, E>?
@@ -36,12 +36,12 @@ public final class Task<V, E: Swift.Error> {
     private func lock() { os_unfair_lock_lock(&self._lock) }
     private func unlock() { os_unfair_lock_unlock(&self._lock) }
 
-    // MARK: - Work Item
+    // MARK: Work Item
 
     // Work Item
     private var workItem: DispatchWorkItem?
 
-    // MARK: - Initializers
+    // MARK: Initializers
 
     internal convenience init() {
         self.init(result: nil)
@@ -65,7 +65,21 @@ public final class Task<V, E: Swift.Error> {
         self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
     }
 
-    // MARK: - Finishing
+    // MARK: Executing
+
+    internal func execute(on queue: DispatchQueue) {
+        if let _ = self.result {
+            return
+        }
+        else if let workItem = self.workItem {
+            queue.async(execute: workItem)
+        }
+        else {
+            fatalError()
+        }
+    }
+
+    // MARK: Finishing
 
     public func finish(with value: V) {
         self.result = .success(value)
@@ -73,9 +87,11 @@ public final class Task<V, E: Swift.Error> {
 
 }
 
+// MARK: - Failable Task
+
 extension Task where E == Swift.Error {
 
-    // Initializers
+    // MARK: Initializers
 
     internal convenience init(error: E) {
         self.init(result: .failure(error))
@@ -91,9 +107,9 @@ extension Task where E == Swift.Error {
         self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
     }
 
-    // MARK: - Executing
+    // MARK: Awaiting
 
-    internal func execute(on queue: DispatchQueue) throws -> V {
+    internal func await() throws -> V {
         func getValue(from result: Swift.Result<V, E>) throws -> V {
             switch result {
             case let .success(value):
@@ -108,11 +124,10 @@ extension Task where E == Swift.Error {
             return try getValue(from: result)
         }
         else if let workItem = self.workItem {
-            queue.async(execute: workItem)
             workItem.wait()
 
             guard let result = self.result else {
-                fatalError()
+                fatalError("Task may be not properly finished. See `Task.finish(with: _)`.")
             }
 
             return try getValue(from: result)
@@ -122,7 +137,7 @@ extension Task where E == Swift.Error {
         }
     }
 
-    // MARK: - Cancelling
+    // MARK: Cancelling
 
     /// A Boolean value that indicates whether the `Task` has been cancelled.
     public var isCancelled: Bool {
@@ -144,7 +159,7 @@ extension Task where E == Swift.Error {
         self.workItem?.cancel()
     }
 
-    // MARK: - Finishing
+    // MARK: Finishing
 
     public func finish(with error: E) {
         self.result = .failure(error)
@@ -170,9 +185,11 @@ extension Task where E == Swift.Error {
 
 }
 
+// MARK: - Non Failable Task
+
 extension Task where E == Never {
 
-    // Initializers
+    // MARK: Initializers
 
     @available(*, unavailable)
     internal convenience init(error: E) {
@@ -189,7 +206,7 @@ extension Task where E == Never {
         self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
     }
 
-    // MARK: - Cancelling
+    // MARK: Cancelling
 
     @available(*, unavailable)
     public var isCancelled: Bool {
@@ -202,9 +219,9 @@ extension Task where E == Never {
         fatalError()
     }
 
-    // MARK: - Executing
+    // MARK: Executing
 
-    internal func execute(on queue: DispatchQueue) -> V {
+    internal func await() -> V {
         func getValue(from result: Swift.Result<V, E>) throws -> V {
             switch result {
             case let .success(value):
@@ -219,7 +236,6 @@ extension Task where E == Never {
             return try! getValue(from: result)
         }
         else if let workItem = self.workItem {
-            queue.async(execute: workItem)
             workItem.wait()
 
             guard let result = self.result else {
@@ -234,6 +250,8 @@ extension Task where E == Never {
     }
 
 }
+
+// MARK: - Void Value Task
 
 extension Task where V == Void {
 
