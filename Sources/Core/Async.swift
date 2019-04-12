@@ -8,7 +8,7 @@
 
 import Foundation
 
-private let _defaultDispatchQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Default", qos: .utility, attributes: .concurrent)
+private let _defaultDispatchQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Async.Default", qos: .utility, attributes: .concurrent)
 
 // MARK: - Async
 

@@ -200,18 +200,18 @@ extension Task where E == Swift.Error {
         return self._cancellation
     }
 
+
+    //
+
     public func cancel() {
         self._finish(with: .failure(NSError.userCancelled))
 
         if let workItem = self.workItem {
-            workItem.notify(queue: DispatchQueue.global()) {
-                self.cancellation.run()
-            }
-
-            workItem.cancel()
+            self.cancellation.run(after: workItem)
+            workItem.cancel() // fired by workItem notify, runs on a private concurrent queue
         }
         else {
-            self.cancellation.run()
+            self.cancellation.run() // runs immediately on current queue
         }
     }
 

@@ -10,6 +10,10 @@ import Foundation
 
 // MARK: -
 
+private let _cancellationDispatchQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Cancellation", qos: .utility, attributes: .concurrent, target: DispatchQueue.global(qos: .utility))
+
+// MARK: -
+
 public typealias CancellationHandler = () -> Void
 
 // MARK: -
@@ -47,7 +51,13 @@ public final class Cancellation {
             $0()
         }
     }
+
+    internal func run(after workItem: DispatchWorkItem) {
+        workItem.notify(queue: _cancellationDispatchQueue, execute: self.run)
+    }
 }
+
+// MARK: -
 
 public func +=(left: Cancellation, right: @escaping CancellationHandler) {
     left.addCancellationHandler(right)

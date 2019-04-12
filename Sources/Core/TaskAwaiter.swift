@@ -8,7 +8,7 @@
 
 import Foundation
 
-private let _taskAwaiterDefaultDispatchQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.Default", qos: .utility, attributes: .concurrent)
+private let _taskAwaiterDefaultDispatchQueue = DispatchQueue(label: "com.alecrim.AlecrimAsyncKit.TaskAwaiter", qos: .utility, attributes: .concurrent)
 
 
 // MARK: - TaskAwaiter
