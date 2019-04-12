@@ -117,7 +117,12 @@
 		14A684C7225FCA5300AE56DF /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				14A684EF225FCF7300AE56DF /* Core */,
+				14A684F6225FCF7300AE56DF /* Task.swift */,
+				14A684F3225FCF7300AE56DF /* Async.swift */,
+				14A684F2225FCF7300AE56DF /* Await.swift */,
+				14A684F1225FCF7300AE56DF /* Cancellation.swift */,
+				14A684F0225FCF7300AE56DF /* TaskAwaiter.swift */,
+				14A684F5225FCF7300AE56DF /* Error+Extensions.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -156,19 +161,6 @@
 				14A684E6225FCCA600AE56DF /* README.md */,
 			);
 			name = Metadata;
-			sourceTree = "<group>";
-		};
-		14A684EF225FCF7300AE56DF /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				14A684F6225FCF7300AE56DF /* Task.swift */,
-				14A684F3225FCF7300AE56DF /* Async.swift */,
-				14A684F2225FCF7300AE56DF /* Await.swift */,
-				14A684F1225FCF7300AE56DF /* Cancellation.swift */,
-				14A684F0225FCF7300AE56DF /* TaskAwaiter.swift */,
-				14A684F5225FCF7300AE56DF /* Error+Extensions.swift */,
-			);
-			path = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
