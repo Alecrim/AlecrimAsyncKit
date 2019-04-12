@@ -31,15 +31,18 @@ public final class Task<V, E: Error> {
         }
     }
 
-    // Result Lock
-    private var _lock = os_unfair_lock_s()
-    private func lock() { os_unfair_lock_lock(&self._lock) }
-    private func unlock() { os_unfair_lock_unlock(&self._lock) }
-
     // MARK: Work Item
 
     // Work Item
     private var workItem: DispatchWorkItem?
+
+    // Dispatch Group (needed when used with closures without immediate return and `finish` methods)
+    private var _dispatchGroup: DispatchGroup?
+
+    // Result and Dispatch Group Lock
+    private var _lock = os_unfair_lock_s()
+    private func lock() { os_unfair_lock_lock(&self._lock) }
+    private func unlock() { os_unfair_lock_unlock(&self._lock) }
 
     // MARK: Initializers
 
@@ -58,10 +61,15 @@ public final class Task<V, E: Error> {
     internal convenience init(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], closure: @escaping (Task<V, E>) -> Void) {
         self.init(result: nil)
 
+        // will need to leave using a `finish` method
+        self.enterDispatchGroup()
+
+        //
         let block: () -> Void = {
             closure(self)
         }
 
+        //
         self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
     }
 
@@ -82,7 +90,40 @@ public final class Task<V, E: Error> {
     // MARK: Finishing
 
     public func finish(with value: V) {
-        self.result = .success(value)
+        self._finish(with: .success(value))
+    }
+
+    fileprivate func _finish(with result: Swift.Result<V, E>) {
+        self.result = result
+        self.leaveDispatchGroup()
+    }
+
+    // MARK: Dispatch Group Helpers
+    private func enterDispatchGroup() {
+        self.lock(); defer { self.unlock() }
+
+        self._dispatchGroup = DispatchGroup()
+        self._dispatchGroup?.enter()
+    }
+
+    private func leaveDispatchGroup() {
+        self.lock(); defer { self.unlock() }
+
+        if let dispatchGroup = self._dispatchGroup {
+            self._dispatchGroup = nil
+            dispatchGroup.leave()
+        }
+    }
+
+    private func waitDispatchGroupIfNeeded() {
+        var dispatchGroup: DispatchGroup?
+
+        do {
+            self.lock(); defer { self.unlock() }
+            dispatchGroup = self._dispatchGroup
+        }
+
+        dispatchGroup?.wait()
     }
 
 }
@@ -101,7 +142,7 @@ extension Task where E == Swift.Error {
         self.init(result: nil)
 
         let block: () -> Void = {
-            self.result = Swift.Result(catching: closure)
+            self._finish(with: Swift.Result(catching: closure))
         }
 
         self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
@@ -110,27 +151,18 @@ extension Task where E == Swift.Error {
     // MARK: Awaiting
 
     internal func await() throws -> V {
-        func getValue(from result: Swift.Result<V, E>) throws -> V {
-            switch result {
-            case let .success(value):
-                return value
-
-            case let .failure(error):
-                throw error
-            }
-        }
-
         if let result = self.result {
-            return try getValue(from: result)
+            return try result.get()
         }
         else if let workItem = self.workItem {
             workItem.wait()
+            waitDispatchGroupIfNeeded()
 
             guard let result = self.result else {
                 fatalError("Task may be not properly finished. See `Task.finish(with: _)`.")
             }
 
-            return try getValue(from: result)
+            return try result.get()
         }
         else {
             fatalError()
@@ -155,14 +187,14 @@ extension Task where E == Swift.Error {
     }
 
     public func cancel() {
-        self.result = .failure(NSError.userCancelled)
         self.workItem?.cancel()
+        self._finish(with: .failure(NSError.userCancelled))
     }
 
     // MARK: Finishing
 
     public func finish(with error: E) {
-        self.result = .failure(error)
+        self._finish(with: .failure(error))
     }
 
     public func finish(with value: V?, or error: E?) {
@@ -180,7 +212,7 @@ extension Task where E == Swift.Error {
     }
 
     public func finish(with result: Swift.Result<V, E>) {
-        self.result = result
+        self._finish(with: result)
     }
 
 }
@@ -200,7 +232,7 @@ extension Task where E == Never {
         self.init(result: nil)
 
         let block: () -> Void = {
-            self.result = .success(closure())
+            self._finish(with: .success(closure()))
         }
 
         self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
@@ -222,27 +254,18 @@ extension Task where E == Never {
     // MARK: Executing
 
     internal func await() -> V {
-        func getValue(from result: Swift.Result<V, E>) throws -> V {
-            switch result {
-            case let .success(value):
-                return value
-
-            case let .failure(error):
-                throw error
-            }
-        }
-
         if let result = self.result {
-            return try! getValue(from: result)
+            return try! result.get()
         }
         else if let workItem = self.workItem {
             workItem.wait()
+            waitDispatchGroupIfNeeded()
 
             guard let result = self.result else {
                 fatalError()
             }
 
-            return try! getValue(from: result)
+            return try! result.get()
         }
         else {
             fatalError()

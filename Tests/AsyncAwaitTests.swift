@@ -110,24 +110,32 @@ class AsyncAwaitTests: XCTestCase {
     }
 
     func testBackgroundExecution() {
+        func doNothing(forTimeInterval timeInterval: TimeInterval, completionHandler: @escaping () -> Void) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + timeInterval) {
+                completionHandler()
+            }
+        }
+
         var value = 0
         var taskCount = 0
 
         func doSomething1() -> Task<Int, Never> {
-            return async {
+            return async { t in
                 taskCount += 1
 
-                Thread.sleep(forTimeInterval: 1)
-                $0.finish(with: 1)
+                doNothing(forTimeInterval: 1) {
+                    t.finish(with: 1)
+                }
             }
         }
 
         func doSomething2() -> Task<Int, Never> {
-            return async {
+            return async { t in
                 taskCount += 1
 
-                Thread.sleep(forTimeInterval: 3)
-                $0.finish(with: 3)
+                doNothing(forTimeInterval: 3) {
+                    t.finish(with: 3)
+                }
             }
         }
 
