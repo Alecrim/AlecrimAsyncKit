@@ -45,20 +45,12 @@
 		14A684E5225FCCA600AE56DF /* AlecrimAsyncKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = AlecrimAsyncKit.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		14A684E6225FCCA600AE56DF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		14A684E7225FCCA600AE56DF /* AlecrimAsyncKit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AlecrimAsyncKit.png; sourceTree = "<group>"; };
-		14A684E9225FCF7300AE56DF /* DispatchQueue+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Extensions.swift"; sourceTree = "<group>"; };
-		14A684EA225FCF7300AE56DF /* OtherConveniences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtherConveniences.swift; sourceTree = "<group>"; };
-		14A684EB225FCF7300AE56DF /* Availability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Availability.swift; sourceTree = "<group>"; };
-		14A684EC225FCF7300AE56DF /* Sequence+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+Extensions.swift"; sourceTree = "<group>"; };
-		14A684ED225FCF7300AE56DF /* Mapping.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mapping.swift; sourceTree = "<group>"; };
-		14A684EE225FCF7300AE56DF /* OperationQueue+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OperationQueue+Extensions.swift"; sourceTree = "<group>"; };
 		14A684F0225FCF7300AE56DF /* TaskAwaiter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskAwaiter.swift; sourceTree = "<group>"; };
 		14A684F1225FCF7300AE56DF /* Cancellation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellation.swift; sourceTree = "<group>"; };
 		14A684F2225FCF7300AE56DF /* Await.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Await.swift; sourceTree = "<group>"; };
 		14A684F3225FCF7300AE56DF /* Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
 		14A684F5225FCF7300AE56DF /* Error+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Error+Extensions.swift"; sourceTree = "<group>"; };
 		14A684F6225FCF7300AE56DF /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
-		14A684F8225FCF7300AE56DF /* TaskDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskDependency.swift; sourceTree = "<group>"; };
-		14A684F9225FCF7300AE56DF /* TaskCondition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskCondition.swift; sourceTree = "<group>"; };
 		14A6850C226018AD00AE56DF /* AsyncAwaitBasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitBasicTests.swift; sourceTree = "<group>"; };
 		14A6850E22601D8500AE56DF /* AsyncAwaitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitTests.swift; sourceTree = "<group>"; };
 		14A68510226024ED00AE56DF /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
@@ -108,8 +100,6 @@
 			isa = PBXGroup;
 			children = (
 				14A684EF225FCF7300AE56DF /* Core */,
-				14A684F7225FCF7300AE56DF /* Conditions and Dependencies */,
-				14A684E8225FCF7300AE56DF /* Convenience */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -149,19 +139,6 @@
 			name = Metadata;
 			sourceTree = "<group>";
 		};
-		14A684E8225FCF7300AE56DF /* Convenience */ = {
-			isa = PBXGroup;
-			children = (
-				14A684E9225FCF7300AE56DF /* DispatchQueue+Extensions.swift */,
-				14A684EA225FCF7300AE56DF /* OtherConveniences.swift */,
-				14A684EB225FCF7300AE56DF /* Availability.swift */,
-				14A684EC225FCF7300AE56DF /* Sequence+Extensions.swift */,
-				14A684ED225FCF7300AE56DF /* Mapping.swift */,
-				14A684EE225FCF7300AE56DF /* OperationQueue+Extensions.swift */,
-			);
-			path = Convenience;
-			sourceTree = "<group>";
-		};
 		14A684EF225FCF7300AE56DF /* Core */ = {
 			isa = PBXGroup;
 			children = (
@@ -173,15 +150,6 @@
 				14A684F5225FCF7300AE56DF /* Error+Extensions.swift */,
 			);
 			path = Core;
-			sourceTree = "<group>";
-		};
-		14A684F7225FCF7300AE56DF /* Conditions and Dependencies */ = {
-			isa = PBXGroup;
-			children = (
-				14A684F8225FCF7300AE56DF /* TaskDependency.swift */,
-				14A684F9225FCF7300AE56DF /* TaskCondition.swift */,
-			);
-			path = "Conditions and Dependencies";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

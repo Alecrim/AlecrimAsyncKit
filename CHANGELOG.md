@@ -2,6 +2,7 @@
 
 ## 5.0
 - New architecture;
+- Simplified framework removing less-used features;
 - Swift 5.0 compatible.
 
 ## 4.0
