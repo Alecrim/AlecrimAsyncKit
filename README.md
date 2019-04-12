@@ -1,7 +1,7 @@
 ![AlecrimAsyncKit](https://raw.githubusercontent.com/Alecrim/AlecrimAsyncKit/master/AlecrimAsyncKit.png)
 
 [![Version](https://img.shields.io/badge/v5.0%20beta%201-blue.svg?label=version&style=flat)](https://github.com/Alecrim/AlecrimAsyncKit)
-[![Language: swift](https://img.shields.io/badge/Swift-v5.0-blue.svg?style=flat)](https://developer.apple.com/swift/)
+[![Language: swift](https://img.shields.io/badge/swift-v5.0-blue.svg?style=flat)](https://developer.apple.com/swift/)
 [![Platforms](https://img.shields.io/badge/platforms-macOS%2C%20iOS%2C%20watchOS%2C%20tvOS-blue.svg?style=flat)](http://cocoadocs.org/docsets/AlecrimAsyncKit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/Alecrim/AlecrimAsyncKit/develop/LICENSE)
 [![Author: Vanderlei Martinelli](https://img.shields.io/badge/author-Vanderlei%20Martinelli-blue.svg?style=flat)](https://www.linkedin.com/in/vmartinelli)
