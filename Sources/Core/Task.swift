@@ -233,11 +233,6 @@ extension Task where E == Never {
 
     // MARK: Initializers
 
-    @available(*, unavailable)
-    internal convenience init(error: E) {
-        fatalError()
-    }
-
     internal convenience init(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], closure: @escaping () -> V) {
         self.init(result: nil)
 
@@ -246,24 +241,6 @@ extension Task where E == Never {
         }
 
         self.workItem = DispatchWorkItem(qos: qos, flags: flags, block: block)
-    }
-
-    // MARK: Cancelling
-
-    @available(*, unavailable)
-    public var isCancelled: Bool {
-        fatalError()
-    }
-
-    @available(*, unavailable)
-    public var cancellation: Cancellation {
-        fatalError()
-    }
-
-
-    @available(*, unavailable)
-    public func cancel() {
-        fatalError()
     }
 
     // MARK: Executing

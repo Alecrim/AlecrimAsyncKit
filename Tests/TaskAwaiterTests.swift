@@ -1,15 +1,15 @@
 //
-//  AsyncAwaitTests.swift
-//  AlecrimAsyncKitTests
+//  TaskAwaiterTests.swift
+//  AlecrimAsyncKit
 //
-//  Created by Vanderlei Martinelli on 11/04/19.
+//  Created by Vanderlei Martinelli on 12/04/19.
 //  Copyright © 2019 Alecrim. All rights reserved.
 //
 
 import XCTest
 @testable import AlecrimAsyncKit
 
-class AsyncAwaitTests: XCTestCase {
+class TaskAwaiterTests: XCTestCase {
 
     // MARK: -
 
@@ -46,12 +46,19 @@ class AsyncAwaitTests: XCTestCase {
 
         value += 1
 
-        let task1 = doSomething1()
-        let task2 = doSomething2()
+        let expectation = self.expectation()
+        expectation.expectedFulfillmentCount = 2
 
-        await(task1)
-        await(task2)
+        doSomething1().then {
+            expectation.fulfill()
+        }
 
+        doSomething2().then {
+            expectation.fulfill()
+        }
+
+
+        self.wait()
         XCTAssert(value == 5)
     }
 
@@ -61,7 +68,7 @@ class AsyncAwaitTests: XCTestCase {
 
         func doSomething1() -> Task<Void, Error> {
             return async { t in
-                doNothing(forTimeInterval: 1) {
+                self.doNothing(forTimeInterval: 1) {
                     guard !t.isCancelled else {
                         return
                     }
@@ -99,20 +106,18 @@ class AsyncAwaitTests: XCTestCase {
 
         task2.cancel()
 
-        do {
-            try await(task1)
-        }
-        catch {
-            XCTAssert(false)
+        let expectation = self.expectation()
+        expectation.expectedFulfillmentCount = 2
+
+        task1.then {
+            expectation.fulfill()
         }
 
-        do {
-            try await(task2)
-            XCTAssert(false)
+        task2.cancelled {
+            expectation.fulfill()
         }
-        catch {
-            XCTAssert((error as NSError).isUserCancelled)
-        }
+
+        self.wait()
 
         XCTAssert(something2IsCancelled)
         XCTAssert(value == -8)
@@ -126,7 +131,7 @@ class AsyncAwaitTests: XCTestCase {
             return async { t in
                 taskCount += 1
 
-                doNothing(forTimeInterval: 1) {
+                self.doNothing(forTimeInterval: 1) {
                     t.finish(with: 1)
                 }
             }
@@ -136,34 +141,81 @@ class AsyncAwaitTests: XCTestCase {
             return async { t in
                 taskCount += 1
 
-                doNothing(forTimeInterval: 3) {
+                self.doNothing(forTimeInterval: 3) {
                     t.finish(with: 3)
                 }
             }
         }
 
+        func doSomething3() -> Task<Int, Error> {
+            return async {
+                taskCount += 1
+
+                let errorDomain = "com.alecrim.AlecrimAsyncKitTests"
+                let errorCode = 1000
+
+                throw NSError(domain: errorDomain, code: errorCode, userInfo: nil)
+            }
+        }
+
+
         value += 1
 
         let task1 = doSomething1()
         let task2 = doSomething2()
+        let task3 = doSomething3()
 
         Thread.sleep(forTimeInterval: 0.5)
-        XCTAssert(taskCount == 2)
+        XCTAssert(taskCount == 3)
         XCTAssert(value == 1)
 
-        value += await(task1)
-        XCTAssert(value == 2)
+        let expectation = self.expectation()
+        expectation.expectedFulfillmentCount = 4
 
-        value += await(task2)
+        task1.then {
+            value += $0
+            expectation.fulfill()
+        }
+
+        task2.then {
+            value += $0
+            expectation.fulfill()
+        }
+
+        task3
+            .then {
+                value += $0
+            }
+            .catch { _ in
+                expectation.fulfill()
+            }
+            .finally {
+                expectation.fulfill()
+        }
+
+        self.wait()
+
         XCTAssert(value == 5)
     }
 }
 
 // MARK: -
 
-fileprivate func doNothing(forTimeInterval timeInterval: TimeInterval, completionHandler: @escaping () -> Void) {
-    DispatchQueue.global().asyncAfter(deadline: .now() + timeInterval) {
-        completionHandler()
+extension TaskAwaiterTests {
+
+    fileprivate func expectation() -> XCTestExpectation {
+        return self.expectation(description: "GenericExpectation")
     }
+
+    fileprivate func wait(_ timeout: TimeInterval = 10.0, handler: XCWaitCompletionHandler? = nil) {
+        waitForExpectations(timeout: timeout, handler: handler)
+    }
+
+    fileprivate func doNothing(forTimeInterval timeInterval: TimeInterval, completionHandler: @escaping () -> Void) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + timeInterval) {
+            completionHandler()
+        }
+    }
+
 }
 

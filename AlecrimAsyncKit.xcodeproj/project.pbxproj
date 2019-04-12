@@ -18,6 +18,8 @@
 		14A6850D226018AD00AE56DF /* AsyncAwaitBasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A6850C226018AD00AE56DF /* AsyncAwaitBasicTests.swift */; };
 		14A6850F22601D8500AE56DF /* AsyncAwaitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A6850E22601D8500AE56DF /* AsyncAwaitTests.swift */; };
 		14A6851122603C8900AE56DF /* Cancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A684F1225FCF7300AE56DF /* Cancellation.swift */; };
+		14A68512226042A100AE56DF /* TaskAwaiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A684F0225FCF7300AE56DF /* TaskAwaiter.swift */; };
+		14A685152260498600AE56DF /* TaskAwaiterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A68513226047E800AE56DF /* TaskAwaiterTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +62,7 @@
 		14A6850C226018AD00AE56DF /* AsyncAwaitBasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitBasicTests.swift; sourceTree = "<group>"; };
 		14A6850E22601D8500AE56DF /* AsyncAwaitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitTests.swift; sourceTree = "<group>"; };
 		14A68510226024ED00AE56DF /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
+		14A68513226047E800AE56DF /* TaskAwaiterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAwaiterTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,9 +107,9 @@
 		14A684C7225FCA5300AE56DF /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				14A684EF225FCF7300AE56DF /* Core */,
 				14A684F7225FCF7300AE56DF /* Conditions and Dependencies */,
 				14A684E8225FCF7300AE56DF /* Convenience */,
-				14A684EF225FCF7300AE56DF /* Core */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -118,6 +121,7 @@
 				14A684D3225FCA5300AE56DF /* TaskBasicTests.swift */,
 				14A6850C226018AD00AE56DF /* AsyncAwaitBasicTests.swift */,
 				14A6850E22601D8500AE56DF /* AsyncAwaitTests.swift */,
+				14A68513226047E800AE56DF /* TaskAwaiterTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -290,6 +294,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14A68512226042A100AE56DF /* TaskAwaiter.swift in Sources */,
 				14A6850B2260153F00AE56DF /* Await.swift in Sources */,
 				14A6851122603C8900AE56DF /* Cancellation.swift in Sources */,
 				14A68509225FD7A900AE56DF /* Error+Extensions.swift in Sources */,
@@ -302,6 +307,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14A685152260498600AE56DF /* TaskAwaiterTests.swift in Sources */,
 				14A6850D226018AD00AE56DF /* AsyncAwaitBasicTests.swift in Sources */,
 				14A684D4225FCA5300AE56DF /* TaskBasicTests.swift in Sources */,
 				14A6850F22601D8500AE56DF /* AsyncAwaitTests.swift in Sources */,
