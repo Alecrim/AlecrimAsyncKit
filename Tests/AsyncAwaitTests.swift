@@ -59,15 +59,15 @@ class AsyncAwaitTests: XCTestCase {
         var value = 0
 
         func doSomething1() -> Task<Void, Error> {
-            return async {
-                Thread.sleep(forTimeInterval: 1)
+            return async { t in
+                doNothing(forTimeInterval: 1) {
+                    guard !t.isCancelled else {
+                        return
+                    }
 
-                guard !$0.isCancelled else {
-                    return
+                    value += 1
+                    t.finish()
                 }
-
-                value += 1
-                $0.finish()
             }
         }
 
@@ -110,12 +110,6 @@ class AsyncAwaitTests: XCTestCase {
     }
 
     func testBackgroundExecution() {
-        func doNothing(forTimeInterval timeInterval: TimeInterval, completionHandler: @escaping () -> Void) {
-            DispatchQueue.global().asyncAfter(deadline: .now() + timeInterval) {
-                completionHandler()
-            }
-        }
-
         var value = 0
         var taskCount = 0
 
@@ -153,3 +147,12 @@ class AsyncAwaitTests: XCTestCase {
         XCTAssert(value == 5)
     }
 }
+
+// MARK: -
+
+fileprivate func doNothing(forTimeInterval timeInterval: TimeInterval, completionHandler: @escaping () -> Void) {
+    DispatchQueue.global().asyncAfter(deadline: .now() + timeInterval) {
+        completionHandler()
+    }
+}
+
