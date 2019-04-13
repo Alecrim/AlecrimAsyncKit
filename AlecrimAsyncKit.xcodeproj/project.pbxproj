@@ -45,7 +45,7 @@
 		14A684E3225FCCA600AE56DF /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		14A684E4225FCCA600AE56DF /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		14A684E5225FCCA600AE56DF /* AlecrimAsyncKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = AlecrimAsyncKit.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		14A684E6225FCCA600AE56DF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		14A684E6225FCCA600AE56DF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
 		14A684E7225FCCA600AE56DF /* AlecrimAsyncKit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AlecrimAsyncKit.png; sourceTree = "<group>"; };
 		14A684F0225FCF7300AE56DF /* TaskAwaiter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskAwaiter.swift; sourceTree = "<group>"; };
 		14A684F1225FCF7300AE56DF /* Cancellation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellation.swift; sourceTree = "<group>"; };
@@ -55,7 +55,7 @@
 		14A684F6225FCF7300AE56DF /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		14A6850C226018AD00AE56DF /* AsyncAwaitBasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitBasicTests.swift; sourceTree = "<group>"; };
 		14A6850E22601D8500AE56DF /* AsyncAwaitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitTests.swift; sourceTree = "<group>"; };
-		14A68510226024ED00AE56DF /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
+		14A68510226024ED00AE56DF /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
 		14A68513226047E800AE56DF /* TaskAwaiterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAwaiterTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
