@@ -122,4 +122,9 @@
 ## 1.0
 2015-08-17
 
-- Initial version.
+- First public version.
+
+## 1.0-alpha.1
+2015-08-04
+
+- First internal version.
